@@ -10,8 +10,7 @@ export function isValidEmail(email: string): boolean {
  * Validate Italian fiscal code (Codice Fiscale)
  */
 export function isValidFiscalCode(code: string): boolean {
-  const fiscalCodeRegex =
-    /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i;
+  const fiscalCodeRegex = /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i;
   return fiscalCodeRegex.test(code);
 }
 

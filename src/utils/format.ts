@@ -3,7 +3,7 @@
  */
 export function formatDate(
   date: Date | string,
-  locale: string = 'it-IT',
+  locale = 'it-IT',
   options?: Intl.DateTimeFormatOptions
 ): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -15,8 +15,8 @@ export function formatDate(
  */
 export function formatCurrency(
   amount: number,
-  currency: string = 'EUR',
-  locale: string = 'it-IT'
+  currency = 'EUR',
+  locale = 'it-IT'
 ): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',

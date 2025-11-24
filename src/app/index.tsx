@@ -1,9 +1,10 @@
-import { Link } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Link } from 'expo-router';
 
 import { Button, Card } from '@components/ui';
+import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomePage() {
   const { t } = useTranslation();
@@ -30,7 +31,11 @@ export default function HomePage() {
             This is your production-ready React Native scaffolding with Expo,
             TypeScript, TanStack Query, i18n, and more.
           </Text>
-          <Button variant="primary" onPress={() => console.log('Pressed!')}>
+          <Button
+            variant="primary"
+            onPress={() => {
+              console.log('Pressed!');
+            }}>
             Get Started
           </Button>
         </Card>

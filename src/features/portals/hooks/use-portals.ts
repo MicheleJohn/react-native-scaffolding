@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { apiClient } from '@services/api-client';
-
 export type Portal = {
   id: string;
   name: string;
@@ -11,7 +9,7 @@ export type Portal = {
   category?: string;
 };
 
-type PortalsResponse = {
+export type PortalsResponse = {
   data: Portal[];
   total: number;
 };
@@ -19,7 +17,7 @@ type PortalsResponse = {
 export const usePortals = () => {
   return useQuery({
     queryKey: ['portals'],
-    queryFn: async (): Promise<Portal[]> => {
+    queryFn: (): Portal[] => {
       // Replace with actual API endpoint
       // const response = await apiClient.get<PortalsResponse>('/portals');
       // return response.data;
@@ -51,7 +49,7 @@ export const usePortals = () => {
 export const usePortal = (id: string) => {
   return useQuery({
     queryKey: ['portals', id],
-    queryFn: async (): Promise<Portal> => {
+    queryFn: (): Portal => {
       // Replace with actual API endpoint
       // const response = await apiClient.get<Portal>(`/portals/${id}`);
       // return response;

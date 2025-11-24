@@ -1,9 +1,8 @@
 import Constants from 'expo-constants';
 
-const API_URL =
-  process.env.EXPO_PUBLIC_API_URL || 'https://api.example.com';
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.example.com';
 
-export type ApiError = {
+export type ApiError = Error & {
   message: string;
   status: number;
   code?: string;
@@ -17,18 +16,19 @@ export class ApiClient {
     this.baseUrl = API_URL;
     this.headers = {
       'Content-Type': 'application/json',
-      'X-App-Version': Constants.expoConfig?.version || '1.0.0',
+      'X-App-Version': Constants.expoConfig?.version ?? '1.0.0',
     };
   }
 
   setAuthToken(token: string | null) {
     if (token) {
       this.headers = {
+        // eslint-disable-next-line @typescript-eslint/no-misused-spread
         ...this.headers,
         Authorization: `Bearer ${token}`,
       };
     } else {
-      const { Authorization, ...rest } = this.headers as any;
+      const { Authorization, ...rest } = this.headers as Record<string, string>;
       this.headers = rest;
     }
   }
@@ -43,17 +43,26 @@ export class ApiClient {
       const response = await fetch(url, {
         ...options,
         headers: {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...this.headers,
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...options?.headers,
         },
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const errorData: Record<string, string> = await response
+          .json()
+          .catch(() => ({
+            message: 'An error occurred',
+            code: 'Internal Server Error',
+          }));
         const error: ApiError = {
-          message: errorData.message || 'An error occurred',
+          message: errorData.message,
           status: response.status,
           code: errorData.code,
+          name: errorData.message,
         };
         throw error;
       }
@@ -63,7 +72,7 @@ export class ApiClient {
         return {} as T;
       }
 
-      return await response.json();
+      return (await response.json()) as T;
     } catch (error) {
       if ((error as ApiError).status) {
         throw error;
@@ -76,7 +85,7 @@ export class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+  async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
     const queryString = params
       ? '?' + new URLSearchParams(params).toString()
       : '';
@@ -87,7 +96,7 @@ export class ApiClient {
 
   async post<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestInit
   ): Promise<T> {
     return this.request<T>(endpoint, {
@@ -99,7 +108,7 @@ export class ApiClient {
 
   async put<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestInit
   ): Promise<T> {
     return this.request<T>(endpoint, {
@@ -111,7 +120,7 @@ export class ApiClient {
 
   async patch<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestInit
   ): Promise<T> {
     return this.request<T>(endpoint, {

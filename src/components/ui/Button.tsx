@@ -1,10 +1,7 @@
-import type { ReactNode } from 'react';
-import type {
-  PressableProps,
-  TextProps,
-  ViewStyle,
-} from 'react-native';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
+
+import type { ReactNode } from 'react';
+import type { PressableProps } from 'react-native';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -23,8 +20,7 @@ type ButtonProps = PressableProps & {
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-primary-600 active:bg-primary-700',
   secondary: 'bg-secondary-600 active:bg-secondary-700',
-  outline:
-    'bg-transparent border-2 border-primary-600 active:bg-primary-50',
+  outline: 'bg-transparent border-2 border-primary-600 active:bg-primary-50',
   ghost: 'bg-transparent active:bg-secondary-100',
 };
 
@@ -74,7 +70,11 @@ export function Button({
       {loading && (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' || variant === 'secondary' ? '#fff' : '#0284c7'}
+          color={
+            variant === 'primary' || variant === 'secondary'
+              ? '#fff'
+              : '#0284c7'
+          }
           className="mr-2"
         />
       )}

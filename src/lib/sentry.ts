@@ -1,9 +1,10 @@
-import * as Sentry from '@sentry/react-native';
 import Constants from 'expo-constants';
 
+import * as Sentry from '@sentry/react-native';
+
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
-const ENV = process.env.EXPO_PUBLIC_ENV || 'development';
-const VERSION = Constants.expoConfig?.version || '1.0.0';
+const ENV = process.env.EXPO_PUBLIC_ENV ?? 'development';
+const VERSION = Constants.expoConfig?.version ?? '1.0.0';
 
 const isProduction = ENV === 'production';
 
@@ -15,11 +16,7 @@ export const initSentry = () => {
 
   const integrations: Parameters<typeof Sentry.init>[0]['integrations'] = [
     // React Native specific integrations
-    Sentry.reactNativeTracingIntegration({
-      routingInstrumentation:
-        new Sentry.ReactNavigationInstrumentation(),
-      enableNativeFramesTracking: true,
-    }),
+    Sentry.reactNativeTracingIntegration(),
 
     // Network tracking
     Sentry.httpClientIntegration({
@@ -60,14 +57,14 @@ export const initSentry = () => {
     integrations,
 
     // Capture console logs
-    beforeBreadcrumb(breadcrumb, hint) {
+    beforeBreadcrumb(breadcrumb, _hint) {
       if (breadcrumb.category === 'console') {
         return breadcrumb;
       }
       return breadcrumb;
     },
 
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Filter out development errors if needed
       if (!isProduction && event.exception) {
         console.log('Sentry Event:', event);
@@ -85,23 +82,23 @@ export const addBreadcrumb = Sentry.addBreadcrumb;
 
 // Create a scope for additional context
 export const configureScope = (callback: (scope: Sentry.Scope) => void) => {
-  Sentry.configureScope(callback);
+  Sentry.withScope(callback);
 };
 
 // Wrap async operations with Sentry context
-export const withSentry = <T extends (...args: any[]) => any>(
+export const withSentry = <T extends (...args: unknown[]) => unknown>(
   fn: T
 ): ((...args: Parameters<T>) => ReturnType<T>) => {
   return (...args: Parameters<T>): ReturnType<T> => {
     try {
       const result = fn(...args);
       if (result instanceof Promise) {
-        return result.catch((error: Error) => {
+        return result.catch((error: unknown) => {
           captureException(error);
           throw error;
         }) as ReturnType<T>;
       }
-      return result;
+      return result as ReturnType<T>;
     } catch (error) {
       captureException(error);
       throw error;

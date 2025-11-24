@@ -1,9 +1,10 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button, Input } from '@components/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+
 import type { LoginFormData } from '../schemas/login-schema';
 import { loginSchema } from '../schemas/login-schema';
 

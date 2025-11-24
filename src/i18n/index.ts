@@ -1,6 +1,7 @@
+import * as Localization from 'expo-localization';
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import * as Localization from 'expo-localization';
 
 import en from './locales/en.json';
 import it from './locales/it.json';
@@ -16,18 +17,21 @@ const initI18n = () => {
     async: true,
     detect: (callback: (lng: string) => void) => {
       const locale = Localization.getLocales()[0];
-      const languageCode = locale?.languageCode || 'en';
+      const languageCode = locale.languageCode ?? 'en';
       callback(languageCode);
     },
-    init: () => {},
-    cacheUserLanguage: () => {},
+    init: () => {
+      /* empty */
+    },
+    cacheUserLanguage: () => {
+      /* empty */
+    },
   };
 
-  i18n
+  void i18n
     .use(languageDetector)
     .use(initReactI18next)
     .init({
-      compatibilityJSON: 'v3',
       resources,
       fallbackLng: 'en',
       interpolation: {

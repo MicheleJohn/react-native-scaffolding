@@ -1,9 +1,10 @@
-import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useRouter } from 'expo-router';
 
 import { Button, Card } from '@components/ui';
+import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Portal = {
   id: string;
@@ -59,7 +60,9 @@ export default function PortalsPage() {
         <View className="mb-6">
           <Button
             variant="ghost"
-            onPress={() => router.back()}
+            onPress={() => {
+              router.back();
+            }}
             className="mb-4 self-start">
             ← {t('common.back')}
           </Button>
@@ -90,7 +93,9 @@ export default function PortalsPage() {
                 variant="primary"
                 size="sm"
                 fullWidth
-                onPress={() => handleOpenPortal(portal)}>
+                onPress={() => {
+                  handleOpenPortal(portal);
+                }}>
                 {t('portals.openPortal')}
               </Button>
             </Card>

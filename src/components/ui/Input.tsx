@@ -1,5 +1,6 @@
-import type { TextInputProps } from 'react-native';
 import { Text, TextInput, View } from 'react-native';
+
+import type { TextInputProps } from 'react-native';
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -38,13 +39,9 @@ export function Input({
         />
         {rightIcon && <View className="ml-2">{rightIcon}</View>}
       </View>
-      {error && (
-        <Text className="text-red-500 text-xs mt-1">{error}</Text>
-      )}
+      {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
       {helperText && !error && (
-        <Text className="text-secondary-500 text-xs mt-1">
-          {helperText}
-        </Text>
+        <Text className="text-secondary-500 text-xs mt-1">{helperText}</Text>
       )}
     </View>
   );

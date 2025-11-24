@@ -1,6 +1,7 @@
+import { View } from 'react-native';
+
 import type { ReactNode } from 'react';
 import type { ViewProps } from 'react-native';
-import { View } from 'react-native';
 
 type CardProps = ViewProps & {
   children: ReactNode;
