@@ -1,11 +1,9 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css';
-
 @import 'nativewind/theme';
 
 @theme {
-  /* Custom Color Palette */
   --color-primary-50: #f0f9ff;
   --color-primary-100: #e0f2fe;
   --color-primary-200: #bae6fd;
@@ -16,8 +14,6 @@
   --color-primary-700: #0369a1;
   --color-primary-800: #075985;
   --color-primary-900: #0c4a6e;
-  --color-primary-950: #082f49;
-
   --color-secondary-50: #fafafa;
   --color-secondary-100: #f4f4f5;
   --color-secondary-200: #e4e4e7;
@@ -29,4 +25,24 @@
   --color-secondary-800: #27272a;
   --color-secondary-900: #18181b;
   --color-secondary-950: #09090b;
+
+  /* Semantic colors for backgrounds, text, etc. */
+  --color-background: #fff;
+  --color-surface: #f9fafb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+}
+@layer base {
+  .dark {
+    --color-background: #111827;
+    --color-surface: #1f2937;
+    --color-text: #f9fafb;
+    --color-text-secondary: #9ca3af;
+    --color-border: #374151;
+  }
 }
