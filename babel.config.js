@@ -2,10 +2,17 @@ module.exports = function (api) {
   api.cache(true);
   return {
     presets: [
-      ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
-      'nativewind/babel',
+      [
+        'babel-preset-expo',
+        {
+          jsxImportSource: 'nativewind',
+        },
+      ],
     ],
     plugins: [
+      // NativeWind Babel plugin
+      'nativewind/babel',
+      // Module resolver for path aliases
       [
         'module-resolver',
         {
@@ -26,6 +33,8 @@ module.exports = function (api) {
           },
         },
       ],
+      // React Native Reanimated plugin (must be last)
+      'react-native-reanimated/plugin',
     ],
   };
 };
