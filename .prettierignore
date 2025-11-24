@@ -1,0 +1,34 @@
+# Build output
+dist/
+build/
+out/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+*.env
+
+# Dependency locks
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Assets / static files
+public/
+coverage/
+*.min.js
+*.min.css
+
+# Snapshots
+**/__snapshots__/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Custom
+Dockerfile
+*.md
+*.json
