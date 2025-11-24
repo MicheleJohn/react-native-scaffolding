@@ -29,7 +29,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider className="h-100">
+      <SafeAreaProvider>
         <Slot />
       </SafeAreaProvider>
     </QueryClientProvider>

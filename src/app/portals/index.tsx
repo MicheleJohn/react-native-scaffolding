@@ -55,7 +55,7 @@ export default function PortalsPage() {
 
   return (
     <SafeAreaView className="flex-1 bg-secondary-50">
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView>
         {/* Header */}
         <View className="mb-6">
           <Button

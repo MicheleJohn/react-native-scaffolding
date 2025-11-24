@@ -10,11 +10,11 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1 bg-secondary-50">
-      <ScrollView className="flex-1 px-4 py-6">
+    <SafeAreaView className="flex-1 ">
+      <ScrollView className="bg-secondary-500">
         {/* Header */}
         <View className="mb-8">
-          <Text className="text-3xl font-bold text-secondary-900 mb-2">
+          <Text className="text-3xl font-bold text-pink-500 mb-2">
             {t('common.welcome')}
           </Text>
           <Text className="text-base text-secondary-600">
