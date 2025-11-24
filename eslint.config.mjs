@@ -11,11 +11,12 @@ import pluginQuery from '@tanstack/eslint-plugin-query';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import typescriptEslintParser from '@typescript-eslint/parser';
+import { defineConfig } from 'eslint/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: [
       '**/node_modules/**',
@@ -169,7 +170,7 @@ export default tseslint.config(
     },
     settings: {
       react: {
-        version: '19.0',
+        version: '19.1.0',
       },
       'import/parsers': {
         '@typescript-eslint/parser': ['.ts', '.tsx'],

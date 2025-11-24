@@ -1,11 +1,21 @@
-// Learn more: https://docs.expo.dev/guides/customizing-metro
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 const { withNativeWind } = require('nativewind/metro');
 
-/** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+const baseConfig = getDefaultConfig(__dirname);
+const sentryConfig = getSentryExpoConfig(__dirname);
 
-// NativeWind v4 configuration
-module.exports = withNativeWind(config, {
+sentryConfig.resolver = sentryConfig.resolver || {};
+sentryConfig.resolver.assetExts = [
+  ...(sentryConfig.resolver.assetExts || []),
+  'riv',
+];
+sentryConfig.resolver.blockList = [/context\.md$/, /context\.txt$/];
+
+const mergedConfig = mergeConfig(baseConfig, sentryConfig);
+
+const finalConfig = withNativeWind(mergedConfig, {
   input: './global.css',
 });
+
+module.exports = finalConfig;
