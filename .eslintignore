@@ -1,0 +1,25 @@
+# Build output
+dist/
+build/
+out/
+
+# Node modules
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Native
+android/
+ios/
+
+# Tests
+coverage/
+**/__snapshots__/
+
+# Config files
+*.config.js
+*.config.mjs
+babel.config.js
+metro.config.js
