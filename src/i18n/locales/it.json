@@ -1,0 +1,38 @@
+{
+  "common": {
+    "welcome": "Benvenuto",
+    "loading": "Caricamento...",
+    "error": "Si è verificato un errore",
+    "retry": "Riprova",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "close": "Chiudi",
+    "search": "Cerca",
+    "back": "Indietro"
+  },
+  "navigation": {
+    "home": "Home",
+    "portals": "Portali",
+    "events": "Eventi",
+    "profile": "Profilo"
+  },
+  "portals": {
+    "title": "Portali dell'Ecosistema",
+    "explore": "Esplora i portali",
+    "openPortal": "Apri portale",
+    "noPortals": "Nessun portale disponibile"
+  },
+  "events": {
+    "title": "Eventi Culturali",
+    "seeAll": "Vedi tutto",
+    "noEvents": "Nessun evento disponibile",
+    "upcoming": "Eventi in arrivo"
+  },
+  "errors": {
+    "network": "Errore di rete. Controlla la tua connessione.",
+    "generic": "Qualcosa è andato storto. Riprova.",
+    "notFound": "Risorsa non trovata"
+  }
+}

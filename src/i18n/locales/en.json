@@ -1,0 +1,38 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "back": "Back"
+  },
+  "navigation": {
+    "home": "Home",
+    "portals": "Portals",
+    "events": "Events",
+    "profile": "Profile"
+  },
+  "portals": {
+    "title": "Portals of the Ecosystem",
+    "explore": "Explore portals",
+    "openPortal": "Open portal",
+    "noPortals": "No portals available"
+  },
+  "events": {
+    "title": "Cultural Events",
+    "seeAll": "See all",
+    "noEvents": "No events available",
+    "upcoming": "Upcoming events"
+  },
+  "errors": {
+    "network": "Network error. Please check your connection.",
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Resource not found"
+  }
+}
