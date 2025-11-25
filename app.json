@@ -49,7 +49,8 @@
           "project": "your-project"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-secure-store"
     ],
     "scheme": "rnscaffolding",
     "experiments": {

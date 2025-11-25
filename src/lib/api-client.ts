@@ -1,5 +1,8 @@
-import axios from 'axios';
 import { env } from '@config/env';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+
+import { secureStorage } from './secure-storage';
 
 const apiClient = axios.create({
   baseURL: env.EXPO_PUBLIC_API_URL,
@@ -8,20 +11,20 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-  async config => {
+  async (config) => {
     // Placeholder per auth token, puoi sostituire con SecureStore/getToken()
-    const token = undefined; // await secureStorage.getItem('auth_token');
+    const token = await secureStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  error => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error)
 );
 
 apiClient.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error: AxiosError) => {
     // Hook per gestione errori globali
     return Promise.reject(error);
   }
