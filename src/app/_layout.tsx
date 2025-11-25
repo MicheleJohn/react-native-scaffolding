@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
+import { Button, Text, View } from 'react-native';
+
 import { useNetworkState } from 'expo-network';
+import type { ErrorBoundaryProps } from 'expo-router';
 import { Slot, SplashScreen } from 'expo-router';
 
 import initI18n from '@i18n/index';
 import { queryClient } from '@lib/query-client';
 import { initSentry } from '@lib/sentry';
+import * as Sentry from '@sentry/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -26,6 +31,35 @@ function RootLayoutContent() {
       <Slot />
       {__DEV__ && <ReactQueryDevtools initialIsOpen={false} />}
     </>
+  );
+}
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Boolean(Sentry.getClient()) && error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'RootLayout',
+          type: 'error_boundary',
+        },
+        contexts: {
+          error_boundary: {
+            step: 'RootLayout error',
+            error_message:
+              error instanceof Error ? error.message : String(error),
+          },
+        },
+        level: 'fatal',
+      });
+    }
+  }, [error]);
+
+  return (
+    <View className="flex-1 justify-center items-center">
+      <Text>Global Error: {error.message}</Text>
+      <Button title="Retry" onPress={retry} />
+    </View>
   );
 }
 
