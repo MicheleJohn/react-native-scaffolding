@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react-native';
 
 import { Button } from '../Button';
+import { ActivityIndicator } from 'react-native';
 
 describe('Button', () => {
   it('renders correctly', () => {
@@ -36,7 +37,7 @@ describe('Button', () => {
 
     expect(queryByText('Click me')).toBeTruthy();
     // ActivityIndicator should be present
-    expect(UNSAFE_getByType('ActivityIndicator')).toBeTruthy();
+    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
   });
 
   it('applies correct styles for variants', () => {
