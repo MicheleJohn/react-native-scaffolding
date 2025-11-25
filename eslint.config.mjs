@@ -31,6 +31,7 @@ export default defineConfig(
       '**/*.test.ts',
       '**/*.spec.tsx',
       '**/*.test.tsx',
+      'expo-env.d.ts',
     ],
   },
   {
