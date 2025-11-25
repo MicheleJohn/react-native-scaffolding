@@ -58,6 +58,7 @@
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@tanstack/react-query-devtools": "^5.90.10",
     "@testing-library/react-native": "^13.3.3",
+    "@types/node": "24.10.1",
     "@types/react": "~19.1.17",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
