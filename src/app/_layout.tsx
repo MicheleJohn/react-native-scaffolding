@@ -1,25 +1,22 @@
-import { useEffect } from 'react';
-import { Platform, Text, View } from 'react-native';
-
-import { useNetworkState } from 'expo-network';
-import type { ErrorBoundaryProps } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { AppState, Platform } from 'react-native';
 import { Slot, SplashScreen } from 'expo-router';
-
-import { useReactQueryDevTools } from '@dev-plugins/react-query';
-import initI18n from '@i18n/index';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useNetworkState } from 'expo-network';
+import { useAppState } from '@/hooks/use-app-state';
 import { queryClient } from '@lib/query-client';
 import { initSentry } from '@lib/sentry';
 import * as Sentry from '@sentry/react-native';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import initI18n from '@i18n/index';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+import type { ErrorBoundaryProps } from 'expo-router';
 import { Button } from '@/components/ui';
 
 import '../../global.css';
 
-// Prevent splash auto-hide
-void SplashScreen.preventAutoHideAsync();
+// Prevent splash auto-hide (SAFE: only call once)
+SplashScreen.preventAutoHideAsync();
 // Initialize Sentry
 initSentry();
 // Initialize i18n
@@ -27,13 +24,11 @@ const _i18n = initI18n();
 
 function RootLayoutContent() {
   const _network = useNetworkState();
-  // Esempio di warning connessione
-  // if (!network.isConnected) {/* render warning banner */}
   return (
     <>
       <Slot />
       {__DEV__ && Platform.OS === 'web' && (
-        <ReactQueryDevtools initialIsOpen={false} />
+        <></>
       )}
     </>
   );
@@ -41,7 +36,6 @@ function RootLayoutContent() {
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (Boolean(Sentry.getClient()) && error) {
       Sentry.captureException(error, {
         tags: {
@@ -59,23 +53,42 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       });
     }
   }, [error]);
-
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text>Global Error: {error.message}</Text>
+    <SafeAreaProvider>
       <Button onPress={retry}>Retry</Button>
-    </View>
+    </SafeAreaProvider>
   );
 }
 
 export default function RootLayout() {
   useReactQueryDevTools(queryClient);
-  // Expo Router error boundary già attivo, non serve custom
-  // Puoi gestire errori route-specific nei file [...]error.tsx
-  // Docs: https://docs.expo.dev/router/error-handling/
-  //
-  // Puoi comunque esportare l'ErrorBoundary ufficiale se vuoi
-  // export { ErrorBoundary } from 'expo-router';
+  const appState = useAppState();
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function prepare() {
+      // simuliamo una async init (es: i18n, auth, resources...)
+      await Promise.resolve();
+      if (mounted) setAppIsReady(true);
+    }
+    prepare();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync();
+    }
+    // Bonus: nascondi splash se torni in foreground
+    if (appState === 'active') {
+      SplashScreen.hideAsync();
+    }
+  }, [appIsReady, appState]);
+
+  if (!appIsReady) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
