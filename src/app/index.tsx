@@ -10,7 +10,7 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1">
       <ScrollView className="bg-secondary-500">
         {/* Header */}
         <View className="mb-8">
