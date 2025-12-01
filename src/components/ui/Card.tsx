@@ -1,36 +1,33 @@
-import { View } from 'react-native';
+import React from 'react';
+import { View, type ViewProps } from 'react-native';
+import { cn } from '@/utils/cn';
 
-import type { ReactNode } from 'react';
-import type { ViewProps } from 'react-native';
+export type CardVariant = 'default' | 'elevated' | 'outlined';
 
-type CardProps = ViewProps & {
-  children: ReactNode;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
-  shadow?: boolean;
-};
-
-const paddingStyles = {
-  none: '',
-  sm: 'p-2',
-  md: 'p-4',
-  lg: 'p-6',
-};
-
-export function Card({
-  children,
-  padding = 'md',
-  shadow = true,
-  ...props
-}: CardProps) {
-  return (
-    <View
-      className={`
-        bg-white rounded-xl border border-secondary-200
-        ${paddingStyles[padding]}
-        ${shadow ? 'shadow-md' : ''}
-      `}
-      {...props}>
-      {children}
-    </View>
-  );
+export interface CardProps extends ViewProps {
+  variant?: CardVariant;
+  children: React.ReactNode;
+  className?: string;
 }
+
+const variantStyles: Record<CardVariant, string> = {
+  default: 'bg-white',
+  elevated: 'bg-white shadow-md',
+  outlined: 'bg-white border border-border',
+};
+
+export const Card = React.forwardRef<View, CardProps>(
+  ({ variant = 'default', children, className, ...props }, ref) => {
+    return (
+      <View
+        ref={ref}
+        className={cn('rounded-lg p-4', variantStyles[variant], className)}
+        {...props}
+      >
+        {children}
+      </View>
+    );
+  }
+);
+
+Card.displayName = 'Card';

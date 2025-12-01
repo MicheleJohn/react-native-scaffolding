@@ -1,34 +1,35 @@
-import { ActivityIndicator, Pressable, Text } from 'react-native';
+import React from 'react';
+import {
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+  type TouchableOpacityProps,
+} from 'react-native';
+import { cn } from '@/utils/cn';
 
-import type { ReactNode } from 'react';
-import type { PressableProps } from 'react-native';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
-type ButtonSize = 'sm' | 'md' | 'lg';
-
-type ButtonProps = PressableProps & {
+export interface ButtonProps extends TouchableOpacityProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
-  disabled?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  children: string | ReactNode;
-  fullWidth?: boolean;
-};
+  children: React.ReactNode;
+  className?: string;
+}
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-primary-600 active:bg-primary-700',
-  secondary: 'bg-secondary-600 active:bg-secondary-700',
-  outline: 'bg-transparent border-2 border-primary-600 active:bg-primary-50',
-  ghost: 'bg-transparent active:bg-secondary-100',
+  primary: 'bg-primary active:bg-primary-teal',
+  secondary: 'bg-secondary active:bg-secondary-green',
+  outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
+  ghost: 'bg-transparent active:bg-neutral-50',
 };
 
-const variantTextStyles: Record<ButtonVariant, string> = {
+const textVariantStyles: Record<ButtonVariant, string> = {
   primary: 'text-white',
-  secondary: 'text-white',
-  outline: 'text-primary-600',
-  ghost: 'text-secondary-900',
+  secondary: 'text-text-primary',
+  outline: 'text-text-primary',
+  ghost: 'text-text-primary',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -43,55 +44,53 @@ const textSizeStyles: Record<ButtonSize, string> = {
   lg: 'text-lg',
 };
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  disabled = false,
-  leftIcon,
-  rightIcon,
-  children,
-  fullWidth = false,
-  ...props
-}: ButtonProps) {
-  const isDisabled = disabled || loading;
+export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
+  (
+    {
+      variant = 'primary',
+      size = 'md',
+      loading = false,
+      disabled,
+      children,
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const isDisabled = disabled || loading;
 
-  return (
-    <Pressable
-      className={`
-        flex-row items-center justify-center
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${fullWidth ? 'w-full' : ''}
-        ${isDisabled ? 'opacity-50' : ''}
-      `}
-      disabled={isDisabled}
-      {...props}>
-      {loading && (
-        <ActivityIndicator
-          size="small"
-          color={
-            variant === 'primary' || variant === 'secondary'
-              ? '#fff'
-              : '#0284c7'
-          }
-          className="mr-2"
-        />
-      )}
-      {!loading && leftIcon && <>{leftIcon}</>}
-      {typeof children === 'string' ? (
-        <Text
-          className={`
-            font-semibold
-            ${variantTextStyles[variant]}
-            ${textSizeStyles[size]}
-          `}>
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
-      {!loading && rightIcon && <>{rightIcon}</>}
-    </Pressable>
-  );
-}
+    return (
+      <TouchableOpacity
+        ref={ref}
+        disabled={isDisabled}
+        className={cn(
+          'flex-row items-center justify-center',
+          variantStyles[variant],
+          sizeStyles[size],
+          isDisabled && 'opacity-50',
+          className
+        )}
+        {...props}
+      >
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'primary' ? '#FFFFFF' : '#0F172A'}
+          />
+        ) : (
+          <Text
+            className={cn(
+              'font-semibold text-center',
+              textVariantStyles[variant],
+              textSizeStyles[size]
+            )}
+          >
+            {children}
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+  }
+);
+
+Button.displayName = 'Button';
