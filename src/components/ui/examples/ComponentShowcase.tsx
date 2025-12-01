@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+
 import {
   Button,
   Card,
   Chip,
   Input,
   NavigationBar,
-  Tabs,
   type NavigationItem,
   type Tab,
+  Tabs,
 } from '@/components/ui';
 
 /**
@@ -30,25 +31,33 @@ export const ComponentShowcase: React.FC = () => {
     {
       id: 'home',
       icon: <Text className="text-2xl">🏠</Text>,
-      onPress: () => setActiveNavItem('home'),
+      onPress: () => {
+        setActiveNavItem('home');
+      },
       active: activeNavItem === 'home',
     },
     {
       id: 'search',
       icon: <Text className="text-2xl">🔍</Text>,
-      onPress: () => setActiveNavItem('search'),
+      onPress: () => {
+        setActiveNavItem('search');
+      },
       active: activeNavItem === 'search',
     },
     {
       id: 'map',
       icon: <Text className="text-2xl">🗺️</Text>,
-      onPress: () => setActiveNavItem('map'),
+      onPress: () => {
+        setActiveNavItem('map');
+      },
       active: activeNavItem === 'map',
     },
     {
       id: 'calendar',
       icon: <Text className="text-2xl">📅</Text>,
-      onPress: () => setActiveNavItem('calendar'),
+      onPress: () => {
+        setActiveNavItem('calendar');
+      },
       active: activeNavItem === 'calendar',
     },
   ];
@@ -104,7 +113,13 @@ export const ComponentShowcase: React.FC = () => {
           <View className="flex-row flex-wrap gap-2">
             <Chip label="Pizza" variant="primary" selected />
             <Chip label="Grafica" variant="default" />
-            <Chip label="Arte" variant="default" onRemove={() => {}} />
+            <Chip
+              label="Arte"
+              variant="default"
+              onRemove={() => {
+                /* empty */
+              }}
+            />
             <Chip label="Success" variant="success" />
             <Chip label="Error" variant="error" />
           </View>

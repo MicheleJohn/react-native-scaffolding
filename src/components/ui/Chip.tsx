@@ -1,14 +1,15 @@
 import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+
 import { cn } from '@/utils/cn';
 
-export interface ChipProps {
+export type ChipProps = {
   label: string;
   onRemove?: () => void;
   selected?: boolean;
   className?: string;
   variant?: 'default' | 'primary' | 'success' | 'error';
-}
+};
 
 const variantStyles = {
   default: {
@@ -45,24 +46,22 @@ export const Chip: React.FC<ChipProps> = ({
         styles.container,
         selected && 'bg-primary border-primary',
         className
-      )}
-    >
+      )}>
       <Text
         className={cn(
           'text-sm font-medium',
           styles.text,
           selected && 'text-white'
-        )}
-      >
+        )}>
         {label}
       </Text>
       {onRemove && (
         <TouchableOpacity
           onPress={onRemove}
           className="ml-2 w-4 h-4 items-center justify-center"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text className={cn('text-xs', selected ? 'text-white' : styles.text)}>
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text
+            className={cn('text-xs', selected ? 'text-white' : styles.text)}>
             ✕
           </Text>
         </TouchableOpacity>

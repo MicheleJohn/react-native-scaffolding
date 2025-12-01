@@ -1,22 +1,23 @@
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
   ActivityIndicator,
+  Text,
+  TouchableOpacity,
   type TouchableOpacityProps,
 } from 'react-native';
+
 import { cn } from '@/utils/cn';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps extends TouchableOpacityProps {
+export type ButtonProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
   children: React.ReactNode;
   className?: string;
-}
+} & TouchableOpacityProps;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-primary active:bg-primary-teal',
@@ -44,7 +45,7 @@ const textSizeStyles: Record<ButtonSize, string> = {
   lg: 'text-lg',
 };
 
-export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
+export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
   (
     {
       variant = 'primary',
@@ -55,13 +56,14 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
       className,
       ...props
     },
-    ref
+    _ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled = disabled ?? loading;
 
     return (
       <TouchableOpacity
-        ref={ref}
+        // TODO - adapt ref since it cannot be assigne
+        // ref={ref}
         disabled={isDisabled}
         className={cn(
           'flex-row items-center justify-center',
@@ -70,8 +72,7 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
           isDisabled && 'opacity-50',
           className
         )}
-        {...props}
-      >
+        {...props}>
         {loading ? (
           <ActivityIndicator
             size="small"
@@ -83,8 +84,7 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
               'font-semibold text-center',
               textVariantStyles[variant],
               textSizeStyles[size]
-            )}
-          >
+            )}>
             {children}
           </Text>
         )}

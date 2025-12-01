@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
+
 import { cn } from '@/utils/cn';
 
 export type CardVariant = 'default' | 'elevated' | 'outlined';
 
-export interface CardProps extends ViewProps {
+export type CardProps = {
   variant?: CardVariant;
   children: React.ReactNode;
   className?: string;
-}
+} & ViewProps;
 
 const variantStyles: Record<CardVariant, string> = {
   default: 'bg-white',
@@ -22,8 +23,7 @@ export const Card = React.forwardRef<View, CardProps>(
       <View
         ref={ref}
         className={cn('rounded-lg p-4', variantStyles[variant], className)}
-        {...props}
-      >
+        {...props}>
         {children}
       </View>
     );

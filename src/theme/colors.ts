@@ -66,12 +66,12 @@ export type ColorPalette = typeof colors;
 // Helper function to get color value
 export const getColor = (path: string): string => {
   const keys = path.split('.');
-  let value: any = colors;
-  
+  let value: unknown = colors;
+
   for (const key of keys) {
-    value = value[key];
+    value = (value as Record<string, unknown>)[key];
     if (!value) return '#000000'; // fallback
   }
-  
-  return value;
+
+  return value as string;
 };
