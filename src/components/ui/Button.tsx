@@ -45,7 +45,7 @@ const textSizeStyles: Record<ButtonSize, string> = {
   lg: 'text-lg',
 };
 
-export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
+export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
   (
     {
       variant = 'primary',
@@ -56,14 +56,13 @@ export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
       className,
       ...props
     },
-    _ref
+    ref
   ) => {
     const isDisabled = disabled ?? loading;
 
     return (
       <TouchableOpacity
-        // TODO - adapt ref since it cannot be assigne
-        // ref={ref}
+        ref={ref}
         disabled={isDisabled}
         className={cn(
           'flex-row items-center justify-center',
