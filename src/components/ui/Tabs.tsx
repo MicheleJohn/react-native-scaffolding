@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, type ViewProps } from 'react-native';
-
+import { View, TouchableOpacity, Text, type ViewProps } from 'react-native';
 import { cn } from '@/utils/cn';
 
 export type Tab = {
@@ -34,9 +33,7 @@ export const Tabs: React.FC<TabsProps> = ({
           return (
             <TouchableOpacity
               key={tab.id}
-              onPress={() => {
-                onTabChange(tab.id);
-              }}
+              onPress={() => onTabChange(tab.id)}
               className={cn(
                 'flex-1 px-4 py-2 rounded-md transition-colors',
                 isActive ? 'bg-primary shadow-sm' : 'bg-transparent'
@@ -45,7 +42,7 @@ export const Tabs: React.FC<TabsProps> = ({
               <Text
                 className={cn(
                   'text-center font-medium',
-                  isActive ? 'text-white' : 'text-text-secondary'
+                  isActive ? 'text-inverse' : 'text-secondary'
                 )}>
                 {tab.label}
               </Text>
@@ -58,17 +55,13 @@ export const Tabs: React.FC<TabsProps> = ({
 
   // Underline variant
   return (
-    <View
-      className={cn('flex-row border-b border-border', className)}
-      {...props}>
+    <View className={cn('flex-row border-b border-border', className)} {...props}>
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
         return (
           <TouchableOpacity
             key={tab.id}
-            onPress={() => {
-              onTabChange(tab.id);
-            }}
+            onPress={() => onTabChange(tab.id)}
             className={cn(
               'px-4 py-3 border-b-2 transition-colors',
               isActive ? 'border-primary' : 'border-transparent'
@@ -77,7 +70,7 @@ export const Tabs: React.FC<TabsProps> = ({
             <Text
               className={cn(
                 'font-medium',
-                isActive ? 'text-primary' : 'text-text-secondary'
+                isActive ? 'text-primary' : 'text-secondary'
               )}>
               {tab.label}
             </Text>

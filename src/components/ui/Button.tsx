@@ -21,16 +21,16 @@ export type ButtonProps = {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-primary active:bg-primary-teal',
-  secondary: 'bg-secondary active:bg-secondary-green',
+  secondary: 'bg-secondary-light active:bg-secondary-green',
   outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
   ghost: 'bg-transparent active:bg-neutral-50',
 };
 
 const textVariantStyles: Record<ButtonVariant, string> = {
-  primary: 'text-white',
-  secondary: 'text-text-primary',
-  outline: 'text-text-primary',
-  ghost: 'text-text-primary',
+  primary: 'text-inverse',
+  secondary: 'text-primary',
+  outline: 'text-primary',
+  ghost: 'text-primary',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

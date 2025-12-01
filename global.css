@@ -4,45 +4,54 @@
 @import 'nativewind/theme';
 
 @theme {
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-  --color-secondary-50: #fafafa;
-  --color-secondary-100: #f4f4f5;
-  --color-secondary-200: #e4e4e7;
-  --color-secondary-300: #d4d4d8;
-  --color-secondary-400: #a1a1aa;
-  --color-secondary-500: #71717a;
-  --color-secondary-600: #52525b;
-  --color-secondary-700: #3f3f46;
-  --color-secondary-800: #27272a;
-  --color-secondary-900: #18181b;
-  --color-secondary-950: #09090b;
+  /* Primary colors - Design System */
+  --color-primary: #009fe3;
+  --color-primary-cyan: #009fe3;
+  --color-primary-blue: #28529c;
+  --color-primary-teal: #0074a5;
+  --color-primary-red: #cc1a1a;
 
-  /* Semantic colors for backgrounds, text, etc. */
-  --color-background: #fff;
-  --color-surface: #f9fafb;
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-  --color-border: #e5e7eb;
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  /* Neutral colors - Design System */
+  --color-neutral-50: #f2f4f7;
+  --color-neutral-400: #98a2b3;
+  --color-neutral-700: #344054;
+  --color-neutral-800: #1d2939;
+  --color-neutral-900: #0f172a;
+
+  /* Secondary colors - Design System */
+  --color-secondary-light: #e6f4fa;
+  --color-secondary-green: #a6c48a;
+  --color-secondary-yellow: #f2c94c;
+  --color-secondary-navy: #0f172a;
+
+  /* Semantic colors */
+  --color-success: #a6c48a;
+  --color-error: #cc1a1a;
+  --color-warning: #f2c94c;
+  --color-info: #009fe3;
+
+  /* Background colors */
+  --color-background: #ffffff;
+  --color-surface: #f2f4f7;
+
+  /* Text colors - human-friendly names */
+  --color-primary-text: #0f172a;
+  --color-secondary-text: #344054;
+  --color-tertiary-text: #98a2b3;
+  --color-inverse-text: #ffffff;
+
+  /* Border colors */
+  --color-border: #98a2b3;
+  --color-border-light: #f2f4f7;
+  --color-border-dark: #344054;
 }
+
 @layer base {
   .dark {
-    --color-background: #111827;
-    --color-surface: #1f2937;
-    --color-text: #f9fafb;
-    --color-text-secondary: #9ca3af;
-    --color-border: #374151;
+    --color-background: #1d2939;
+    --color-surface: #0f172a;
+    --color-primary-text: #f2f4f7;
+    --color-secondary-text: #98a2b3;
+    --color-border: #344054;
   }
 }

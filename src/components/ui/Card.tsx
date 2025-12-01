@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
-
 import { cn } from '@/utils/cn';
 
 export type CardVariant = 'default' | 'elevated' | 'outlined';
@@ -12,9 +11,9 @@ export type CardProps = {
 } & ViewProps;
 
 const variantStyles: Record<CardVariant, string> = {
-  default: 'bg-white',
-  elevated: 'bg-white shadow-md',
-  outlined: 'bg-white border border-border',
+  default: 'bg-background',
+  elevated: 'bg-background shadow-md',
+  outlined: 'bg-background border border-border',
 };
 
 export const Card = React.forwardRef<View, CardProps>(

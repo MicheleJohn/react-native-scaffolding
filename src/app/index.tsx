@@ -10,25 +10,25 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1">
         <View className="p-4">
           {/* Header */}
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-text-primary mb-2">
+            <Text className="text-3xl font-bold text-primary mb-2">
               {t('common.welcome')}
             </Text>
-            <Text className="text-base text-text-secondary">
+            <Text className="text-base text-secondary">
               React Native Scaffolding
             </Text>
           </View>
 
           {/* Welcome Card */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-xl font-semibold text-text-primary mb-2">
+            <Text className="text-xl font-semibold text-primary mb-2">
               🚀 Ready to start!
             </Text>
-            <Text className="text-text-secondary mb-4">
+            <Text className="text-secondary mb-4">
               This is your production-ready React Native scaffolding with Expo,
               TypeScript, TanStack Query, i18n, and more.
             </Text>
@@ -43,10 +43,10 @@ export default function HomePage() {
 
           {/* Design System Showcase */}
           <Card variant="outlined" className="mb-6 border-primary">
-            <Text className="text-lg font-semibold text-text-primary mb-2">
+            <Text className="text-lg font-semibold text-primary mb-2">
               🎨 Design System
             </Text>
-            <Text className="text-text-secondary mb-3">
+            <Text className="text-secondary mb-3">
               Explore all UI components and color palette
             </Text>
             <Link href="/design-system" asChild>
@@ -58,42 +58,42 @@ export default function HomePage() {
 
           {/* Features Cards */}
           <View className="mb-6">
-            <Text className="text-xl font-bold text-text-primary mb-4">
+            <Text className="text-xl font-bold text-primary mb-4">
               ✨ Features
             </Text>
 
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-1">
+              <Text className="text-lg font-semibold text-primary mb-1">
                 🎨 NativeWind (Tailwind)
               </Text>
-              <Text className="text-text-secondary">
+              <Text className="text-secondary">
                 Utility-first styling with Tailwind CSS classes
               </Text>
             </Card>
 
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-1">
+              <Text className="text-lg font-semibold text-primary mb-1">
                 🔍 TanStack Query
               </Text>
-              <Text className="text-text-secondary">
+              <Text className="text-secondary">
                 Powerful data fetching and caching
               </Text>
             </Card>
 
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-1">
+              <Text className="text-lg font-semibold text-primary mb-1">
                 🌍 i18n Support
               </Text>
-              <Text className="text-text-secondary">
+              <Text className="text-secondary">
                 Multi-language support with i18next
               </Text>
             </Card>
 
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-1">
+              <Text className="text-lg font-semibold text-primary mb-1">
                 🛡️ Sentry Integration
               </Text>
-              <Text className="text-text-secondary">
+              <Text className="text-secondary">
                 Error tracking and performance monitoring
               </Text>
             </Card>
@@ -101,7 +101,7 @@ export default function HomePage() {
 
           {/* Navigation Examples */}
           <View className="mb-6">
-            <Text className="text-xl font-bold text-text-primary mb-4">
+            <Text className="text-xl font-bold text-primary mb-4">
               🧪 Navigation Examples
             </Text>
 

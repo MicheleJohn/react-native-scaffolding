@@ -1,6 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, type ViewProps } from 'react-native';
-
+import { View, TouchableOpacity, type ViewProps } from 'react-native';
 import { cn } from '@/utils/cn';
 
 export type NavigationItem = {
@@ -18,8 +17,8 @@ export type NavigationBarProps = {
 
 const variantStyles = {
   light: {
-    container: 'bg-white border border-border',
-    item: 'text-text-secondary',
+    container: 'bg-background border border-border',
+    item: 'text-secondary',
     activeItem: 'text-primary',
   },
   dark: {
@@ -51,8 +50,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           onPress={item.onPress}
           className={cn(
             'p-3 rounded-xl transition-colors',
-            item.active &&
-              (variant === 'dark' ? 'bg-neutral-800' : 'bg-neutral-50')
+            item.active && (variant === 'dark' ? 'bg-neutral-800' : 'bg-neutral-50')
           )}
           activeOpacity={0.7}>
           <View className={cn(item.active ? styles.activeItem : styles.item)}>

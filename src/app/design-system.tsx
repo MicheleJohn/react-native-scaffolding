@@ -61,13 +61,13 @@ export default function DesignSystemPage() {
         style={{ backgroundColor: color }}
         className="w-16 h-16 rounded-lg mb-2 border border-border"
       />
-      <Text className="text-xs text-text-secondary text-center">{name}</Text>
-      <Text className="text-xs text-text-tertiary font-mono">{color}</Text>
+      <Text className="text-xs text-secondary text-center">{name}</Text>
+      <Text className="text-xs text-tertiary font-mono">{color}</Text>
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1">
         <View className="p-4">
           {/* Header */}
@@ -77,23 +77,23 @@ export default function DesignSystemPage() {
                 ← Back
               </Button>
             </Link>
-            <Text className="text-3xl font-bold text-text-primary mb-2">
+            <Text className="text-3xl font-bold text-primary mb-2">
               🎨 Design System
             </Text>
-            <Text className="text-base text-text-secondary">
+            <Text className="text-base text-secondary">
               Complete UI component library and color palette
             </Text>
           </View>
 
           {/* Colors Section */}
           <View className="mb-8">
-            <Text className="text-2xl font-bold text-text-primary mb-4">
+            <Text className="text-2xl font-bold text-primary mb-4">
               Colors
             </Text>
 
             {/* Primary Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-3">
+              <Text className="text-lg font-semibold text-primary mb-3">
                 Primary
               </Text>
               <View className="flex-row flex-wrap gap-4">
@@ -106,7 +106,7 @@ export default function DesignSystemPage() {
 
             {/* Neutral Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-3">
+              <Text className="text-lg font-semibold text-primary mb-3">
                 Neutral
               </Text>
               <View className="flex-row flex-wrap gap-4">
@@ -121,7 +121,7 @@ export default function DesignSystemPage() {
 
             {/* Secondary Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-text-primary mb-3">
+              <Text className="text-lg font-semibold text-primary mb-3">
                 Secondary
               </Text>
               <View className="flex-row flex-wrap gap-4">
@@ -134,13 +134,13 @@ export default function DesignSystemPage() {
           </View>
 
           {/* Components Section */}
-          <Text className="text-2xl font-bold text-text-primary mb-4">
+          <Text className="text-2xl font-bold text-primary mb-4">
             Components
           </Text>
 
           {/* Buttons */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Buttons
             </Text>
             <View className="gap-3">
@@ -167,7 +167,7 @@ export default function DesignSystemPage() {
 
           {/* Tabs */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Tabs (Pills)
             </Text>
             <Tabs
@@ -180,7 +180,7 @@ export default function DesignSystemPage() {
 
           {/* Chips */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Chips
             </Text>
             <View className="flex-row flex-wrap gap-2">
@@ -194,7 +194,7 @@ export default function DesignSystemPage() {
 
           {/* Input */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Input Fields
             </Text>
             <View className="gap-3">
@@ -217,16 +217,16 @@ export default function DesignSystemPage() {
 
           {/* Navigation Bars */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Navigation Bars
             </Text>
             <View className="gap-4">
               <View>
-                <Text className="text-sm text-text-secondary mb-2">Light Variant</Text>
+                <Text className="text-sm text-secondary mb-2">Light Variant</Text>
                 <NavigationBar items={navigationItems} variant="light" />
               </View>
               <View>
-                <Text className="text-sm text-text-secondary mb-2">Dark Variant</Text>
+                <Text className="text-sm text-secondary mb-2">Dark Variant</Text>
                 <NavigationBar items={navigationItems} variant="dark" />
               </View>
             </View>
@@ -234,17 +234,17 @@ export default function DesignSystemPage() {
 
           {/* Cards */}
           <View className="mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               Card Variants
             </Text>
             <Card variant="default" className="mb-3">
-              <Text className="text-text-primary">Default Card</Text>
+              <Text className="text-primary">Default Card</Text>
             </Card>
             <Card variant="elevated" className="mb-3">
-              <Text className="text-text-primary">Elevated Card</Text>
+              <Text className="text-primary">Elevated Card</Text>
             </Card>
             <Card variant="outlined">
-              <Text className="text-text-primary">Outlined Card</Text>
+              <Text className="text-primary">Outlined Card</Text>
             </Card>
           </View>
         </View>
