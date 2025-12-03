@@ -9,27 +9,27 @@ jobs:
   lint-and-test:
     name: Lint, Type Check & Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      
+          node-version: "22"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
-      
+          version: 10.23.0
+
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -37,10 +37,10 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Verify icon generation
         run: |
           if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
@@ -49,18 +49,18 @@ jobs:
           fi
           echo "✅ Icons generated successfully"
           ls -la src/components/icons/
-      
+
       - name: Lint
         run: pnpm run lint
-      
+
       - name: Type check
         run: pnpm run type-check
-      
+
       - name: Check formatting
         run: pnpm run format:check
-      
+
       - name: Run tests
         run: pnpm run test:ci
-      
+
       # Coverage generated locally in coverage/ folder
       # Not uploaded to avoid needing CODECOV_TOKEN
