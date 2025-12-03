@@ -5,9 +5,9 @@ image: node:22-alpine
 
 # Stages definition
 stages:
-  - test      # Lint, type-check, tests
-  - build     # Web/Native builds
-  - deploy    # EAS builds (optional)
+  - test
+  - build
+  - deploy
 
 # Global cache configuration
 .cache_config: &cache_config
@@ -25,10 +25,7 @@ stages:
     - corepack prepare --activate
     - pnpm config set store-dir .pnpm-store
 
-# ============================================
-# TEST STAGE - CI Checks (Lint, Type, Test)
-# ============================================
-
+# TEST STAGE
 ci:lint-and-test:
   stage: test
   <<: *pnpm_setup
@@ -39,16 +36,15 @@ ci:lint-and-test:
     - pnpm install --frozen-lockfile
     - |
       if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
-        echo "❌ Error: Icon generation failed!"
+        echo "ERROR - Icon generation failed!"
         exit 1
       fi
-      echo "✅ Icons generated successfully"
+      echo "OK - Icons generated successfully"
       ls -la src/components/icons/
     - pnpm run lint
     - pnpm run type-check
     - pnpm run format:check
     - pnpm run test:ci
-  
   artifacts:
     when: always
     reports:
@@ -58,16 +54,12 @@ ci:lint-and-test:
     paths:
       - coverage/
     expire_in: 7 days
-  
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "develop"
 
-# ============================================
-# BUILD STAGE - Web Build (FREE)
-# ============================================
-
+# BUILD STAGE - Web
 build:web:
   stage: build
   <<: *pnpm_setup
@@ -75,25 +67,20 @@ build:web:
   script:
     - pnpm install --frozen-lockfile
     - pnpm run build:web
-    - echo "✅ Web build completed!"
-    - echo "📦 Build size:"
+    - echo "OK - Web build completed"
+    - echo "BUILD - Size info"
     - du -sh dist/
-  
   artifacts:
     name: "web-build-$CI_COMMIT_SHORT_SHA"
     paths:
       - dist/
     expire_in: 30 days
-  
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - when: manual
       allow_failure: true
 
-# ============================================
-# BUILD STAGE - Android (FREE)
-# ============================================
-
+# BUILD STAGE - Android
 build:android:
   stage: build
   image: openjdk:17-slim
@@ -103,10 +90,8 @@ build:android:
       - .pnpm-store
       - .gradle/wrapper
       - .gradle/caches
-  
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  
   before_script:
     - apt-get update && apt-get install -y curl git
     - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -114,7 +99,6 @@ build:android:
     - corepack enable
     - corepack prepare --activate
     - pnpm config set store-dir .pnpm-store
-  
   script:
     - pnpm install --frozen-lockfile
     - cd android
@@ -124,34 +108,27 @@ build:android:
       else
         ./gradlew assembleDebug
       fi
-    - echo "✅ Android build completed!"
-    - echo "📱 Platform: Android"
-    - echo "🔧 Build type: ${BUILD_TYPE:-debug}"
-    - echo "💰 Cost: FREE (GitLab CI minutes)"
-  
+    - echo "OK - Android build completed"
+    - echo "PLATFORM - Android"
+    - echo "BUILD TYPE - ${BUILD_TYPE:-debug}"
+    - echo "COST - FREE (GitLab CI minutes)"
   artifacts:
     name: "android-${BUILD_TYPE:-debug}-$CI_COMMIT_SHORT_SHA"
     paths:
       - android/app/build/outputs/apk/**/*.apk
     expire_in: 30 days
-  
   rules:
     - when: manual
       allow_failure: true
 
-# ============================================
-# DEPLOY STAGE - EAS Build (PAID - Optional)
-# ============================================
-
+# DEPLOY STAGE - EAS Build
 build:eas:
   stage: deploy
   <<: *pnpm_setup
   cache: *cache_config
-  
   variables:
-    PLATFORM: "all"         # all, ios, android
-    PROFILE: "preview"      # development, preview, production
-  
+    PLATFORM: "all"
+    PROFILE: "preview"
   script:
     - pnpm install --frozen-lockfile
     - pnpm add -g eas-cli
@@ -161,30 +138,24 @@ build:eas:
         --profile $PROFILE \
         --non-interactive \
         --no-wait
-    - echo "✅ EAS Build triggered!"
-    - echo "📱 Platform: $PLATFORM"
-    - echo "🔧 Profile: $PROFILE"
-    - echo "💰 Cost: Using paid EAS subscription"
-    - echo "🔔 Check build status at: https://expo.dev"
-  
+    - echo "OK - EAS Build triggered"
+    - echo "PLATFORM - $PLATFORM"
+    - echo "PROFILE - $PROFILE"
+    - echo "COST - Using paid EAS subscription"
+    - echo "INFO - Check build status at https://expo.dev"
   rules:
     - if: $EXPO_TOKEN
       when: manual
       allow_failure: true
 
-# ============================================
-# DEPLOY STAGE - EAS Update (OTA - Optional)
-# ============================================
-
+# DEPLOY STAGE - EAS Update
 update:eas:
   stage: deploy
   <<: *pnpm_setup
   cache: *cache_config
-  
   variables:
-    BRANCH: "preview"  # preview or production
+    BRANCH: "preview"
     MESSAGE: "OTA update from GitLab CI"
-  
   script:
     - pnpm install --frozen-lockfile
     - pnpm add -g eas-cli
@@ -193,10 +164,9 @@ update:eas:
         --branch $BRANCH \
         --message "$MESSAGE" \
         --non-interactive
-    - echo "✅ EAS Update published!"
-    - echo "🌿 Branch: $BRANCH"
-    - echo "📱 Users will receive update on next app launch"
-  
+    - echo "OK - EAS Update published"
+    - echo "BRANCH - $BRANCH"
+    - echo "INFO - Users will receive update on next app launch"
   rules:
     - if: $EXPO_TOKEN && $CI_COMMIT_BRANCH == "main"
     - if: $EXPO_TOKEN
