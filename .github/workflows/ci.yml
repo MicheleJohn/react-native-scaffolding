@@ -1,10 +1,9 @@
 name: CI - Lint & Test
 
+# Only run on PR to avoid duplicate runs
 on:
   pull_request:
     branches: [main, develop]
-  push:
-    branches: [develop]
 
 jobs:
   lint-and-test:
@@ -63,11 +62,5 @@ jobs:
       - name: Run tests
         run: pnpm run test:ci
       
-      - name: Upload coverage
-        if: success()
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/coverage-final.json
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      # Coverage generated locally in coverage/ folder
+      # Not uploaded to avoid needing CODECOV_TOKEN
