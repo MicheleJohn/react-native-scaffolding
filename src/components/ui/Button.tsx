@@ -5,46 +5,87 @@ import {
   TouchableOpacity,
   type TouchableOpacityProps,
 } from 'react-native';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/utils/cn';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+/**
+ * Button variant styles using CVA
+ */
+const buttonVariants = cva(
+  // Base styles - applied to all buttons
+  'flex-row items-center justify-center rounded-lg transition-colors',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-primary active:bg-primary-teal',
+        secondary: 'bg-secondary-light active:bg-secondary-green',
+        outline:
+          'bg-transparent border-2 border-border active:bg-neutral-50',
+        ghost: 'bg-transparent active:bg-neutral-50',
+      },
+      size: {
+        sm: 'px-3 py-2',
+        md: 'px-4 py-2.5',
+        lg: 'px-6 py-3',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
 
-export type ButtonProps = {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
-  children: React.ReactNode;
-  className?: string;
-} & TouchableOpacityProps;
+/**
+ * Text variant styles using CVA
+ */
+const buttonTextVariants = cva('font-semibold text-center', {
+  variants: {
+    variant: {
+      primary: 'text-inverse',
+      secondary: 'text-primary',
+      outline: 'text-primary',
+      ghost: 'text-primary',
+    },
+    size: {
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+    },
+  },
+  defaultVariants: {
+    variant: 'primary',
+    size: 'md',
+  },
+});
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-primary active:bg-primary-teal',
-  secondary: 'bg-secondary-light active:bg-secondary-green',
-  outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
-  ghost: 'bg-transparent active:bg-neutral-50',
-};
+export type ButtonProps = TouchableOpacityProps &
+  VariantProps<typeof buttonVariants> & {
+    /**
+     * Content to display inside the button
+     */
+    children: React.ReactNode;
+    /**
+     * Show loading spinner
+     */
+    loading?: boolean;
+    /**
+     * Additional className for custom styling
+     */
+    className?: string;
+  };
 
-const textVariantStyles: Record<ButtonVariant, string> = {
-  primary: 'text-inverse',
-  secondary: 'text-primary',
-  outline: 'text-primary',
-  ghost: 'text-primary',
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-2 rounded-md',
-  md: 'px-4 py-3 rounded-lg',
-  lg: 'px-6 py-4 rounded-xl',
-};
-
-const textSizeStyles: Record<ButtonSize, string> = {
-  sm: 'text-sm',
-  md: 'text-base',
-  lg: 'text-lg',
-};
-
+/**
+ * Primary UI component for user interaction
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="md" onPress={() => console.log('pressed')}>
+ *   Click Me
+ * </Button>
+ * ```
+ */
 export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
   (
     {
@@ -65,25 +106,19 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         className={cn(
-          'flex-row items-center justify-center',
-          variantStyles[variant],
-          sizeStyles[size],
+          buttonVariants({ variant, size }),
           isDisabled && 'opacity-50',
           className
         )}
-        {...props}>
+        {...props}
+      >
         {loading ? (
           <ActivityIndicator
             size="small"
             color={variant === 'primary' ? '#FFFFFF' : '#0F172A'}
           />
         ) : (
-          <Text
-            className={cn(
-              'font-semibold text-center',
-              textVariantStyles[variant],
-              textSizeStyles[size]
-            )}>
+          <Text className={cn(buttonTextVariants({ variant, size }))}>
             {children}
           </Text>
         )}
