@@ -1,11 +1,6 @@
 // Core components
-export {
-  Button,
-  type ButtonProps,
-  type ButtonSize,
-  type ButtonVariant,
-} from './Button';
-export { Card, type CardProps, type CardVariant } from './Card';
+export { Button, type ButtonProps } from './Button';
+export { Card, type CardProps } from './Card';
 export { Chip, type ChipProps } from './Chip';
 export { Input, type InputProps } from './Input';
 

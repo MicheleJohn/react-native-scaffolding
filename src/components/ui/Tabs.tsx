@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, type ViewProps } from 'react-native';
+import { Text, TouchableOpacity, View, type ViewProps } from 'react-native';
+
 import { cn } from '@/utils/cn';
 
 export type Tab = {
@@ -33,7 +34,9 @@ export const Tabs: React.FC<TabsProps> = ({
           return (
             <TouchableOpacity
               key={tab.id}
-              onPress={() => onTabChange(tab.id)}
+              onPress={() => {
+                onTabChange(tab.id);
+              }}
               className={cn(
                 'flex-1 px-4 py-2 rounded-md transition-colors',
                 isActive ? 'bg-primary shadow-sm' : 'bg-transparent'
@@ -55,13 +58,17 @@ export const Tabs: React.FC<TabsProps> = ({
 
   // Underline variant
   return (
-    <View className={cn('flex-row border-b border-border', className)} {...props}>
+    <View
+      className={cn('flex-row border-b border-border', className)}
+      {...props}>
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
         return (
           <TouchableOpacity
             key={tab.id}
-            onPress={() => onTabChange(tab.id)}
+            onPress={() => {
+              onTabChange(tab.id);
+            }}
             className={cn(
               'px-4 py-3 border-b-2 transition-colors',
               isActive ? 'border-primary' : 'border-transparent'

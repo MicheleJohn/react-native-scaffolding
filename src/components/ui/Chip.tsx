@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/utils/cn';
@@ -91,14 +92,12 @@ export const Chip: React.FC<ChipProps> = ({
         <TouchableOpacity
           onPress={onRemove}
           className="ml-2 w-4 h-4 items-center justify-center"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Text
             className={cn(
               'text-xs',
               selected ? 'text-inverse' : chipTextVariants({ variant })
-            )}
-          >
+            )}>
             ✕
           </Text>
         </TouchableOpacity>

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   type TouchableOpacityProps,
 } from 'react-native';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/utils/cn';
@@ -20,8 +21,7 @@ const buttonVariants = cva(
       variant: {
         primary: 'bg-primary active:bg-primary-teal',
         secondary: 'bg-secondary-light active:bg-secondary-green',
-        outline:
-          'bg-transparent border-2 border-border active:bg-neutral-50',
+        outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
         ghost: 'bg-transparent active:bg-neutral-50',
       },
       size: {
@@ -86,7 +86,7 @@ export type ButtonProps = TouchableOpacityProps &
  * </Button>
  * ```
  */
-export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
+export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
   (
     {
       variant = 'primary',
@@ -97,21 +97,20 @@ export const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
       className,
       ...props
     },
-    ref
+    _ref
   ) => {
     const isDisabled = disabled ?? loading;
 
     return (
       <TouchableOpacity
-        ref={ref}
+        // ref={ref}
         disabled={isDisabled}
         className={cn(
           buttonVariants({ variant, size }),
           isDisabled && 'opacity-50',
           className
         )}
-        {...props}
-      >
+        {...props}>
         {loading ? (
           <ActivityIndicator
             size="small"

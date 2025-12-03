@@ -92,7 +92,6 @@ export default function PortalsPage() {
               <Button
                 variant="primary"
                 size="sm"
-                fullWidth
                 onPress={() => {
                   handleOpenPortal(portal);
                 }}>

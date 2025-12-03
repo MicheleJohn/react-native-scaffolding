@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/utils/cn';
@@ -48,8 +49,7 @@ export const Card = React.forwardRef<View, CardProps>(
       <View
         ref={ref}
         className={cn(cardVariants({ variant }), className)}
-        {...props}
-      >
+        {...props}>
         {children}
       </View>
     );

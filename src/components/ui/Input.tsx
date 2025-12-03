@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
-  TextInput,
-  View,
   Text,
-  TouchableOpacity,
+  TextInput,
   type TextInputProps,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
 import { cn } from '@/utils/cn';
 
 export type InputProps = {
@@ -49,20 +50,21 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             error
               ? 'border-error'
               : isFocused
-              ? 'border-primary'
-              : 'border-border',
+                ? 'border-primary'
+                : 'border-border',
             props.editable === false && 'bg-neutral-50 opacity-60'
           )}>
           {leftIcon && <View className="mr-2">{leftIcon}</View>}
           <TextInput
             ref={ref}
-            className={cn(
-              'flex-1 text-base text-primary py-1',
-              inputClassName
-            )}
+            className={cn('flex-1 text-base text-primary py-1', inputClassName)}
             placeholderTextColor="#98A2B3"
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={() => {
+              setIsFocused(true);
+            }}
+            onBlur={() => {
+              setIsFocused(false);
+            }}
             {...props}
           />
           {rightIcon && (
@@ -74,13 +76,13 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             </TouchableOpacity>
           )}
         </View>
-        {(error || helperText) && (
+        {(error ?? helperText) && (
           <Text
             className={cn(
               'text-xs mt-1',
               error ? 'text-error' : 'text-tertiary'
             )}>
-            {error || helperText}
+            {error ?? helperText}
           </Text>
         )}
       </View>

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, Text, View } from 'react-native';
+
 import { Link } from 'expo-router';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import {
   Button,
   Card,
   Chip,
   Input,
   NavigationBar,
-  Tabs,
   type NavigationItem,
   type Tab,
+  Tabs,
 } from '@/components/ui';
 import { colors } from '@/theme/colors';
 
@@ -32,25 +35,33 @@ export default function DesignSystemPage() {
     {
       id: 'home',
       icon: <Text className="text-2xl">🏠</Text>,
-      onPress: () => setActiveNavItem('home'),
+      onPress: () => {
+        setActiveNavItem('home');
+      },
       active: activeNavItem === 'home',
     },
     {
       id: 'search',
       icon: <Text className="text-2xl">🔍</Text>,
-      onPress: () => setActiveNavItem('search'),
+      onPress: () => {
+        setActiveNavItem('search');
+      },
       active: activeNavItem === 'search',
     },
     {
       id: 'map',
       icon: <Text className="text-2xl">🗺️</Text>,
-      onPress: () => setActiveNavItem('map'),
+      onPress: () => {
+        setActiveNavItem('map');
+      },
       active: activeNavItem === 'map',
     },
     {
       id: 'calendar',
       icon: <Text className="text-2xl">📅</Text>,
-      onPress: () => setActiveNavItem('calendar'),
+      onPress: () => {
+        setActiveNavItem('calendar');
+      },
       active: activeNavItem === 'calendar',
     },
   ];
@@ -67,13 +78,16 @@ export default function DesignSystemPage() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1">
+    <SafeAreaView>
+      <ScrollView>
         <View className="p-4">
           {/* Header */}
           <View className="mb-6">
             <Link href="/" asChild>
-              <Button variant="ghost" size="sm" className="self-start -ml-2 mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="self-start -ml-2 mb-4">
                 ← Back
               </Button>
             </Link>
@@ -87,9 +101,7 @@ export default function DesignSystemPage() {
 
           {/* Colors Section */}
           <View className="mb-8">
-            <Text className="text-2xl font-bold text-primary mb-4">
-              Colors
-            </Text>
+            <Text className="text-2xl font-bold text-primary mb-4">Colors</Text>
 
             {/* Primary Colors */}
             <Card variant="elevated" className="mb-4">
@@ -125,10 +137,16 @@ export default function DesignSystemPage() {
                 Secondary
               </Text>
               <View className="flex-row flex-wrap gap-4">
-                <ColorSwatch color={colors.secondary.lightBlue} name="Light Blue" />
+                <ColorSwatch
+                  color={colors.secondary.lightBlue}
+                  name="Light Blue"
+                />
                 <ColorSwatch color={colors.secondary.green} name="Green" />
                 <ColorSwatch color={colors.secondary.yellow} name="Yellow" />
-                <ColorSwatch color={colors.secondary.darkNavy} name="Dark Navy" />
+                <ColorSwatch
+                  color={colors.secondary.darkNavy}
+                  name="Dark Navy"
+                />
               </View>
             </Card>
           </View>
@@ -186,7 +204,13 @@ export default function DesignSystemPage() {
             <View className="flex-row flex-wrap gap-2">
               <Chip label="Pizza" variant="primary" selected />
               <Chip label="Grafica" variant="default" />
-              <Chip label="Arte" variant="default" onRemove={() => {}} />
+              <Chip
+                label="Arte"
+                variant="default"
+                onRemove={() => {
+                  /* empty */
+                }}
+              />
               <Chip label="Success" variant="success" />
               <Chip label="Error" variant="error" />
             </View>
@@ -222,11 +246,15 @@ export default function DesignSystemPage() {
             </Text>
             <View className="gap-4">
               <View>
-                <Text className="text-sm text-secondary mb-2">Light Variant</Text>
+                <Text className="text-sm text-secondary mb-2">
+                  Light Variant
+                </Text>
                 <NavigationBar items={navigationItems} variant="light" />
               </View>
               <View>
-                <Text className="text-sm text-secondary mb-2">Dark Variant</Text>
+                <Text className="text-sm text-secondary mb-2">
+                  Dark Variant
+                </Text>
                 <NavigationBar items={navigationItems} variant="dark" />
               </View>
             </View>

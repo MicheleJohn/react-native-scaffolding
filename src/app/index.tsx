@@ -10,8 +10,8 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1">
+    <SafeAreaView>
+      <ScrollView>
         <View className="p-4">
           {/* Header */}
           <View className="mb-8">
