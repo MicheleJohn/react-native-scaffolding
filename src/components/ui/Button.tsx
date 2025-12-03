@@ -111,16 +111,15 @@ export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
           className
         )}
         {...props}>
-        {loading ? (
+        {loading && (
           <ActivityIndicator
             size="small"
             color={variant === 'primary' ? '#FFFFFF' : '#0F172A'}
           />
-        ) : (
-          <Text className={cn(buttonTextVariants({ variant, size }))}>
-            {children}
-          </Text>
         )}
+        <Text className={cn(buttonTextVariants({ variant, size }))}>
+          {children}
+        </Text>
       </TouchableOpacity>
     );
   }
