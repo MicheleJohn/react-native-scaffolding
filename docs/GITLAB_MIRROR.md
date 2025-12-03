@@ -1,10 +1,43 @@
-# GitHub → GitLab Auto-Mirror
+# GitHub → GitLab Auto-Mirror (Branch-Safe)
 
 ## 🎯 Overview
 
-Questo workflow GitHub Actions **automaticamente** pusha ogni commit da GitHub a GitLab.
+Questo workflow GitHub Actions **automaticamente**:
+1. Pusha ogni branch da GitHub a GitLab
+2. Crea/aggiorna Merge Request su GitLab per feature/* e hotfix/*
+3. **NON** tocca main direttamente su GitLab (merge avviene là)
 
-**Perché:** GitLab Pull mirroring richiede **Premium tier** ($19/user/month). Questa è un'alternativa **FREE** usando GitHub Actions!
+**Perché:** GitLab Pull mirroring richiede **Premium tier** ($19/user/month). Questa è un'alternativa **FREE** e **più sicura** per ambienti enterprise.
+
+---
+
+## 🔄 Come Funziona
+
+```
+GitHub (origin)
+    ↓
+    Push to any branch (main, develop, feature/*, hotfix/*)
+    ↓
+    GitHub Actions workflow triggered
+    ↓
+    git push gitlab HEAD:refs/heads/<branch>
+    ↓
+    If feature/* or hotfix/*:
+      Create/Update Merge Request on GitLab
+    ↓
+GitLab (mirror)
+    ↓
+    Review & Approve MR
+    ↓
+    Merge to main (on GitLab)
+```
+
+**Benefits:**
+- ✅ Preserva GitLab review process
+- ✅ Mantiene approvals e protected branches
+- ✅ GitLab CI/CD runs normalmente
+- ✅ Nessun force push su main
+- ✅ Completamente FREE
 
 ---
 
@@ -22,49 +55,34 @@ Initialize repository: ❌ NO (importeremo da GitHub)
 Create project ✅
 ```
 
-### **Step 2: Unprotect Default Branch (IMPORTANTE!)**
-
-**CRITICAL:** GitLab protegge il default branch per default, bloccando force pushes.
+### **Step 2: Ottieni GitLab Project ID**
 
 ```
-GitLab Project → Settings → Repository → Protected branches
+GitLab Project → Settings → General
 
-Find: main (or master)
-Click: Unprotect
+📋 Project ID: 12345678 (numero in alto)
 
-⚠️ Questo permette al workflow di pushare!
-```
-
-**Alternative (più sicura):**
-
-```
-GitLab Project → Settings → Repository → Protected branches
-
-Find: main
-Allowed to push: Maintainers
-Allowed to force push: ✅ Enable (toggle ON)
-
-✅ Save changes
+Copia questo ID!
 ```
 
 ### **Step 3: Genera GitLab Access Token**
 
 ```
-GitLab → Settings → Access Tokens
+GitLab Project → Settings → Access Tokens
 
-Token name: GitHub Mirror
-Expiration: No expiration (o 1 year)
+Token name: GitHub Mirror Bot
+Expiration: 1 year (recommended)
 
-Select a role: Maintainer (needed for force push)
+Select a role: Maintainer (needed for MR creation)
 
 Scopes:
-✅ api
+✅ api (for MR creation)
 ✅ read_repository
 ✅ write_repository
 
 Create project access token ✅
 
-Copia token: glpat-xxxxxxxxxxxxx
+📋 Copia token: glpat-xxxxxxxxxxxxx
 ```
 
 ### **Step 4: Aggiungi Secrets su GitHub**
@@ -80,136 +98,128 @@ New repository secret:
    Add secret ✅
 
 2. Name: GITLAB_TOKEN
-   Value: glpat-xxxxxxxxxxxxx (token from Step 3)
+   Value: glpat-xxxxxxxxxxxxx (from Step 3)
+   Add secret ✅
+
+3. Name: GITLAB_HOST
+   Value: gitlab.com (or gitlab.yourcompany.com)
+   Add secret ✅
+
+4. Name: GITLAB_PROJECT_ID
+   Value: 12345678 (from Step 2)
    Add secret ✅
 ```
 
-### **Step 5: Test**
+### **Step 5: Configure GitLab Protected Branches (Raccomandato)**
+
+**Proteggi main su GitLab:**
+
+```
+GitLab → Settings → Repository → Protected branches
+
+main:
+├─ Allowed to merge: Maintainers
+├─ Allowed to push: No one (✅ Raccomandato)
+└─ Allowed to force push: ❌ Disabled
+
+Save changes ✅
+```
+
+**Perché:** Main viene aggiornato solo via MR (review process)
+
+### **Step 6: Test**
 
 ```bash
-# Fai un commit su GitHub
+# Crea feature branch su GitHub
+git checkout -b feature/test-mirror
 git commit -m "Test mirror" --allow-empty
-git push origin main
+git push origin feature/test-mirror
+
+# Wait ~30-60 sec
 
 # Check GitHub Actions
-GitHub → Actions → Mirror to GitLab → Should be running
+GitHub → Actions → Mirror to GitLab → Should succeed ✅
 
-# Check GitLab (dopo ~30 sec)
-GitLab → Repository → Commits → Dovrebbe esserci il commit!
+# Check GitLab
+GitLab → Repository → Branches → feature/test-mirror presente ✅
+GitLab → Merge Requests → Nuova MR creata! ✅
 ```
 
 ---
 
-## 🔄 How It Works
+## 📝 Workflow Behavior
 
-```
-GitHub (origin)
-    ↓
-    Push to main
-    ↓
-    Trigger GitHub Actions
-    ↓
-    For each branch:
-      git push gitlab origin/branch:refs/heads/branch --force
-    ↓
-GitLab (mirror)
-```
+### **Branch Mirroring**
 
-**Features:**
-- ✅ Pushes all branches individually (not --mirror)
-- ✅ Avoids "deny updating a hidden ref" errors
-- ✅ Works with protected branches (if force push enabled)
-- ✅ Full history preserved
-- ✅ ~30-60 seconds delay
+| GitHub Branch | GitLab Push | MR Created? | Target Branch |
+|---------------|-------------|-------------|---------------|
+| `main` | ✅ Yes | ❌ No | N/A |
+| `develop` | ✅ Yes | ❌ No | N/A |
+| `feature/*` | ✅ Yes | ✅ Yes | `main` |
+| `hotfix/*` | ✅ Yes | ✅ Yes | `main` |
+| Other | ❌ No | ❌ No | N/A |
+
+### **Merge Request Auto-Creation**
+
+**Per feature/* e hotfix/*:**
+
+1. **First push** → Crea nuova MR su GitLab
+2. **Subsequent pushes** → Aggiorna MR esistente
+3. **MR title:** 🔄 Mirror: feature/xyz → main
+4. **MR description:** Include source, target, e link GitHub
 
 ---
 
 ## 🐛 Troubleshooting
 
-### **Error: pre-receive hook declined**
-
-```
-remote: GitLab: The default branch of a project cannot be deleted.
-! [remote rejected] main (pre-receive hook declined)
-```
-
-**Solution:** Unprotect branch o enable force push
-
-```
-GitLab → Settings → Repository → Protected branches
-→ main → Unprotect
-OR
-→ main → Allowed to force push: ✅ Enable
-```
-
----
-
-### **Error: deny updating a hidden ref**
-
-```
-! [remote rejected] origin/main -> origin/main (deny updating a hidden ref)
-```
-
-**Solution:** ✅ Already fixed in workflow!
-
-Workflow now pushes only real branches:
-```bash
-# ❌ OLD (broken):
-git push gitlab --mirror
-
-# ✅ NEW (works):
-for branch in $(git branch -r | grep 'origin/'); do
-  git push gitlab origin/$branch:refs/heads/$branch
-done
-```
-
----
-
 ### **Error: Authentication failed**
 
 ```
 ✅ Check GITLAB_TOKEN is valid
-✅ Token has write_repository scope
+✅ Token has api, read_repository, write_repository scopes
 ✅ Token role is Maintainer (not Developer)
 ✅ Token not expired
-✅ GITLAB_URL format correct (must end with .git)
 ```
 
----
-
-### **Error: Repository not found**
+### **Error: Project not found**
 
 ```
-✅ Check GITLAB_URL correct
-✅ GitLab project exists
+✅ Check GITLAB_URL format: https://gitlab.com/namespace/project.git
+✅ Check GITLAB_PROJECT_ID is correct (numeric ID)
 ✅ Token has access to project
-✅ Project visibility allows token access
 ```
 
----
+### **Error: Cannot create MR**
+
+```
+✅ GITLAB_HOST correct (gitlab.com or your instance)
+✅ GITLAB_PROJECT_ID correct (numeric)
+✅ Token has 'api' scope
+✅ Source branch exists on GitLab
+```
+
+### **MR not created for feature branch**
+
+```
+Check:
+✅ Branch name starts with 'feature/' or 'hotfix/'
+✅ GitHub Actions workflow completed successfully
+✅ GITLAB_PROJECT_ID and GITLAB_HOST secrets exist
+```
 
 ### **Mirror not happening**
 
 ```
 GitHub → Actions → Check workflow runs
 → If failed, check logs
-→ If not triggered, check workflow trigger (only on main branch)
-```
-
----
-
-### **GitLab shows old commits**
-
-```bash
-# Force re-mirror from GitHub Actions
-GitHub → Actions → Mirror to GitLab → Re-run workflow (manual trigger)
+→ If not triggered, check branch matches trigger patterns
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### **Mirror Multiple Branches**
+### **Mirror Additional Branch Patterns**
 
 ```yaml
 # .github/workflows/mirror-to-gitlab.yml
@@ -217,123 +227,115 @@ on:
   push:
     branches:
       - main
-      - develop      # Add more branches
-      - 'release/**' # Branch patterns
+      - develop
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'release/**'  # Add release branches
+      - 'bugfix/**'   # Add bugfix branches
 ```
 
-### **Skip CI on Mirror Commits**
-
-Su GitLab, modifica `.gitlab-ci.yml`:
-
-```yaml
-workflow:
-  rules:
-    # Skip CI se commit da mirror
-    - if: '$CI_COMMIT_AUTHOR == "GitHub Mirror Bot"'
-      when: never
-    - when: always
-```
-
-### **Notifications on Failure**
+### **Change MR Target Branch**
 
 ```yaml
 # .github/workflows/mirror-to-gitlab.yml
-jobs:
-  mirror:
-    steps:
-      # ... existing steps ...
-      
-      - name: Notify on failure
-        if: failure()
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {"text": "❌ GitLab mirror failed!"}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+# In "Create or update Merge Request" step:
+
+- TARGET_BRANCH="main"  # Change to "develop" if needed
++ TARGET_BRANCH="develop"
+```
+
+### **Skip MR for Certain Branches**
+
+```yaml
+# .github/workflows/mirror-to-gitlab.yml
+
+- if: startsWith(steps.vars.outputs.BRANCH, 'feature/') || startsWith(steps.vars.outputs.BRANCH, 'hotfix/')
++ if: startsWith(steps.vars.outputs.BRANCH, 'feature/')  # Only feature branches
+```
+
+### **Manual Trigger for Any Branch**
+
+```
+GitHub → Actions → Mirror to GitLab (Branch-Safe)
+→ Run workflow
+→ Branch: feature/my-branch (optional, leave empty for current)
+→ Run workflow ✅
 ```
 
 ---
 
-## 📊 Comparison: GitHub Actions vs GitLab Pull Mirroring
+## 📊 Comparison: Solutions
 
-| Feature | GitHub Actions | GitLab Pull Mirror |
-|---------|----------------|--------------------|
-| **Cost** | FREE | $19/user/month |
-| **Delay** | ~30-60 sec | ~5 min |
-| **Setup** | 5 min | 2 min |
-| **Works with** | GitLab Free ✅ | GitLab Premium only |
-| **Protected branches** | Need to configure | Works OOTB |
-| **Force push** | Supported | Not needed |
+| Method | Cost | Delay | Direct main push | Review process | Works with |
+|--------|------|-------|------------------|----------------|------------|
+| **GitHub Actions (MR)** | FREE | 30-60s | ❌ No (safer) | ✅ Preserved | GitLab Free ✅ |
+| **GitHub Actions (Force)** | FREE | 30s | ✅ Yes | ❌ Bypassed | GitLab Free ✅ |
+| **GitLab Pull Mirror** | $19/mo | 5 min | ✅ Yes | ❌ Bypassed | Premium only |
+
+**Winner:** GitHub Actions with MR! 🏆
 
 ---
 
 ## 💡 Pro Tips
 
-### **1. Use Project Access Token**
+### **1. GitLab CI/CD Still Works**
+
+```yaml
+# .gitlab-ci.yml on GitLab runs normally
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  script:
+    - pnpm run lint
+    - pnpm run test
+  only:
+    - merge_requests  # Run on MRs
+```
+
+### **2. Require Approvals on GitLab**
 
 ```
-✅ Project Access Token (scoped to project)
-❌ Personal Access Token (access to all repos)
+GitLab → Settings → Merge requests
+
+Merge request approvals:
+├─ Approvals required: 1 (or more)
+├─ Prevent approval by author: ✅ Enable
+└─ Require approval on new commits: ✅ Enable
+
+Save changes ✅
 ```
 
-### **2. Set Token Expiration**
+### **3. Auto-Close MR on Merge**
 
-```
-✅ 1 year expiration (add calendar reminder)
-⚠️ No expiration (risk if token leaked)
-```
-
-### **3. Rotate Tokens Regularly**
-
-```
-1. Generate new token
-2. Update GitHub secret
-3. Test mirror
-4. Revoke old token
-```
+GitLab automatically closes MR when merged. No configuration needed!
 
 ### **4. Monitor Mirror Health**
 
 ```
-GitHub → Actions → Mirror to GitLab
+GitHub → Actions → Mirror to GitLab (Branch-Safe)
 → Check recent runs
 → Enable notifications on failure
 ```
 
----
+### **5. Branch Protection Best Practices**
 
-## ✅ Advantages
-
-- ✅ **FREE** (no Premium tier needed)
-- ✅ **Faster** (~30-60 sec vs 5 min)
-- ✅ **More control** (customize mirror logic)
-- ✅ **Works with GitLab Free**
-- ✅ **Transparent** (see mirror status in GitHub Actions)
-- ✅ **Reliable** (GitHub Actions SLA)
-
----
-
-## ❌ Limitations
-
-- ⚠️ Uses GitHub Actions minutes (2000/month free)
-- ⚠️ ~30-60 sec delay (vs 5 min for GitLab pull mirror)
-- ⚠️ Requires unprotecting default branch OR enabling force push
-- ⚠️ Only mirrors on push to specified branches
-
----
-
-## 📊 GitHub Actions Minutes Usage
-
+**GitHub (development):**
 ```
-Mirror job: ~30-60 seconds per run
+Branch protection for main:
+✅ Require pull request reviews
+✅ Require status checks
+✅ Require conversation resolution
+```
 
-Example project:
-- 100 commits/month to main
-- = 50-100 minutes/month
-- = 2.5-5% of 2000 free minutes
-
-✅ Plenty of headroom!
+**GitLab (production/internal):**
+```
+Protected branch for main:
+✅ Allowed to push: No one
+✅ Allowed to merge: Maintainers
+✅ Require approvals: 1+
 ```
 
 ---
@@ -343,9 +345,11 @@ Example project:
 ### **Token Permissions (Minimal)**
 
 ```
-✅ Role: Maintainer (minimum for force push)
-✅ Scopes: api, read_repository, write_repository (only what's needed)
-❌ Don't use Owner tokens
+✅ Use Project Access Token (not Personal)
+✅ Role: Maintainer (minimum needed)
+✅ Scopes: api, read_repository, write_repository ONLY
+✅ Expiration: 1 year (add calendar reminder)
+❌ Don't use Owner/Admin tokens
 ```
 
 ### **GitHub Secrets**
@@ -354,19 +358,55 @@ Example project:
 ✅ Use repository secrets (not environment)
 ✅ Never commit tokens to code
 ✅ Rotate tokens every 6-12 months
-✅ Use separate tokens per environment
+✅ Use separate tokens per environment (prod/staging)
 ```
 
-### **Protected Branches (GitLab)**
+### **GitLab Access Control**
 
 ```
-Option A (less secure):
-→ Unprotect main branch
+✅ Restrict who can approve MRs
+✅ Enable "Require approval on new commits"
+✅ Use CODEOWNERS for automatic reviewers
+✅ Audit access tokens regularly
+```
 
-Option B (more secure):
-→ Keep protected
-→ Enable "Allowed to force push"
-→ Only for Maintainers
+---
+
+## ✅ Advantages
+
+- ✅ **FREE** (no Premium tier needed)
+- ✅ **Fast** (~30-60 sec delay)
+- ✅ **Safe** (no direct push to main)
+- ✅ **Review process** (GitLab MR workflow intact)
+- ✅ **Approvals** (GitLab approval rules work)
+- ✅ **CI/CD** (GitLab pipelines run normally)
+- ✅ **Audit trail** (all changes via MR)
+- ✅ **Works with GitLab Free**
+- ✅ **Enterprise-ready** (respects protection rules)
+
+---
+
+## ❌ Limitations
+
+- ⚠️ Uses GitHub Actions minutes (2000/month free)
+- ⚠️ ~30-60 sec delay (vs 5 min for GitLab pull mirror)
+- ⚠️ Requires manual merge on GitLab (by design - safer!)
+- ⚠️ Only mirrors configured branch patterns
+
+---
+
+## 📊 GitHub Actions Minutes Usage
+
+```
+Mirror job: ~30-60 seconds per run
+
+Example project:
+- 50 feature branches/month
+- 5 pushes per feature = 250 pushes
+- = 125-250 minutes/month
+- = 6-12% of 2000 free minutes
+
+✅ Still plenty of headroom!
 ```
 
 ---
@@ -374,10 +414,10 @@ Option B (more secure):
 ## 📚 Additional Resources
 
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
+- [GitLab MR API](https://docs.gitlab.com/ee/api/merge_requests.html)
 - [GitLab Protected Branches](https://docs.gitlab.com/ee/user/project/protected_branches.html)
-- [GitLab Access Tokens](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html)
-- [Git Push Force](https://git-scm.com/docs/git-push#Documentation/git-push.txt---force)
+- [GitLab Approval Rules](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
 
 ---
 
-**Summary:** FREE GitHub → GitLab mirroring with proper error handling! 🚀
+**Summary:** FREE, safe, enterprise-ready GitHub → GitLab mirroring with review process! 🚀
