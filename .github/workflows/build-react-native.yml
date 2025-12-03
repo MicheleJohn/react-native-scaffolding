@@ -93,6 +93,7 @@ jobs:
           cd android
           ./gradlew assembleRelease
         env:
+          SENTRY_SKIP_UPLOAD: true # TODO - Integrate with Sentry
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -182,6 +183,7 @@ jobs:
             -archivePath build/YourApp.xcarchive \
             archive
         env:
+          SENTRY_SKIP_UPLOAD: true # TODO - Integrate with Sentry
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
