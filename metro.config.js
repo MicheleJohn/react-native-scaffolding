@@ -1,18 +1,40 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
+const { withNativewind } = require('nativewind/metro');
 
-const config = getDefaultConfig(__dirname);
+// Get base configs
+const defaultConfig = getDefaultConfig(__dirname);
+const sentryConfig = getSentryExpoConfig(__dirname);
 
-// Enable SVG transformation for React Native
-config.transformer = {
-  ...config.transformer,
+// Configure Sentry resolver
+sentryConfig.resolver = sentryConfig.resolver || {};
+sentryConfig.resolver.assetExts = [
+  ...(sentryConfig.resolver.assetExts || []),
+  'riv',
+];
+sentryConfig.resolver.blockList = [/context\.md$/, /context\.txt$/];
+
+// Merge default + sentry
+const baseConfig = mergeConfig(defaultConfig, sentryConfig);
+
+// ✅ FIX: Configure SVG transformer correctly
+const { transformer, resolver } = baseConfig;
+
+baseConfig.transformer = {
+  ...transformer,
+  // ✅ CORRECT: Use require.resolve() with string path
   babelTransformerPath: require.resolve('react-native-svg-transformer'),
 };
 
-// Treat .svg files as source code, not assets
-config.resolver = {
-  ...config.resolver,
-  assetExts: config.resolver.assetExts.filter((ext) => ext !== 'svg'),
-  sourceExts: [...config.resolver.sourceExts, 'svg'],
+baseConfig.resolver = {
+  ...resolver,
+  // Remove 'svg' from asset extensions
+  assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+  // Add 'svg' to source extensions
+  sourceExts: [...resolver.sourceExts, 'svg'],
 };
 
-module.exports = config;
+// Apply NativeWind last
+const finalConfig = withNativewind(baseConfig, { input: './global.css' });
+
+module.exports = finalConfig;
