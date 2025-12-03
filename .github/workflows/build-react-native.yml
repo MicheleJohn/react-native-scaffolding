@@ -60,6 +60,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Setup Gradle Wrapper
+        run: |
+          cd android
+          # Check if gradlew exists
+          if [ ! -f "gradlew" ]; then
+            echo "Gradle wrapper not found, generating..."
+            # Use gradle from system to generate wrapper
+            gradle wrapper
+          fi
+          # Make gradlew executable
+          chmod +x gradlew
+          echo "Gradle wrapper ready!"
+
       - name: Build Android APK (Debug)
         if: inputs.build_type == 'debug'
         run: |
@@ -87,11 +100,11 @@ jobs:
 
       - name: Build info
         run: |
-          echo "✅ Android build completed!"
-          echo "📱 Platform: Android"
-          echo "🔧 Build type: ${{ inputs.build_type }}"
-          echo "💰 Cost: FREE (GitHub Actions minutes)"
-          echo "📥 Download APK from Actions artifacts"
+          echo "OK - Android build completed"
+          echo "PLATFORM - Android"
+          echo "BUILD TYPE - ${{ inputs.build_type }}"
+          echo "COST - FREE (GitHub Actions minutes)"
+          echo "INFO - Download APK from Actions artifacts"
 
   build-ios:
     name: Build iOS IPA (FREE)
@@ -168,8 +181,8 @@ jobs:
 
       - name: Build info
         run: |
-          echo "✅ iOS build completed!"
-          echo "📱 Platform: iOS"
-          echo "🔧 Build type: ${{ inputs.build_type }}"
-          echo "💰 Cost: FREE (GitHub Actions minutes)"
-          echo "📥 Download IPA from Actions artifacts"
+          echo "OK - iOS build completed"
+          echo "PLATFORM - iOS"
+          echo "BUILD TYPE - ${{ inputs.build_type }}"
+          echo "COST - FREE (GitHub Actions minutes)"
+          echo "INFO - Download IPA from Actions artifacts"
