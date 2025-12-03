@@ -1,7 +1,8 @@
-name: EAS Build
+name: Build EAS (Paid)
 
-# Manual trigger for iOS/Android builds
-# Requires EXPO_TOKEN secret in GitHub Settings
+# PAID - Expo EAS builds (requires subscription)
+# Requires: EXPO_TOKEN secret
+# Cost: ~$99/month for unlimited builds
 on:
   workflow_dispatch:
     inputs:
@@ -25,7 +26,7 @@ on:
 
 jobs:
   eas-build:
-    name: EAS Build
+    name: EAS Build (PAID)
     runs-on: ubuntu-latest
     
     steps:
@@ -64,4 +65,5 @@ jobs:
           echo "✅ EAS Build triggered!"
           echo "📱 Platform: ${{ inputs.platform }}"
           echo "🔧 Profile: ${{ inputs.profile }}"
+          echo "💰 Cost: Using paid EAS subscription"
           echo "🔔 Check build status at: https://expo.dev"

@@ -183,5 +183,17 @@ export default defineConfig(
         },
       },
     },
+  },
+  {
+    files: ['./src/components/icons/**/*.{ts,tsx}'],
+    rules: {
+      'unused-imports/no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'react/prop-types': 'off',
+      'import/no-anonymous-default-export': 'off',
+      'no-console': 'off',
+      'prettier/prettier': 'off',
+    },
   }
 );

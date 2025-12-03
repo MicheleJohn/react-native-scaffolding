@@ -1,8 +1,7 @@
-name: CI
+name: CI - Lint & Test
 
+# Only run on PR to avoid duplicate runs
 on:
-  push:
-    branches: [main, develop]
   pull_request:
     branches: [main, develop]
 
@@ -18,11 +17,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        # La versione viene letta automaticamente da package.json (packageManager field)
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -31,7 +31,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -41,21 +41,30 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run ESLint
-        run: pnpm lint
+      - name: Verify icon generation
+        run: |
+          if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
+            echo "❌ Error: Icon generation failed!"
+            exit 1
+          fi
+          echo "✅ Icons generated successfully"
+          ls -la src/components/icons/
 
-      - name: Check formatting
-        run: pnpm format:check
+      - name: Lint
+        run: pnpm run lint
 
       - name: Type check
-        run: pnpm type-check
+        run: pnpm run type-check
+
+      - name: Check formatting
+        run: pnpm run format:check
 
       - name: Run tests
-        run: pnpm test:ci
+        run: pnpm run test:ci
 
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
+      - name: Upload coverage
+        if: success()
+        uses: codecov/codecov-action@v3
         with:
           files: ./coverage/coverage-final.json
           flags: unittests

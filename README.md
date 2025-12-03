@@ -14,6 +14,7 @@
 - **i18next** per internazionalizzazione
 - **Sentry** per error tracking e monitoring
 - **React Native WebView** per integrare portali web
+- **🎨 Automated Icon System** con SVGR per icone custom da Figma
 
 ## 🏗️ Architettura
 
@@ -22,6 +23,7 @@ src/
 ├── app/              # Expo Router (file-based routing)
 ├── components/       # Componenti UI riutilizzabili
 │   ├── ui/          # Componenti base del design system
+│   ├── icons/       # 🤖 Auto-generated icons (do not edit)
 │   └── shared/      # Componenti condivisi tra features
 ├── features/        # Feature modules (domain-driven)
 │   ├── auth/
@@ -35,6 +37,13 @@ src/
 ├── utils/           # Utility functions
 ├── i18n/            # Traduzioni e configurazione i18n
 └── config/          # Configurazioni app
+
+assets/
+└── icons/           # 📁 SVG source files (export from Figma)
+
+scripts/
+├── generate-icons.js # Icon generation automation
+└── clean-icons.js    # Icon cleanup utility
 ```
 
 ## 🚀 Getting Started
@@ -42,7 +51,7 @@ src/
 ### Prerequisiti
 
 - Node.js 20+ (gestito con Volta)
-- pnpm 9+
+- pnpm 10+
 - Expo CLI
 
 ### Installazione
@@ -55,7 +64,8 @@ curl https://get.volta.sh | bash
 git clone https://github.com/MicheleJohn/react-native-scaffolding.git
 cd react-native-scaffolding
 
-# Installa dipendenze (Volta gestirà automaticamente Node e pnpm)
+# Installa dipendenze
+# ⚡ Icons vengono generati automaticamente dopo install (postinstall hook)
 pnpm install
 
 # Avvia il progetto
@@ -76,7 +86,84 @@ pnpm format         # Formatta codice con Prettier
 pnpm format:check   # Controlla formattazione
 pnpm type-check     # Verifica tipi TypeScript
 pnpm test           # Esegue test
+
+# Icon management
+pnpm icons:generate # Genera componenti React Native da SVG
+pnpm icons:clean    # Rimuove componenti generati
 ```
+
+## 🎨 Icon System (Automated)
+
+Questo progetto include un **sistema automatizzato di generazione icone** che converte SVG esportati da Figma in componenti React Native TypeScript type-safe.
+
+### Quick Start Icons
+
+```bash
+# 1. Aggiungi SVG da Figma a assets/icons/
+cp ~/Downloads/my-icon.svg assets/icons/
+
+# 2. Genera componenti (auto-run dopo pnpm install)
+pnpm run icons:generate
+
+# 3. Usa nel codice
+import { MyIcon } from '@/components/icons';
+<MyIcon size={24} color="#009FE3" />
+```
+
+### Workflow Completo
+
+**Export da Figma:**
+1. Seleziona icona in Figma
+2. Right-click → **Copy as SVG**
+3. Salva come `icon-name.svg` in `assets/icons/`
+4. Naming: lowercase con dash (`home.svg`, `user-profile.svg`)
+
+**Generazione Automatica:**
+```bash
+# Genera tutti i componenti da SVG
+pnpm run icons:generate
+
+# Output:
+# ✅ src/components/icons/HomeIcon.tsx
+# ✅ src/components/icons/UserProfileIcon.tsx
+# ✅ src/components/icons/index.ts (barrel export)
+```
+
+**Uso nel Codice:**
+```tsx
+import { HomeIcon, UserProfileIcon } from '@/components/icons';
+
+// Basic usage
+<HomeIcon />
+
+// Custom size and color
+<UserProfileIcon size={32} color="#009FE3" />
+
+// With NativeWind
+<HomeIcon size={20} className="text-primary" />
+
+// With design system
+<HomeIcon color={colors.primary} />
+```
+
+### Icon Props API
+
+Tutti i componenti icona hanno la stessa API:
+```tsx
+interface IconProps {
+  size?: number;        // Default: 24
+  color?: string;       // Default: 'currentColor'
+  className?: string;   // NativeWind support
+  // + tutti i props di react-native-svg
+}
+```
+
+**📚 Documentazione Completa:** Vedi [`docs/ICON_SYSTEM.md`](./docs/ICON_SYSTEM.md) per:
+- Setup dettagliato
+- Best practices Figma
+- Advanced patterns
+- Troubleshooting
+- CI/CD integration
 
 ## 🔧 Configurazione
 
@@ -186,6 +273,8 @@ eas build --platform android
 eas build --platform ios
 ```
 
+**Note:** Icons vengono generati automaticamente durante build CI/CD (vedi `.github/workflows/ci.yml`).
+
 ## 🧪 Testing
 
 Setup Jest con React Native Testing Library:
@@ -212,6 +301,17 @@ Husky + lint-staged verificano:
 - Unused imports detection
 - TanStack Query best practices
 
+### CI/CD Pipeline
+
+GitHub Actions verifica automaticamente:
+- ✅ Icon generation (postinstall)
+- ✅ Linting
+- ✅ Type checking
+- ✅ Tests
+- ✅ Build
+
+Vedi [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) per dettagli.
+
 ## 🤝 Contributing
 
 1. Fork il progetto
@@ -220,6 +320,11 @@ Husky + lint-staged verificano:
 4. Push al branch (`git push origin feature/AmazingFeature`)
 5. Apri una Pull Request
 
+**Note per Contributors:**
+- 📁 Committa solo SVG in `assets/icons/`, NON i TSX generati
+- 🤖 I componenti in `src/components/icons/` sono auto-generati
+- ✅ CI verificherà che icon generation funzioni
+
 ## 📄 License
 
 MIT
@@ -227,3 +332,14 @@ MIT
 ## 🙋‍♂️ Support
 
 Per domande o problemi, apri una issue su GitHub.
+
+---
+
+**✨ Features Highlight:**
+- 🚀 Production-ready scaffolding
+- 🎨 Automated icon generation from Figma
+- 📱 Cross-platform (iOS, Android, Web)
+- 🔒 Security best practices
+- 🧪 Full testing setup
+- 📚 Comprehensive documentation
+- 🤖 CI/CD with GitHub Actions
