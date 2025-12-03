@@ -116,3 +116,6 @@ src/components/icons/index.ts
 !src/components/icons/.gitkeep
 
 expo-env.d.ts
+
+android
+ios

@@ -41,6 +41,19 @@ jobs:
         with:
           version: 10.23.0
 
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
@@ -60,18 +73,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Setup Gradle Wrapper
+      - name: Prebuild Android (Expo)
+        run: pnpm run prebuild:android
+
+      - name: Make Gradle wrapper executable
         run: |
           cd android
-          # Check if gradlew exists
-          if [ ! -f "gradlew" ]; then
-            echo "Gradle wrapper not found, generating..."
-            # Use gradle from system to generate wrapper
-            gradle wrapper
-          fi
-          # Make gradlew executable
           chmod +x gradlew
-          echo "Gradle wrapper ready!"
 
       - name: Build Android APK (Debug)
         if: inputs.build_type == 'debug'
@@ -125,8 +133,24 @@ jobs:
         with:
           version: 10.23.0
 
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Prebuild iOS (Expo)
+        run: pnpm dlx expo prebuild --platform ios --non-interactive
 
       - name: Install CocoaPods
         run: |
