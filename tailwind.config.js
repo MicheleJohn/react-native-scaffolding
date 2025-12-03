@@ -4,10 +4,7 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      colors: {
-        primary: 'var(--color-primary-500)',
-        secondary: 'var(--color-secondary-500)',
-      },
+      // No need to define colors here - using @theme in global.css (Tailwind v4)
       spacing: {
         safe: 'var(--safe-area-inset-left)',
       },

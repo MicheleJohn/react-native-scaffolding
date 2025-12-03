@@ -1,97 +1,128 @@
-import { ActivityIndicator, Pressable, Text } from 'react-native';
+import React from 'react';
+import {
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  type TouchableOpacityProps,
+} from 'react-native';
 
-import type { ReactNode } from 'react';
-import type { PressableProps } from 'react-native';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
-type ButtonSize = 'sm' | 'md' | 'lg';
+import { cn } from '@/utils/cn';
 
-type ButtonProps = PressableProps & {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
-  disabled?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  children: string | ReactNode;
-  fullWidth?: boolean;
-};
+/**
+ * Button variant styles using CVA
+ */
+const buttonVariants = cva(
+  // Base styles - applied to all buttons
+  'flex-row items-center justify-center rounded-lg transition-colors',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-primary active:bg-primary-teal',
+        secondary: 'bg-secondary-light active:bg-secondary-green',
+        outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
+        ghost: 'bg-transparent active:bg-neutral-50',
+      },
+      size: {
+        sm: 'px-3 py-2',
+        md: 'px-4 py-2.5',
+        lg: 'px-6 py-3',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-primary-600 active:bg-primary-700',
-  secondary: 'bg-secondary-600 active:bg-secondary-700',
-  outline: 'bg-transparent border-2 border-primary-600 active:bg-primary-50',
-  ghost: 'bg-transparent active:bg-secondary-100',
-};
+/**
+ * Text variant styles using CVA
+ */
+const buttonTextVariants = cva('font-semibold text-center', {
+  variants: {
+    variant: {
+      primary: 'text-inverse',
+      secondary: 'text-primary',
+      outline: 'text-primary',
+      ghost: 'text-primary',
+    },
+    size: {
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+    },
+  },
+  defaultVariants: {
+    variant: 'primary',
+    size: 'md',
+  },
+});
 
-const variantTextStyles: Record<ButtonVariant, string> = {
-  primary: 'text-white',
-  secondary: 'text-white',
-  outline: 'text-primary-600',
-  ghost: 'text-secondary-900',
-};
+export type ButtonProps = TouchableOpacityProps &
+  VariantProps<typeof buttonVariants> & {
+    /**
+     * Content to display inside the button
+     */
+    children: React.ReactNode;
+    /**
+     * Show loading spinner
+     */
+    loading?: boolean;
+    /**
+     * Additional className for custom styling
+     */
+    className?: string;
+  };
 
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-2 rounded-md',
-  md: 'px-4 py-3 rounded-lg',
-  lg: 'px-6 py-4 rounded-xl',
-};
+/**
+ * Primary UI component for user interaction
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="md" onPress={() => console.log('pressed')}>
+ *   Click Me
+ * </Button>
+ * ```
+ */
+export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
+  (
+    {
+      variant = 'primary',
+      size = 'md',
+      loading = false,
+      disabled,
+      children,
+      className,
+      ...props
+    },
+    _ref
+  ) => {
+    const isDisabled = disabled ?? loading;
 
-const textSizeStyles: Record<ButtonSize, string> = {
-  sm: 'text-sm',
-  md: 'text-base',
-  lg: 'text-lg',
-};
-
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  disabled = false,
-  leftIcon,
-  rightIcon,
-  children,
-  fullWidth = false,
-  ...props
-}: ButtonProps) {
-  const isDisabled = disabled || loading;
-
-  return (
-    <Pressable
-      className={`
-        flex-row items-center justify-center
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${fullWidth ? 'w-full' : ''}
-        ${isDisabled ? 'opacity-50' : ''}
-      `}
-      disabled={isDisabled}
-      {...props}>
-      {loading && (
-        <ActivityIndicator
-          size="small"
-          color={
-            variant === 'primary' || variant === 'secondary'
-              ? '#fff'
-              : '#0284c7'
-          }
-          className="mr-2"
-        />
-      )}
-      {!loading && leftIcon && <>{leftIcon}</>}
-      {typeof children === 'string' ? (
-        <Text
-          className={`
-            font-semibold
-            ${variantTextStyles[variant]}
-            ${textSizeStyles[size]}
-          `}>
+    return (
+      <TouchableOpacity
+        // ref={ref}
+        disabled={isDisabled}
+        className={cn(
+          buttonVariants({ variant, size }),
+          isDisabled && 'opacity-50',
+          className
+        )}
+        {...props}>
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'primary' ? '#FFFFFF' : '#0F172A'}
+          />
+        )}
+        <Text className={cn(buttonTextVariants({ variant, size }))}>
           {children}
         </Text>
-      ) : (
-        children
-      )}
-      {!loading && rightIcon && <>{rightIcon}</>}
-    </Pressable>
-  );
-}
+      </TouchableOpacity>
+    );
+  }
+);
+
+Button.displayName = 'Button';

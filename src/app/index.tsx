@@ -10,90 +10,107 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1">
-      <ScrollView className="bg-secondary-500">
-        {/* Header */}
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-pink-500 mb-2">
-            {t('common.welcome')}
-          </Text>
-          <Text className="text-base text-secondary-600">
-            React Native Scaffolding
-          </Text>
-        </View>
-
-        {/* Welcome Card */}
-        <Card className="mb-6">
-          <Text className="text-xl font-semibold text-secondary-900 mb-2">
-            🚀 Ready to start!
-          </Text>
-          <Text className="text-secondary-700 mb-4">
-            This is your production-ready React Native scaffolding with Expo,
-            TypeScript, TanStack Query, i18n, and more.
-          </Text>
-          <Button
-            variant="primary"
-            onPress={() => {
-              console.log('Pressed!');
-            }}>
-            Get Started
-          </Button>
-        </Card>
-
-        {/* Features Cards */}
-        <View className="mb-6">
-          <Text className="text-xl font-bold text-secondary-900 mb-4">
-            ✨ Features
-          </Text>
-
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-secondary-900 mb-1">
-              🎨 NativeWind (Tailwind)
+    <SafeAreaView>
+      <ScrollView>
+        <View className="p-4">
+          {/* Header */}
+          <View className="mb-8">
+            <Text className="text-3xl font-bold text-primary mb-2">
+              {t('common.welcome')}
             </Text>
-            <Text className="text-secondary-600">
-              Utility-first styling with Tailwind CSS classes
+            <Text className="text-base text-secondary">
+              React Native Scaffolding
             </Text>
-          </Card>
+          </View>
 
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-secondary-900 mb-1">
-              🔍 TanStack Query
+          {/* Welcome Card */}
+          <Card variant="elevated" className="mb-6">
+            <Text className="text-xl font-semibold text-primary mb-2">
+              🚀 Ready to start!
             </Text>
-            <Text className="text-secondary-600">
-              Powerful data fetching and caching
+            <Text className="text-secondary mb-4">
+              This is your production-ready React Native scaffolding with Expo,
+              TypeScript, TanStack Query, i18n, and more.
             </Text>
-          </Card>
-
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-secondary-900 mb-1">
-              🌍 i18n Support
-            </Text>
-            <Text className="text-secondary-600">
-              Multi-language support with i18next
-            </Text>
-          </Card>
-
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-secondary-900 mb-1">
-              🛡️ Sentry Integration
-            </Text>
-            <Text className="text-secondary-600">
-              Error tracking and performance monitoring
-            </Text>
-          </Card>
-        </View>
-
-        {/* Navigation Examples */}
-        <View className="mb-6">
-          <Text className="text-xl font-bold text-secondary-900 mb-4">
-            🧪 Navigation Examples
-          </Text>
-
-          <Link href="/portals" asChild>
-            <Button variant="outline" fullWidth>
-              {t('navigation.portals')}
+            <Button
+              variant="primary"
+              onPress={() => {
+                console.log('Pressed!');
+              }}>
+              Get Started
             </Button>
-          </Link>
+          </Card>
+
+          {/* Design System Showcase */}
+          <Card variant="outlined" className="mb-6 border-primary">
+            <Text className="text-lg font-semibold text-primary mb-2">
+              🎨 Design System
+            </Text>
+            <Text className="text-secondary mb-3">
+              Explore all UI components and color palette
+            </Text>
+            <Link href="/design-system" asChild>
+              <Button variant="primary" size="md">
+                View Components & Colors
+              </Button>
+            </Link>
+          </Card>
+
+          {/* Features Cards */}
+          <View className="mb-6">
+            <Text className="text-xl font-bold text-primary mb-4">
+              ✨ Features
+            </Text>
+
+            <Card variant="elevated" className="mb-4">
+              <Text className="text-lg font-semibold text-primary mb-1">
+                🎨 NativeWind (Tailwind)
+              </Text>
+              <Text className="text-secondary">
+                Utility-first styling with Tailwind CSS classes
+              </Text>
+            </Card>
+
+            <Card variant="elevated" className="mb-4">
+              <Text className="text-lg font-semibold text-primary mb-1">
+                🔍 TanStack Query
+              </Text>
+              <Text className="text-secondary">
+                Powerful data fetching and caching
+              </Text>
+            </Card>
+
+            <Card variant="elevated" className="mb-4">
+              <Text className="text-lg font-semibold text-primary mb-1">
+                🌍 i18n Support
+              </Text>
+              <Text className="text-secondary">
+                Multi-language support with i18next
+              </Text>
+            </Card>
+
+            <Card variant="elevated" className="mb-4">
+              <Text className="text-lg font-semibold text-primary mb-1">
+                🛡️ Sentry Integration
+              </Text>
+              <Text className="text-secondary">
+                Error tracking and performance monitoring
+              </Text>
+            </Card>
+          </View>
+
+          {/* Navigation Examples */}
+          <View className="mb-6">
+            <Text className="text-xl font-bold text-primary mb-4">
+              🧪 Navigation Examples
+            </Text>
+
+            <Link href="/portals" asChild>
+              <Button variant="outline" className="w-full">
+                {t('navigation.portals')}
+              </Button>
+            </Link>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

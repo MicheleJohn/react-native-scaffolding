@@ -1,36 +1,59 @@
-import { View } from 'react-native';
+import React from 'react';
+import { View, type ViewProps } from 'react-native';
 
-import type { ReactNode } from 'react';
-import type { ViewProps } from 'react-native';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-type CardProps = ViewProps & {
-  children: ReactNode;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
-  shadow?: boolean;
-};
+import { cn } from '@/utils/cn';
 
-const paddingStyles = {
-  none: '',
-  sm: 'p-2',
-  md: 'p-4',
-  lg: 'p-6',
-};
+/**
+ * Card variant styles using CVA
+ */
+const cardVariants = cva('rounded-lg p-4', {
+  variants: {
+    variant: {
+      default: 'bg-background',
+      elevated: 'bg-background shadow-md',
+      outlined: 'bg-background border border-border',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
 
-export function Card({
-  children,
-  padding = 'md',
-  shadow = true,
-  ...props
-}: CardProps) {
-  return (
-    <View
-      className={`
-        bg-white rounded-xl border border-secondary-200
-        ${paddingStyles[padding]}
-        ${shadow ? 'shadow-md' : ''}
-      `}
-      {...props}>
-      {children}
-    </View>
-  );
-}
+export type CardProps = ViewProps &
+  VariantProps<typeof cardVariants> & {
+    /**
+     * Content to display inside the card
+     */
+    children: React.ReactNode;
+    /**
+     * Additional className for custom styling
+     */
+    className?: string;
+  };
+
+/**
+ * Container component for grouping related content
+ *
+ * @example
+ * ```tsx
+ * <Card variant="elevated">
+ *   <Text>Card content</Text>
+ * </Card>
+ * ```
+ */
+export const Card = React.forwardRef<View, CardProps>(
+  ({ variant = 'default', children, className, ...props }, ref) => {
+    return (
+      <View
+        ref={ref}
+        className={cn(cardVariants({ variant }), className)}
+        {...props}>
+        {children}
+      </View>
+    );
+  }
+);
+
+Card.displayName = 'Card';

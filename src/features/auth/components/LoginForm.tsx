@@ -83,7 +83,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       <Button
         variant="primary"
         size="lg"
-        fullWidth
         loading={isSubmitting}
         onPress={handleSubmit(handleFormSubmit)}>
         Accedi
