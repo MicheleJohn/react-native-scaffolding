@@ -1,34 +1,80 @@
 import React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
+import { cva, type VariantProps } from 'class-variance-authority';
+
 import { cn } from '@/utils/cn';
 
-export type ChipProps = {
+/**
+ * Chip container variant styles using CVA
+ */
+const chipVariants = cva(
+  'flex-row items-center px-3 py-1.5 rounded-full border',
+  {
+    variants: {
+      variant: {
+        default: 'bg-neutral-50 border-border',
+        primary: 'bg-primary/10 border-primary',
+        success: 'bg-success/10 border-success',
+        error: 'bg-error/10 border-error',
+      },
+      selected: {
+        true: 'bg-primary border-primary',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      selected: false,
+    },
+  }
+);
+
+/**
+ * Chip text variant styles using CVA
+ */
+const chipTextVariants = cva('text-sm font-medium', {
+  variants: {
+    variant: {
+      default: 'text-primary',
+      primary: 'text-primary',
+      success: 'text-success',
+      error: 'text-error',
+    },
+    selected: {
+      true: 'text-inverse',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+    selected: false,
+  },
+});
+
+export type ChipProps = VariantProps<typeof chipVariants> & {
+  /**
+   * Label text to display
+   */
   label: string;
+  /**
+   * Callback when remove icon is pressed
+   */
   onRemove?: () => void;
-  selected?: boolean;
+  /**
+   * Additional className for custom styling
+   */
   className?: string;
-  variant?: 'default' | 'primary' | 'success' | 'error';
 };
 
-const variantStyles = {
-  default: {
-    container: 'bg-neutral-50 border border-border',
-    text: 'text-primary',
-  },
-  primary: {
-    container: 'bg-primary/10 border border-primary',
-    text: 'text-primary',
-  },
-  success: {
-    container: 'bg-success/10 border border-success',
-    text: 'text-success',
-  },
-  error: {
-    container: 'bg-error/10 border border-error',
-    text: 'text-error',
-  },
-};
-
+/**
+ * Small tag or category indicator component
+ *
+ * @example
+ * ```tsx
+ * <Chip label="React" variant="primary" selected />
+ * <Chip label="TypeScript" onRemove={() => console.log('removed')} />
+ * ```
+ */
 export const Chip: React.FC<ChipProps> = ({
   label,
   onRemove,
@@ -36,30 +82,23 @@ export const Chip: React.FC<ChipProps> = ({
   variant = 'default',
   className,
 }) => {
-  const styles = variantStyles[variant];
-
   return (
-    <View
-      className={cn(
-        'flex-row items-center px-3 py-1.5 rounded-full',
-        styles.container,
-        selected && 'bg-primary border-primary',
-        className
-      )}>
-      <Text
-        className={cn(
-          'text-sm font-medium',
-          styles.text,
-          selected && 'text-inverse'
-        )}>
+    <View className={cn(chipVariants({ variant, selected }), className)}>
+      <Text className={cn(chipTextVariants({ variant, selected }))}>
         {label}
       </Text>
       {onRemove && (
         <TouchableOpacity
           onPress={onRemove}
           className="ml-2 w-4 h-4 items-center justify-center"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text className={cn('text-xs', selected ? 'text-inverse' : styles.text)}>
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text
+            className={cn(
+              'text-xs',
+              selected ? 'text-inverse' : chipTextVariants({ variant })
+            )}
+          >
             ✕
           </Text>
         </TouchableOpacity>
