@@ -2,10 +2,10 @@
 
 /**
  * Automated Icon Generation Script
- * 
+ *
  * Converts SVG files from assets/icons/ into React Native components
  * with TypeScript support and NativeWind integration.
- * 
+ *
  * Usage: pnpm run icons:generate
  */
 
@@ -21,16 +21,22 @@ console.log('🎨 Starting automated icon generation...\n');
 // Step 1: Check if assets/icons directory exists
 if (!fs.existsSync(ASSETS_DIR)) {
   console.error(`❌ Error: Directory ${ASSETS_DIR} does not exist!`);
-  console.log('\n📝 Please create assets/icons/ and add your SVG files there.\n');
+  console.log(
+    '\n📝 Please create assets/icons/ and add your SVG files there.\n'
+  );
   process.exit(1);
 }
 
 // Step 2: Check if there are SVG files
-const svgFiles = fs.readdirSync(ASSETS_DIR).filter(file => file.endsWith('.svg'));
+const svgFiles = fs
+  .readdirSync(ASSETS_DIR)
+  .filter((file) => file.endsWith('.svg'));
 
 if (svgFiles.length === 0) {
   console.log(`⚠️  No SVG files found in ${ASSETS_DIR}`);
-  console.log('\n📝 Add .svg files to assets/icons/ and run this script again.\n');
+  console.log(
+    '\n📝 Add .svg files to assets/icons/ and run this script again.\n'
+  );
   process.exit(0);
 }
 
@@ -49,42 +55,28 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 // Step 4: Run SVGR to generate components
 try {
   console.log('🔄 Generating React Native components...\n');
-  
+
   execSync(
-    `npx @svgr/cli --config-file=svgr.config.js --out-dir=${OUTPUT_DIR} ${ASSETS_DIR}`,
+    `pnpm dlx @svgr/cli --config-file=svgr.config.js --out-dir=${OUTPUT_DIR} ${ASSETS_DIR}`,
     { stdio: 'inherit' }
   );
-  
+
   console.log('\n✅ Components generated successfully!\n');
 } catch (error) {
   console.error('❌ Error generating components:', error.message);
   process.exit(1);
 }
 
-// Step 4.5: Run ESLint fix (ignore failures)
-console.log('🔧 Running ESLint fix on generated components...\n');
-
-try {
-  execSync(
-    `npx eslint "${OUTPUT_DIR}/**/*.{ts,tsx}" --fix --quiet || true`,
-    { stdio: 'inherit', shell: true }
-  );
-  console.log('✅ ESLint completed\n');
-} catch (error) {
-  // Ignore ESLint errors, continue anyway
-  console.log('⚠️  ESLint had issues but continuing...\n');
-}
-
-// Step 5: Generate index.ts file
+// Step 4: Generate index.ts file
 console.log('📝 Generating index.ts...\n');
 
 try {
   const componentFiles = fs
     .readdirSync(OUTPUT_DIR)
-    .filter(file => file.endsWith('.tsx') && file !== 'index.ts');
+    .filter((file) => file.endsWith('.tsx') && file !== 'index.ts');
 
   const exports = componentFiles
-    .map(file => {
+    .map((file) => {
       const componentName = path.basename(file, '.tsx');
       return `export { default as ${componentName} } from './${componentName}';`;
     })
@@ -109,11 +101,25 @@ ${exports}
 `;
 
   fs.writeFileSync(path.join(OUTPUT_DIR, 'index.ts'), indexContent);
-  
+
   console.log(`✅ Generated index.ts with ${componentFiles.length} exports\n`);
 } catch (error) {
   console.error('❌ Error generating index.ts:', error.message);
   process.exit(1);
+}
+
+// Step 5: Run ESLint fix (ignore failures)
+console.log('🔧 Running ESLint fix on generated components...\n');
+
+try {
+  execSync(`pnpm eslint "${OUTPUT_DIR}/**/*.{ts,tsx}" --fix --quiet || true`, {
+    stdio: 'inherit',
+    shell: true,
+  });
+  console.log('✅ ESLint completed\n');
+} catch (error) {
+  // Ignore ESLint errors, continue anyway
+  console.log('⚠️  ESLint had issues but continuing...\n');
 }
 
 // Step 6: Success summary
@@ -123,5 +129,5 @@ console.log('══════════════════════�
 console.log('📁 Output directory:', OUTPUT_DIR);
 console.log('📦 Components generated:', svgFiles.length);
 console.log('\n📚 Usage example:\n');
-console.log('   import { HomeIcon, ProfileIcon } from \'@/components/icons\';\n');
+console.log("   import { HomeIcon, ProfileIcon } from '@/components/icons';\n");
 console.log('   <HomeIcon size={24} color="#009FE3" />\n');

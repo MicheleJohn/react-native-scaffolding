@@ -64,6 +64,9 @@ DerivedData
 project.xcworkspace
 **/.xcode.env.local
 
+# testing
+coverage/
+
 # Android/IntelliJ
 #
 build/
@@ -111,3 +114,5 @@ src/components/icons/index.ts
 
 # Keep directory structure
 !src/components/icons/.gitkeep
+
+expo-env.d.ts

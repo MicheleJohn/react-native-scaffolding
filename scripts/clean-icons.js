@@ -2,9 +2,9 @@
 
 /**
  * Clean Generated Icons Script
- * 
+ *
  * Removes all generated icon components from src/components/icons/
- * 
+ *
  * Usage: npm run icons:clean
  */
 
@@ -24,16 +24,16 @@ try {
   // Remove all .tsx files
   const files = fs.readdirSync(OUTPUT_DIR);
   let removedCount = 0;
-  
-  files.forEach(file => {
+
+  files.forEach((file) => {
     const filePath = path.join(OUTPUT_DIR, file);
-    if (fs.statSync(filePath).isFile()) {
+    if (!filePath.endsWith('.gitkeep') && fs.statSync(filePath).isFile()) {
       fs.unlinkSync(filePath);
       removedCount++;
       console.log(`   ❌ Removed: ${file}`);
     }
   });
-  
+
   console.log(`\n✅ Cleaned ${removedCount} file(s) from ${OUTPUT_DIR}\n`);
 } catch (error) {
   console.error('❌ Error cleaning icons:', error.message);
