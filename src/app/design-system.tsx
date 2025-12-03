@@ -66,11 +66,19 @@ export default function DesignSystemPage() {
     },
   ];
 
+  /**
+   * ColorSwatch Component
+   * 
+   * ⚠️ IMPORTANT: Uses ONLY className for styling to avoid React Native
+   * style precedence issues. When mixing `style` and `className` props,
+   * inline styles always override className properties.
+   * 
+   * Using Tailwind arbitrary values: bg-[#HEXCODE]
+   */
   const ColorSwatch = ({ color, name }: { color: string; name: string }) => (
     <View className="items-center mb-3">
       <View
-        style={{ backgroundColor: color }}
-        className="w-16 h-16 rounded-lg mb-2 border border-border"
+        className={`w-16 h-16 rounded-lg mb-2 border border-border bg-[${color}]`}
       />
       <Text className="text-xs text-secondary text-center">{name}</Text>
       <Text className="text-xs text-tertiary font-mono">{color}</Text>
