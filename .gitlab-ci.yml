@@ -36,10 +36,7 @@ ci:lint-and-test:
     <<: *cache_config
     policy: pull-push
   script:
-    # Install dependencies (postinstall generates icons)
     - pnpm install --frozen-lockfile
-    
-    # Verify icon generation
     - |
       if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
         echo "❌ Error: Icon generation failed!"
@@ -47,14 +44,11 @@ ci:lint-and-test:
       fi
       echo "✅ Icons generated successfully"
       ls -la src/components/icons/
-    
-    # Run checks
     - pnpm run lint
     - pnpm run type-check
     - pnpm run format:check
     - pnpm run test:ci
   
-  # Coverage artifacts
   artifacts:
     when: always
     reports:
@@ -65,7 +59,6 @@ ci:lint-and-test:
       - coverage/
     expire_in: 7 days
   
-  # Only run on merge requests and main branches
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
@@ -82,8 +75,6 @@ build:web:
   script:
     - pnpm install --frozen-lockfile
     - pnpm run build:web
-    
-    # Display build info
     - echo "✅ Web build completed!"
     - echo "📦 Build size:"
     - du -sh dist/
@@ -94,7 +85,6 @@ build:web:
       - dist/
     expire_in: 30 days
   
-  # Only on main branch or manual trigger
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - when: manual
@@ -107,7 +97,6 @@ build:web:
 build:android:
   stage: build
   image: openjdk:17-slim
-  <<: *pnpm_setup
   cache:
     <<: *cache_config
     paths:
@@ -119,20 +108,15 @@ build:android:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   
   before_script:
-    # Install Node.js
     - apt-get update && apt-get install -y curl git
     - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
     - apt-get install -y nodejs
-    
-    # Setup pnpm
     - corepack enable
     - corepack prepare --activate
     - pnpm config set store-dir .pnpm-store
   
   script:
     - pnpm install --frozen-lockfile
-    
-    # Build APK (debug or release based on variable)
     - cd android
     - |
       if [ "$BUILD_TYPE" = "release" ]; then
@@ -140,7 +124,6 @@ build:android:
       else
         ./gradlew assembleDebug
       fi
-    
     - echo "✅ Android build completed!"
     - echo "📱 Platform: Android"
     - echo "🔧 Build type: ${BUILD_TYPE:-debug}"
@@ -152,7 +135,6 @@ build:android:
       - android/app/build/outputs/apk/**/*.apk
     expire_in: 30 days
   
-  # Manual trigger only
   rules:
     - when: manual
       allow_failure: true
@@ -172,25 +154,19 @@ build:eas:
   
   script:
     - pnpm install --frozen-lockfile
-    
-    # Install EAS CLI
     - pnpm add -g eas-cli
-    
-    # Run EAS Build
     - |
       eas build \
         --platform $PLATFORM \
         --profile $PROFILE \
         --non-interactive \
         --no-wait
-    
     - echo "✅ EAS Build triggered!"
     - echo "📱 Platform: $PLATFORM"
     - echo "🔧 Profile: $PROFILE"
     - echo "💰 Cost: Using paid EAS subscription"
     - echo "🔔 Check build status at: https://expo.dev"
   
-  # Requires EXPO_TOKEN secret
   rules:
     - if: $EXPO_TOKEN
       when: manual
@@ -211,22 +187,16 @@ update:eas:
   
   script:
     - pnpm install --frozen-lockfile
-    
-    # Install EAS CLI
     - pnpm add -g eas-cli
-    
-    # Publish OTA update
     - |
       eas update \
         --branch $BRANCH \
         --message "$MESSAGE" \
         --non-interactive
-    
     - echo "✅ EAS Update published!"
     - echo "🌿 Branch: $BRANCH"
     - echo "📱 Users will receive update on next app launch"
   
-  # Requires EXPO_TOKEN secret
   rules:
     - if: $EXPO_TOKEN && $CI_COMMIT_BRANCH == "main"
     - if: $EXPO_TOKEN
