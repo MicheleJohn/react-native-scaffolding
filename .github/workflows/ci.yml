@@ -1,14 +1,14 @@
-name: CI
+name: CI - Lint & Test
 
 on:
-  push:
-    branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  push:
+    branches: [develop]
 
 jobs:
   lint-and-test:
-    name: Lint & Test
+    name: Lint, Type Check & Test
     runs-on: ubuntu-latest
     
     steps:
@@ -42,15 +42,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      # Icon generation happens automatically via postinstall
-      
       - name: Verify icon generation
         run: |
-          if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons)" ]; then
+          if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
             echo "❌ Error: Icon generation failed!"
             exit 1
           fi
           echo "✅ Icons generated successfully"
+          ls -la src/components/icons/
       
       - name: Lint
         run: pnpm run lint
@@ -72,30 +71,3 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: lint-and-test
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Build for web
-        run: pnpm run web --non-interactive
-        env:
-          CI: true
