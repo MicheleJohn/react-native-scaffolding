@@ -1,0 +1,52 @@
+name: Mirror to GitLab
+
+# Auto-mirror GitHub → GitLab on every push to main
+# FREE alternative to GitLab Pull mirroring (requires Premium)
+on:
+  push:
+    branches:
+      - main  # Only mirror main branch
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  mirror:
+    name: Mirror to GitLab
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for mirror
+          fetch-tags: true
+      
+      - name: Mirror to GitLab
+        env:
+          GITLAB_URL: ${{ secrets.GITLAB_URL }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          # Configure git
+          git config --global user.name "GitHub Mirror Bot"
+          git config --global user.email "noreply@github.com"
+          
+          # Add GitLab remote with token auth
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@${GITLAB_URL#https://}
+          
+          # Fetch all branches from origin
+          git fetch origin --prune
+          
+          # Push only real branches (not origin/* refs)
+          # This avoids "deny updating a hidden ref" errors
+          for branch in $(git branch -r | grep -v 'HEAD' | grep 'origin/' | sed 's|origin/||'); do
+            echo "📤 Pushing branch: $branch"
+            git push gitlab origin/$branch:refs/heads/$branch --force || echo "⚠️ Failed to push $branch"
+          done
+          
+          # Push tags
+          echo "📤 Pushing tags..."
+          git push gitlab --tags --force || echo "⚠️ Failed to push tags"
+          
+          echo ""
+          echo "✅ Successfully mirrored to GitLab!"
+          echo "📦 Repository: ${GITLAB_URL}"
+          echo "🌿 Branch: ${GITHUB_REF##*/}"
