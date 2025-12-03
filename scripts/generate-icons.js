@@ -57,7 +57,7 @@ try {
   console.log('🔄 Generating React Native components...\n');
 
   execSync(
-    `pnpm dlx @svgr/cli --config-file=svgr.config.js --out-dir=${OUTPUT_DIR} ${ASSETS_DIR}`,
+    `pnpm svgr --config-file=svgr.config.js --out-dir=${OUTPUT_DIR} ${ASSETS_DIR}`,
     { stdio: 'inherit' }
   );
 
