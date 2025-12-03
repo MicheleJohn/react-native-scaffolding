@@ -8,56 +8,94 @@ on:
 
 jobs:
   lint-and-test:
-    name: Lint, Type Check & Test
+    name: Lint & Test
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
+          node-version: '22'
+      
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        # La versione viene letta automaticamente da package.json (packageManager field)
-
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
+      
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-
+      
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Run ESLint
-        run: pnpm lint
-
-      - name: Check formatting
-        run: pnpm format:check
-
+      
+      # Icon generation happens automatically via postinstall
+      
+      - name: Verify icon generation
+        run: |
+          if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons)" ]; then
+            echo "❌ Error: Icon generation failed!"
+            exit 1
+          fi
+          echo "✅ Icons generated successfully"
+      
+      - name: Lint
+        run: pnpm run lint
+      
       - name: Type check
-        run: pnpm type-check
-
+        run: pnpm run type-check
+      
+      - name: Check formatting
+        run: pnpm run format:check
+      
       - name: Run tests
-        run: pnpm test:ci
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
+        run: pnpm run test:ci
+      
+      - name: Upload coverage
+        if: success()
+        uses: codecov/codecov-action@v3
         with:
           files: ./coverage/coverage-final.json
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build for web
+        run: pnpm run web --non-interactive
+        env:
+          CI: true
