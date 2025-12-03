@@ -10,36 +10,36 @@ jobs:
   build-web:
     name: Build Web (Static Export) - FREE
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      
+          node-version: "22"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
-      
+          version: 10.23.0
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Build web (static export)
         run: pnpm run build:web
         env:
           CI: true
-      
+
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: web-build
           path: dist/
           retention-days: 30
-      
+
       - name: Display build info
         run: |
           echo "✅ Web build completed!"
