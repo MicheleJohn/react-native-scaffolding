@@ -6,22 +6,22 @@ image: node:22-alpine
 
 # Build configuration variables
 variables:
-  ANDROID_BUILD_TYPE: "debug"  # Can be overridden to "release"
-  IOS_BUILD_TYPE: "debug"      # Can be overridden to "release"
-  IOS_SIGNING: "unsigned"      # Can be overridden to "signed"
-  EAS_PLATFORM: "all"          # Can be: all, android, ios
-  EAS_PROFILE: "preview"       # Can be: development, preview, production
-  EAS_BRANCH: "preview"        # For OTA updates
-  
+  ANDROID_BUILD_TYPE: 'debug' # Can be overridden to "release"
+  IOS_BUILD_TYPE: 'debug' # Can be overridden to "release"
+  IOS_SIGNING: 'unsigned' # Can be overridden to "signed"
+  EAS_PLATFORM: 'all' # Can be: all, android, ios
+  EAS_PROFILE: 'preview' # Can be: development, preview, production
+  EAS_BRANCH: 'preview' # For OTA updates
+
   # Gradle optimization
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+  GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
 
 # Pipeline stages
 stages:
-  - test        # Lint, type-check, tests
-  - build       # Web, Android, iOS builds
-  - deploy      # EAS builds and updates
+  - test # Lint, type-check, tests
+  - build # Web, Android, iOS builds
+  - deploy # EAS builds and updates
 
 # ============================================
 # REUSABLE TEMPLATES
@@ -89,11 +89,11 @@ ci:lint-and-test:
   <<: *setup_pnpm
   cache:
     - <<: *cache_pnpm
-      policy: pull-push  # Write cache on test job
+      policy: pull-push # Write cache on test job
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔍 Verifying icon generation..."
     - |
       if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
@@ -102,21 +102,21 @@ ci:lint-and-test:
       fi
       echo "✅ OK - Icons generated successfully"
       ls -la src/components/icons/ | head -20
-    
+
     - echo "🔍 Running linter..."
     - pnpm run lint
-    
+
     - echo "🔍 Running type check..."
     - pnpm run type-check
-    
+
     - echo "🔍 Checking code formatting..."
     - pnpm run format:check
-    
+
     - echo "🧪 Running tests with coverage..."
     - pnpm run test:ci
-    
+
     - echo "✅ All checks passed!"
-  
+
   artifacts:
     when: always
     reports:
@@ -127,14 +127,14 @@ ci:lint-and-test:
     paths:
       - coverage/
     expire_in: 7 days
-  
+
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  
+
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "develop"
-  
+
   retry:
     max: 2
     when:
@@ -149,33 +149,33 @@ build:web:
   stage: build
   <<: *setup_pnpm
   cache: *cache_pnpm
-  
+
   needs:
     - ci:lint-and-test
-  
+
   script:
     - echo "🌐 Building web application..."
     - pnpm install --frozen-lockfile
     - pnpm run build:web
-    
+
     - echo "✅ OK - Web build completed"
     - echo "📦 Build size:"
     - du -sh dist/
     - echo ""
     - echo "📁 Build contents:"
     - ls -lh dist/ | head -20
-  
+
   artifacts:
-    name: "web-build-$CI_COMMIT_SHORT_SHA"
+    name: 'web-build-$CI_COMMIT_SHORT_SHA'
     paths:
       - dist/
     expire_in: 30 days
-  
+
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - when: manual
       allow_failure: true
-  
+
   retry:
     max: 2
     when:
@@ -189,34 +189,34 @@ build:web:
 build:android:debug:
   stage: build
   image: mingc/android-build-box:latest
-  
+
   needs:
     - ci:lint-and-test
-  
+
   cache:
     - <<: *cache_pnpm
     - <<: *cache_gradle_packages
       policy: pull-push
     - <<: *cache_gradle_build
       policy: pull-push
-  
+
   variables:
-    ANDROID_BUILD_TYPE: "debug"
-  
+    ANDROID_BUILD_TYPE: 'debug'
+
   before_script:
     - echo "🔧 Setting up Android build environment..."
     - corepack enable
     - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
     - echo "✅ Environment setup complete"
-  
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔨 Prebuilding Android with Expo..."
     - pnpm run prebuild:android
-    
+
     # ADVANCED: Enable Gradle performance features (no configuration cache - Expo incompatible)
     - echo "⚡ Enabling Gradle performance optimizations..."
     - mkdir -p ~/.gradle
@@ -224,49 +224,48 @@ build:android:debug:
       cat >> ~/.gradle/gradle.properties << EOF
       # Enable Gradle build cache (reuse task outputs)
       org.gradle.caching=true
-      
+
       # NOTE: Configuration cache disabled - not compatible with Expo/React Native
       # Expo uses Task.project during execution which breaks configuration cache
-      
+
       # Parallel execution
       org.gradle.parallel=true
-      
+
       # Configure daemon for CI
       org.gradle.daemon=true
       org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError
-      
+
       # Use Kotlin incremental compilation
       kotlin.incremental=true
       kotlin.incremental.js=true
-      
+
       # Enable Gradle configuration on demand
       org.gradle.configureondemand=true
       EOF
     - echo "✅ Gradle performance features enabled!"
-    
     - echo "🏗️ Building Android APK (Debug)..."
     - cd android
     - chmod +x gradlew
     - ./gradlew assembleDebug --build-cache --stacktrace --no-daemon
     - cd ..
-    
+
     - echo "✅ OK - Android Debug build completed"
     - echo "📱 PLATFORM - Android"
     - echo "🔧 BUILD TYPE - Debug"
     - echo "💰 COST - FREE (GitLab CI minutes)"
     - echo "⚡ CACHING - Advanced (Gradle cache + build outputs + parallel execution)"
     - echo "📥 INFO - Download APK from job artifacts"
-  
+
   artifacts:
-    name: "android-debug-$CI_COMMIT_SHORT_SHA"
+    name: 'android-debug-$CI_COMMIT_SHORT_SHA'
     paths:
       - android/app/build/outputs/apk/debug/*.apk
     expire_in: 30 days
-  
+
   rules:
     - when: manual
       allow_failure: true
-  
+
   retry:
     max: 1
     when:
@@ -275,34 +274,34 @@ build:android:debug:
 build:android:release:
   stage: build
   image: mingc/android-build-box:latest
-  
+
   needs:
     - ci:lint-and-test
-  
+
   cache:
     - <<: *cache_pnpm
     - <<: *cache_gradle_packages
       policy: pull-push
     - <<: *cache_gradle_build
       policy: pull-push
-  
+
   variables:
-    ANDROID_BUILD_TYPE: "release"
-  
+    ANDROID_BUILD_TYPE: 'release'
+
   before_script:
     - echo "🔧 Setting up Android build environment..."
     - corepack enable
     - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
     - echo "✅ Environment setup complete"
-  
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔨 Prebuilding Android with Expo..."
     - pnpm run prebuild:android
-    
+
     # Configure Sentry AFTER prebuild (optional)
     - |
       if [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] && [ -n "$SENTRY_AUTH_TOKEN" ]; then
@@ -318,7 +317,7 @@ build:android:release:
         echo "⚠️  Sentry secrets not configured - skipping Sentry setup"
         echo "ℹ️  Build will complete without source map upload"
       fi
-    
+
     # ADVANCED: Enable Gradle performance features
     - echo "⚡ Enabling Gradle performance optimizations..."
     - mkdir -p ~/.gradle
@@ -333,32 +332,31 @@ build:android:release:
       org.gradle.configureondemand=true
       EOF
     - echo "✅ Gradle optimizations enabled!"
-    
     - echo "🏗️ Building Android APK + AAB (Release)..."
     - cd android
     - chmod +x gradlew
     - ./gradlew assembleRelease bundleRelease --build-cache --stacktrace --no-daemon
     - cd ..
-    
+
     - echo "✅ OK - Android Release build completed"
     - echo "📱 PLATFORM - Android"
     - echo "🔧 BUILD TYPE - Release"
     - echo "💰 COST - FREE (GitLab CI minutes)"
     - echo "⚡ CACHING - Advanced (40-50% faster)"
     - echo "📥 INFO - Download APK/AAB from job artifacts"
-  
+
   artifacts:
-    name: "android-release-$CI_COMMIT_SHORT_SHA"
+    name: 'android-release-$CI_COMMIT_SHORT_SHA'
     paths:
       - android/app/build/outputs/apk/release/*.apk
       - android/app/build/outputs/bundle/release/*.aab
     expire_in: 30 days
-  
+
   rules:
     - if: $ANDROID_KEYSTORE_BASE64 && $KEYSTORE_PASSWORD
       when: manual
       allow_failure: true
-  
+
   retry:
     max: 1
     when:
@@ -373,10 +371,10 @@ build:ios:debug:
   tags:
     - macos
     - xcode
-  
+
   needs:
     - ci:lint-and-test
-  
+
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
@@ -396,16 +394,16 @@ build:ios:debug:
       paths:
         - ios/SourcePackages
       policy: pull-push
-  
+
   variables:
-    IOS_BUILD_TYPE: "debug"
-  
+    IOS_BUILD_TYPE: 'debug'
+
   before_script:
     - echo "🔧 Setting up iOS build environment..."
     - corepack enable
     - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
-    
+
     # ADVANCED: Install and configure ccache
     - echo "📦 Installing ccache for C++ compilation caching..."
     - brew install ccache || echo "ccache already installed"
@@ -415,7 +413,7 @@ build:ios:debug:
     - ccache --set-config=sloppiness=file_macro,time_macros,include_file_mtime,include_file_ctime
     - ccache --zero-stats
     - echo "✅ ccache configured!"
-    
+
     # ADVANCED: Create ccache wrapper scripts
     - echo "🔧 Creating ccache wrapper scripts..."
     - |
@@ -423,28 +421,27 @@ build:ios:debug:
       #!/bin/bash
       exec ccache clang "$@"
       EOF
-      
+
       cat > /usr/local/bin/ccache-clang++ << 'EOF'
       #!/bin/bash
       exec ccache clang++ "$@"
       EOF
-      
+
       chmod +x /usr/local/bin/ccache-clang
       chmod +x /usr/local/bin/ccache-clang++
     - echo "✅ ccache wrappers created!"
-    
     - echo "✅ Environment setup complete"
-  
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔨 Prebuilding iOS with Expo..."
     - pnpm dlx expo prebuild --platform ios --clean
-    
+
     - echo "🏗️ Building iOS (Debug) with advanced caching..."
     - cd ios
-    
+
     # Detect project structure
     - |
       if [ -d *.xcworkspace ]; then
@@ -486,29 +483,29 @@ build:ios:debug:
           CXX=ccache-clang++ \
           CCACHE_DIR="$HOME/Library/Caches/ccache"
       fi
-    
+
     - echo ""
     - echo "✅ iOS Debug build completed!"
     - echo "📊 ccache statistics:"
     - ccache -s
-    
+
     - cd ..
     - echo "📱 PLATFORM - iOS"
     - echo "🔧 BUILD TYPE - Debug"
     - echo "💰 COST - Requires macOS runner"
     - echo "⚡ CACHING - Advanced (DerivedData + CocoaPods + SPM + ccache)"
     - echo "📥 OUTPUT - Debug .app for simulator"
-  
+
   artifacts:
-    name: "ios-debug-$CI_COMMIT_SHORT_SHA"
+    name: 'ios-debug-$CI_COMMIT_SHORT_SHA'
     paths:
       - ios/build/Build/Products/Debug-iphonesimulator/*.app
     expire_in: 30 days
-  
+
   rules:
     - when: manual
       allow_failure: true
-  
+
   retry:
     max: 1
     when:
@@ -519,10 +516,10 @@ build:ios:release:unsigned:
   tags:
     - macos
     - xcode
-  
+
   needs:
     - ci:lint-and-test
-  
+
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
@@ -539,17 +536,17 @@ build:ios:release:unsigned:
       paths:
         - ios/SourcePackages
       policy: pull-push
-  
+
   variables:
-    IOS_BUILD_TYPE: "release"
-    IOS_SIGNING: "unsigned"
-  
+    IOS_BUILD_TYPE: 'release'
+    IOS_SIGNING: 'unsigned'
+
   before_script:
     - echo "🔧 Setting up iOS build environment..."
     - corepack enable
     - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
-    
+
     # Install ccache
     - brew install ccache || echo "ccache already installed"
     - ccache --version
@@ -557,31 +554,31 @@ build:ios:release:unsigned:
     - ccache --set-config=compression=true
     - ccache --set-config=sloppiness=file_macro,time_macros,include_file_mtime,include_file_ctime
     - ccache --zero-stats
-    
+
     # Create ccache wrappers
     - |
       cat > /usr/local/bin/ccache-clang << 'EOF'
       #!/bin/bash
       exec ccache clang "$@"
       EOF
-      
+
       cat > /usr/local/bin/ccache-clang++ << 'EOF'
       #!/bin/bash
       exec ccache clang++ "$@"
       EOF
-      
+
       chmod +x /usr/local/bin/ccache-clang
       chmod +x /usr/local/bin/ccache-clang++
-    
+
     - echo "✅ Environment setup complete"
-  
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔨 Prebuilding iOS with Expo..."
     - pnpm dlx expo prebuild --platform ios --clean
-    
+
     # Configure Sentry AFTER prebuild (optional)
     - |
       if [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] && [ -n "$SENTRY_AUTH_TOKEN" ]; then
@@ -596,10 +593,10 @@ build:ios:release:unsigned:
       else
         echo "⚠️  Sentry secrets not configured - skipping Sentry setup"
       fi
-    
+
     - echo "🏗️ Building iOS Release (UNSIGNED) with advanced caching..."
     - cd ios
-    
+
     # Detect and build
     - |
       if [ -d *.xcworkspace ]; then
@@ -641,12 +638,12 @@ build:ios:release:unsigned:
           CXX=ccache-clang++ \
           CCACHE_DIR="$HOME/Library/Caches/ccache"
       fi
-    
+
     - echo ""
     - echo "✅ iOS unsigned archive created!"
     - echo "📊 ccache statistics:"
     - ccache -s
-    
+
     - cd ..
     - echo "📱 PLATFORM - iOS"
     - echo "🔧 BUILD TYPE - Release (Unsigned)"
@@ -654,17 +651,17 @@ build:ios:release:unsigned:
     - echo "⚡ CACHING - Advanced (50-60% faster)"
     - echo "📦 OUTPUT - Unsigned .xcarchive"
     - echo "ℹ️  NOTE - Use signed build when you have Apple Developer account"
-  
+
   artifacts:
-    name: "ios-release-unsigned-$CI_COMMIT_SHORT_SHA"
+    name: 'ios-release-unsigned-$CI_COMMIT_SHORT_SHA'
     paths:
       - ios/build/*.xcarchive
     expire_in: 30 days
-  
+
   rules:
     - when: manual
       allow_failure: true
-  
+
   retry:
     max: 1
     when:
@@ -675,10 +672,10 @@ build:ios:release:signed:
   tags:
     - macos
     - xcode
-  
+
   needs:
     - ci:lint-and-test
-  
+
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
@@ -695,17 +692,17 @@ build:ios:release:signed:
       paths:
         - ios/SourcePackages
       policy: pull-push
-  
+
   variables:
-    IOS_BUILD_TYPE: "release"
-    IOS_SIGNING: "signed"
-  
+    IOS_BUILD_TYPE: 'release'
+    IOS_SIGNING: 'signed'
+
   before_script:
     - echo "🔧 Setting up iOS build environment..."
     - corepack enable
     - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
-    
+
     # Check signing requirements
     - |
       if [ -z "$APPLE_CERTIFICATE_BASE64" ]; then
@@ -718,7 +715,7 @@ build:ios:release:signed:
         echo "  4. APPLE_TEAM_ID - Your Apple Developer Team ID"
         exit 1
       fi
-    
+
     # Import certificate and provisioning profile
     - echo "🔐 Importing signing certificate..."
     - KEYCHAIN_PATH=$CI_PROJECT_DIR/app-signing.keychain-db
@@ -733,37 +730,37 @@ build:ios:release:signed:
     - mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
     - echo "$APPLE_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
     - echo "✅ Certificate and provisioning profile imported!"
-    
+
     # Install ccache
     - brew install ccache || echo "ccache already installed"
     - ccache --max-size=2G
     - ccache --set-config=compression=true
     - ccache --zero-stats
-    
+
     # Create ccache wrappers
     - |
       cat > /usr/local/bin/ccache-clang << 'EOF'
       #!/bin/bash
       exec ccache clang "$@"
       EOF
-      
+
       cat > /usr/local/bin/ccache-clang++ << 'EOF'
       #!/bin/bash
       exec ccache clang++ "$@"
       EOF
-      
+
       chmod +x /usr/local/bin/ccache-clang
       chmod +x /usr/local/bin/ccache-clang++
-    
+
     - echo "✅ Environment setup complete"
-  
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔨 Prebuilding iOS with Expo..."
     - pnpm dlx expo prebuild --platform ios --clean
-    
+
     # Configure Sentry AFTER prebuild
     - |
       if [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] && [ -n "$SENTRY_AUTH_TOKEN" ]; then
@@ -775,7 +772,7 @@ build:ios:release:signed:
       auth.token=$SENTRY_AUTH_TOKEN
       EOF
       fi
-    
+
     # Create ExportOptions.plist
     - echo "📝 Creating ExportOptions.plist for signed IPA export..."
     - |
@@ -797,10 +794,10 @@ build:ios:release:signed:
       </dict>
       </plist>
       EOF
-    
+
     - echo "🏗️ Building iOS Release (SIGNED)..."
     - cd ios
-    
+
     # Build and archive
     - |
       if [ -d *.xcworkspace ]; then
@@ -838,7 +835,7 @@ build:ios:release:signed:
           CXX=ccache-clang++ \
           CCACHE_DIR="$HOME/Library/Caches/ccache"
       fi
-    
+
     # Export IPA
     - echo "📦 Exporting signed IPA for App Store..."
     - |
@@ -849,17 +846,17 @@ build:ios:release:signed:
         PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
         SCHEME=$(basename "$PROJECT" .xcodeproj)
       fi
-      
+
       xcodebuild -exportArchive \
         -archivePath build/$SCHEME.xcarchive \
         -exportPath build \
         -exportOptionsPlist ExportOptions.plist
-    
+
     - echo ""
     - echo "✅ iOS signed IPA exported!"
     - echo "📊 ccache statistics:"
     - ccache -s
-    
+
     - cd ..
     - echo "📱 PLATFORM - iOS"
     - echo "🔧 BUILD TYPE - Release (Signed)"
@@ -868,24 +865,24 @@ build:ios:release:signed:
     - echo "⚡ CACHING - Advanced (50-60% faster)"
     - echo "📦 OUTPUT - Signed IPA ready for App Store"
     - echo "✅ PRODUCTION READY - Can upload to TestFlight/App Store"
-  
+
   artifacts:
-    name: "ios-release-signed-$CI_COMMIT_SHORT_SHA"
+    name: 'ios-release-signed-$CI_COMMIT_SHORT_SHA'
     paths:
       - ios/build/*.ipa
     expire_in: 30 days
-  
+
   rules:
     - if: $APPLE_CERTIFICATE_BASE64 && $APPLE_TEAM_ID
       when: manual
       allow_failure: true
-  
+
   after_script:
     - |
       if [ -f "$CI_PROJECT_DIR/app-signing.keychain-db" ]; then
         security delete-keychain $CI_PROJECT_DIR/app-signing.keychain-db
       fi
-  
+
   retry:
     max: 1
     when:
@@ -899,21 +896,21 @@ build:eas:
   stage: deploy
   <<: *setup_pnpm
   cache: *cache_pnpm
-  
+
   needs:
     - ci:lint-and-test
-  
+
   variables:
-    EAS_PLATFORM: "all"     # Override with: android, ios, all
-    EAS_PROFILE: "preview"  # Override with: development, preview, production
-  
+    EAS_PLATFORM: 'all' # Override with: android, ios, all
+    EAS_PROFILE: 'preview' # Override with: development, preview, production
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔧 Installing EAS CLI..."
     - pnpm add -g eas-cli
-    
+
     - echo "🚀 Triggering EAS Build..."
     - |
       eas build \
@@ -921,18 +918,18 @@ build:eas:
         --profile $EAS_PROFILE \
         --non-interactive \
         --no-wait
-    
+
     - echo "✅ OK - EAS Build triggered successfully"
     - echo "📱 PLATFORM - $EAS_PLATFORM"
     - echo "🔧 PROFILE - $EAS_PROFILE"
     - echo "💰 COST - Using paid EAS Build subscription"
     - echo "🔔 INFO - Check build status at https://expo.dev"
-  
+
   rules:
     - if: $EXPO_TOKEN
       when: manual
       allow_failure: true
-  
+
   retry:
     max: 1
     when:
@@ -946,53 +943,52 @@ update:eas:
   stage: deploy
   <<: *setup_pnpm
   cache: *cache_pnpm
-  
+
   needs:
     - ci:lint-and-test
-  
+
   variables:
-    EAS_BRANCH: "preview"                          # Override with branch name
-    UPDATE_MESSAGE: "OTA update from GitLab CI"    # Override with custom message
-  
+    EAS_BRANCH: 'preview' # Override with branch name
+    UPDATE_MESSAGE: 'OTA update from GitLab CI' # Override with custom message
+
   script:
     - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
-    
+
     - echo "🔧 Installing EAS CLI..."
     - pnpm add -g eas-cli
-    
+
     - echo "🚀 Publishing EAS Update..."
     - |
       eas update \
         --branch $EAS_BRANCH \
         --message "$UPDATE_MESSAGE" \
         --non-interactive
-    
+
     - echo "✅ OK - EAS Update published successfully"
     - echo "🌿 BRANCH - $EAS_BRANCH"
     - echo "💰 COST - FREE (OTA updates are free)"
     - echo "📱 INFO - Users will receive update on next app launch"
-  
+
   rules:
     - if: $EXPO_TOKEN && $CI_COMMIT_BRANCH == "main"
     - if: $EXPO_TOKEN
       when: manual
       allow_failure: true
-  
+
   retry:
     max: 2
     when:
       - script_failure
-
 # ============================================
 # WORKFLOW SUMMARY
 # ============================================
-# 
+#
 # ✅ PARITY ACHIEVED with GitHub Actions PR #14!
-# 
+#
 # TEST STAGE (Always runs on MR/main/develop):
 #   ✅ ci:lint-and-test - Lint, type-check, format, tests
-# 
+#
 # BUILD STAGE (Manual or auto on main):
 #   ✅ build:web - Static web export (FREE)
 #   ✅ build:android:debug - Android Debug APK (FREE, ADVANCED CACHING)
@@ -1000,11 +996,11 @@ update:eas:
 #   ✅ build:ios:debug - iOS Debug build (macOS runner, ADVANCED CACHING)
 #   ✅ build:ios:release:unsigned - iOS unsigned archive (macOS runner, ADVANCED CACHING)
 #   ✅ build:ios:release:signed - iOS signed IPA (macOS runner, ADVANCED CACHING)
-# 
+#
 # DEPLOY STAGE (Manual or conditional):
 #   ✅ build:eas - EAS Build (requires EXPO_TOKEN)
 #   ✅ update:eas - EAS Update OTA (auto on main if EXPO_TOKEN)
-# 
+#
 # 🎉 NEW FEATURES (from GitHub Actions PR #14):
 #   ⚡ Android: Gradle build cache + parallel execution (40-50% faster)
 #   ⚡ iOS: ccache + DerivedData + CocoaPods + SPM caching (50-60% faster)
@@ -1016,12 +1012,12 @@ update:eas:
 #   🔧 ExportOptions.plist generated dynamically
 #   🔧 Expo prebuild for native project generation
 #   🔧 Modern iOS/Android build approach (2025 best practices)
-# 
+#
 # REQUIRED SECRETS:
 #   - EXPO_TOKEN (for EAS builds/updates)
 #   - SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (optional)
 #   - ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD (for release)
 #   - APPLE_CERTIFICATE_BASE64, APPLE_CERTIFICATE_PASSWORD (for iOS signed)
 #   - APPLE_PROVISIONING_PROFILE_BASE64, APPLE_TEAM_ID (for iOS signed)
-# 
+#
 # ============================================
