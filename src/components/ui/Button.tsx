@@ -13,9 +13,10 @@ import { cn } from '@/utils/cn';
 
 /**
  * Button variant styles using CVA
+ * All colors are from global.css design system
  * 
  * Variants:
- * - filled: Solid background buttons (primary, secondary, ghost)
+ * - filled: Solid background buttons (primary-blue, primary-cyan, neutral-50)
  * - outlined: Bordered buttons with transparent background
  * - text: Text-only buttons without background or border
  */
@@ -25,21 +26,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Filled variants
-        filled: 'bg-[#28529C] active:bg-[#1e3d73]',
-        'filled-secondary': 'bg-[#009FE3] active:bg-[#007ab3]',
-        'filled-ghost': 'bg-neutral-gray50 active:bg-neutral-200',
+        // Filled variants - using design system colors from global.css
+        filled: 'bg-primary-blue active:bg-primary-teal',
+        'filled-secondary': 'bg-primary-cyan active:bg-primary-teal',
+        'filled-ghost': 'bg-neutral-50 active:bg-neutral-400/20',
         
-        // Outlined variants
-        outlined: 'bg-transparent border-2 border-[#28529C] active:bg-[#28529C]/10',
-        'outlined-secondary': 'bg-transparent border-2 border-[#009FE3] active:bg-[#009FE3]/10',
-        'outlined-ghost': 'bg-transparent border-2 border-neutral-gray400 active:bg-neutral-50',
+        // Outlined variants - using design system colors from global.css
+        outlined: 'bg-transparent border-2 border-primary-blue active:bg-primary-blue/10',
+        'outlined-secondary': 'bg-transparent border-2 border-primary-cyan active:bg-primary-cyan/10',
+        'outlined-ghost': 'bg-transparent border-2 border-neutral-400 active:bg-neutral-50',
         
         // Text variant
         text: 'bg-transparent active:bg-neutral-50',
         
         // Legacy variants for backward compatibility
-        primary: 'bg-[#28529C] active:bg-[#1e3d73]',
+        primary: 'bg-primary active:bg-primary-teal',
         secondary: 'bg-secondary-light active:bg-secondary-green',
         outline: 'bg-transparent border-2 border-border active:bg-neutral-50',
         ghost: 'bg-transparent active:bg-neutral-50',
@@ -65,22 +66,23 @@ const buttonVariants = cva(
 
 /**
  * Text variant styles using CVA
+ * All colors from global.css design system
  */
 const buttonTextVariants = cva('font-semibold text-center', {
   variants: {
     variant: {
-      // Filled variants - white text
-      filled: 'text-white',
-      'filled-secondary': 'text-white',
-      'filled-ghost': 'text-neutral-gray800',
+      // Filled variants - white text (inverse-text from global.css)
+      filled: 'text-inverse-text',
+      'filled-secondary': 'text-inverse-text',
+      'filled-ghost': 'text-neutral-800',
       
-      // Outlined variants - colored text
-      outlined: 'text-[#28529C]',
-      'outlined-secondary': 'text-[#009FE3]',
-      'outlined-ghost': 'text-neutral-gray700',
+      // Outlined variants - colored text matching border
+      outlined: 'text-primary-blue',
+      'outlined-secondary': 'text-primary-cyan',
+      'outlined-ghost': 'text-neutral-700',
       
-      // Text variant
-      text: 'text-[#28529C]',
+      // Text variant - primary color
+      text: 'text-primary-blue',
       
       // Legacy variants
       primary: 'text-inverse',
@@ -132,15 +134,16 @@ export type ButtonProps = TouchableOpacityProps &
 
 /**
  * Primary UI component for user interaction
+ * Uses design system colors from global.css
  *
  * @example
  * ```tsx
- * // Filled button (default)
+ * // Filled button (default) - uses primary-blue from global.css
  * <Button variant="filled" size="md" onPress={() => console.log('pressed')}>
  *   Click Me
  * </Button>
  * 
- * // Outlined button
+ * // Outlined button - uses primary-cyan from global.css
  * <Button variant="outlined-secondary" size="lg">
  *   Secondary Action
  * </Button>
@@ -179,14 +182,23 @@ export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
     const isIconOnly = size === 'icon' && !children;
 
     // Determine spinner color based on variant
+    // Using actual color values since ActivityIndicator needs hex/rgb
     const getSpinnerColor = () => {
       if (variant?.includes('filled')) {
+        // Filled buttons use white spinner except ghost (neutral-800)
         return variant === 'filled-ghost' ? '#344054' : '#FFFFFF';
       }
       if (variant?.includes('outlined')) {
-        return variant === 'outlined-ghost' ? '#98A2B3' : '#28529C';
+        // Outlined buttons use color matching the border
+        if (variant === 'outlined-secondary') return '#009fe3'; // primary-cyan
+        if (variant === 'outlined-ghost') return '#98A2B3'; // neutral-400
+        return '#28529c'; // primary-blue
       }
-      return '#28529C';
+      if (variant === 'text') {
+        return '#28529c'; // primary-blue
+      }
+      // Legacy variants
+      return '#009fe3'; // primary-cyan
     };
 
     return (
