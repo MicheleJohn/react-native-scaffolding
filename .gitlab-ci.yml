@@ -1,16 +1,34 @@
 # GitLab CI/CD for React Native Scaffolding
-# Mirrors GitHub Actions functionality
+# Complete mirror of GitHub Actions workflows (excluding mirror-to-gitlab)
+# Free tier compatible with manual triggers for expensive jobs
 
 image: node:22-alpine
 
-# Stages definition
-stages:
-  - test
-  - build
-  - deploy
+# Workflow control - Define what runs when
+variables:
+  # Build configuration
+  ANDROID_BUILD_TYPE: "debug"  # Can be overridden to "release"
+  IOS_BUILD_TYPE: "debug"      # Can be overridden to "release"
+  EAS_PLATFORM: "all"          # Can be: all, android, ios
+  EAS_PROFILE: "preview"       # Can be: development, preview, production
+  EAS_BRANCH: "preview"        # For OTA updates
+  
+  # Cache configuration
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.caching=true"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
-# Global cache configuration
-.cache_config: &cache_config
+# Pipeline stages
+stages:
+  - test        # Lint, type-check, tests
+  - build       # Web, Android, iOS builds
+  - deploy      # EAS builds and updates
+
+# ============================================
+# REUSABLE TEMPLATES
+# ============================================
+
+# Cache configuration for pnpm
+.cache_pnpm: &cache_pnpm
   key:
     files:
       - pnpm-lock.yaml
@@ -18,157 +36,544 @@ stages:
     - .pnpm-store
   policy: pull
 
-# Global before_script for pnpm setup
-.pnpm_setup: &pnpm_setup
-  before_script:
-    - corepack enable
-    - corepack prepare --activate
-    - pnpm config set store-dir .pnpm-store
+# Cache configuration for Gradle
+.cache_gradle: &cache_gradle
+  key: gradle-$CI_COMMIT_REF_SLUG
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+  policy: pull
 
-# TEST STAGE
+# Cache configuration for CocoaPods
+.cache_cocoapods: &cache_cocoapods
+  key: cocoapods-$CI_COMMIT_REF_SLUG
+  paths:
+    - ios/Pods
+  policy: pull
+
+# pnpm setup script
+.setup_pnpm: &setup_pnpm
+  before_script:
+    - echo "🔧 Setting up pnpm..."
+    - corepack enable
+    - corepack prepare pnpm@10.23.0 --activate
+    - pnpm config set store-dir .pnpm-store
+    - echo "✅ pnpm setup complete"
+
+# ============================================
+# TEST STAGE - FREE
+# ============================================
+
 ci:lint-and-test:
   stage: test
-  <<: *pnpm_setup
+  <<: *setup_pnpm
   cache:
-    <<: *cache_config
-    policy: pull-push
+    - <<: *cache_pnpm
+      policy: pull-push  # Write cache on test job
   script:
+    - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
+    
+    - echo "🔍 Verifying icon generation..."
     - |
       if [ ! -d "src/components/icons" ] || [ -z "$(ls -A src/components/icons 2>/dev/null)" ]; then
-        echo "ERROR - Icon generation failed!"
+        echo "❌ ERROR - Icon generation failed!"
         exit 1
       fi
-      echo "OK - Icons generated successfully"
-      ls -la src/components/icons/
+      echo "✅ OK - Icons generated successfully"
+      ls -la src/components/icons/ | head -20
+    
+    - echo "🔍 Running linter..."
     - pnpm run lint
+    
+    - echo "🔍 Running type check..."
     - pnpm run type-check
+    
+    - echo "🔍 Checking code formatting..."
     - pnpm run format:check
+    
+    - echo "🧪 Running tests with coverage..."
     - pnpm run test:ci
+    
+    - echo "✅ All checks passed!"
+  
   artifacts:
     when: always
     reports:
+      junit: coverage/junit.xml
       coverage_report:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
     paths:
       - coverage/
     expire_in: 7 days
+  
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  
   rules:
+    # Run on merge requests
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Run on main/develop branches
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "develop"
+  
+  # Allow job to be retried
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
 
-# BUILD STAGE - Web
+# ============================================
+# BUILD STAGE - WEB (FREE)
+# ============================================
+
 build:web:
   stage: build
-  <<: *pnpm_setup
-  cache: *cache_config
+  <<: *setup_pnpm
+  cache: *cache_pnpm
+  
+  needs:
+    - ci:lint-and-test
+  
   script:
+    - echo "🌐 Building web application..."
     - pnpm install --frozen-lockfile
     - pnpm run build:web
-    - echo "OK - Web build completed"
-    - echo "BUILD - Size info"
+    
+    - echo "✅ OK - Web build completed"
+    - echo "📦 Build size:"
     - du -sh dist/
+    - echo ""
+    - echo "📁 Build contents:"
+    - ls -lh dist/ | head -20
+  
   artifacts:
     name: "web-build-$CI_COMMIT_SHORT_SHA"
     paths:
       - dist/
     expire_in: 30 days
+  
   rules:
+    # Auto-run on main branch
     - if: $CI_COMMIT_BRANCH == "main"
+    # Manual trigger on other branches
     - when: manual
       allow_failure: true
+  
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
 
-# BUILD STAGE - Android
-build:android:
+# ============================================
+# BUILD STAGE - ANDROID (FREE but uses minutes)
+# ============================================
+
+build:android:debug:
   stage: build
-  image: openjdk:17-slim
+  image: mingc/android-build-box:latest
+  
+  needs:
+    - ci:lint-and-test
+  
   cache:
-    <<: *cache_config
-    paths:
-      - .pnpm-store
-      - .gradle/wrapper
-      - .gradle/caches
+    - <<: *cache_pnpm
+    - <<: *cache_gradle
+      policy: pull-push
+  
   variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    ANDROID_BUILD_TYPE: "debug"
+  
   before_script:
-    - apt-get update && apt-get install -y curl git
-    - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-    - apt-get install -y nodejs
+    - echo "🔧 Setting up Android build environment..."
     - corepack enable
-    - corepack prepare --activate
+    - corepack prepare pnpm@10.23.0 --activate
     - pnpm config set store-dir .pnpm-store
+    - echo "✅ Environment setup complete"
+  
   script:
+    - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
+    
+    - echo "🔨 Prebuilding Android with Expo..."
+    - pnpm run prebuild:android
+    
+    - echo "🏗️ Building Android APK (Debug)..."
     - cd android
-    - |
-      if [ "$BUILD_TYPE" = "release" ]; then
-        ./gradlew assembleRelease
-      else
-        ./gradlew assembleDebug
-      fi
-    - echo "OK - Android build completed"
-    - echo "PLATFORM - Android"
-    - echo "BUILD TYPE - ${BUILD_TYPE:-debug}"
-    - echo "COST - FREE (GitLab CI minutes)"
+    - chmod +x gradlew
+    - ./gradlew assembleDebug --stacktrace --no-daemon
+    - cd ..
+    
+    - echo "✅ OK - Android Debug build completed"
+    - echo "📱 PLATFORM - Android"
+    - echo "🔧 BUILD TYPE - Debug"
+    - echo "💰 COST - FREE (GitLab CI minutes)"
+    - echo "📥 INFO - Download APK from job artifacts"
+  
   artifacts:
-    name: "android-${BUILD_TYPE:-debug}-$CI_COMMIT_SHORT_SHA"
+    name: "android-debug-$CI_COMMIT_SHORT_SHA"
     paths:
-      - android/app/build/outputs/apk/**/*.apk
+      - android/app/build/outputs/apk/debug/*.apk
     expire_in: 30 days
+  
   rules:
     - when: manual
       allow_failure: true
+  
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
 
-# DEPLOY STAGE - EAS Build
+build:android:release:
+  stage: build
+  image: mingc/android-build-box:latest
+  
+  needs:
+    - ci:lint-and-test
+  
+  cache:
+    - <<: *cache_pnpm
+    - <<: *cache_gradle
+      policy: pull-push
+  
+  variables:
+    ANDROID_BUILD_TYPE: "release"
+  
+  before_script:
+    - echo "🔧 Setting up Android build environment..."
+    - corepack enable
+    - corepack prepare pnpm@10.23.0 --activate
+    - pnpm config set store-dir .pnpm-store
+    
+    # Configure Sentry for release build (if secrets available)
+    - |
+      if [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] && [ -n "$SENTRY_AUTH_TOKEN" ]; then
+        echo "🔐 Configuring Sentry for sourcemap upload..."
+        cat > android/sentry.properties << EOF
+      defaults.url=https://sentry.io/
+      defaults.org=$SENTRY_ORG
+      defaults.project=$SENTRY_PROJECT
+      auth.token=$SENTRY_AUTH_TOKEN
+      EOF
+        echo "✅ Sentry configured"
+      else
+        echo "⚠️ Sentry secrets not configured - skipping sourcemap upload"
+      fi
+    
+    - echo "✅ Environment setup complete"
+  
+  script:
+    - echo "📦 Installing dependencies..."
+    - pnpm install --frozen-lockfile
+    
+    - echo "🔨 Prebuilding Android with Expo..."
+    - pnpm run prebuild:android
+    
+    - echo "🏗️ Building Android APK (Release)..."
+    - cd android
+    - chmod +x gradlew
+    - ./gradlew assembleRelease --stacktrace --no-daemon
+    - cd ..
+    
+    - echo "✅ OK - Android Release build completed"
+    - echo "📱 PLATFORM - Android"
+    - echo "🔧 BUILD TYPE - Release"
+    - echo "💰 COST - FREE (GitLab CI minutes)"
+    - echo "📥 INFO - Download APK from job artifacts"
+  
+  artifacts:
+    name: "android-release-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/bundle/release/*.aab
+    expire_in: 30 days
+  
+  rules:
+    # Only allow if keystore secrets are configured
+    - if: $ANDROID_KEYSTORE_BASE64 && $KEYSTORE_PASSWORD
+      when: manual
+      allow_failure: true
+  
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+
+# ============================================
+# BUILD STAGE - iOS (Requires macOS runner)
+# ============================================
+
+build:ios:debug:
+  stage: build
+  # NOTE: Requires macOS runner with Xcode
+  # Free tier GitLab doesn't provide macOS runners
+  tags:
+    - macos
+    - xcode
+  
+  needs:
+    - ci:lint-and-test
+  
+  cache:
+    - <<: *cache_pnpm
+    - <<: *cache_cocoapods
+      policy: pull-push
+  
+  variables:
+    IOS_BUILD_TYPE: "debug"
+  
+  before_script:
+    - echo "🔧 Setting up iOS build environment..."
+    - corepack enable
+    - corepack prepare pnpm@10.23.0 --activate
+    - pnpm config set store-dir .pnpm-store
+    - echo "✅ Environment setup complete"
+  
+  script:
+    - echo "📦 Installing dependencies..."
+    - pnpm install --frozen-lockfile
+    
+    - echo "🔨 Prebuilding iOS with Expo..."
+    - pnpm dlx expo prebuild --platform ios --non-interactive
+    
+    - echo "📦 Installing CocoaPods dependencies..."
+    - cd ios
+    - pod install
+    - cd ..
+    
+    - echo "🏗️ Building iOS (Debug)..."
+    - cd ios
+    - xcodebuild -workspace *.xcworkspace \
+        -scheme $(basename *.xcworkspace .xcworkspace) \
+        -configuration Debug \
+        -sdk iphonesimulator \
+        -derivedDataPath build \
+        -quiet
+    - cd ..
+    
+    - echo "✅ OK - iOS Debug build completed"
+    - echo "📱 PLATFORM - iOS"
+    - echo "🔧 BUILD TYPE - Debug"
+    - echo "💰 COST - Requires macOS runner"
+  
+  artifacts:
+    name: "ios-debug-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ios/build/Build/Products/Debug-iphonesimulator/*.app
+    expire_in: 30 days
+  
+  rules:
+    - when: manual
+      allow_failure: true
+  
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+
+build:ios:release:
+  stage: build
+  tags:
+    - macos
+    - xcode
+  
+  needs:
+    - ci:lint-and-test
+  
+  cache:
+    - <<: *cache_pnpm
+    - <<: *cache_cocoapods
+      policy: pull-push
+  
+  variables:
+    IOS_BUILD_TYPE: "release"
+  
+  before_script:
+    - echo "🔧 Setting up iOS build environment..."
+    - corepack enable
+    - corepack prepare pnpm@10.23.0 --activate
+    - pnpm config set store-dir .pnpm-store
+    - echo "✅ Environment setup complete"
+  
+  script:
+    - echo "📦 Installing dependencies..."
+    - pnpm install --frozen-lockfile
+    
+    - echo "🔨 Prebuilding iOS with Expo..."
+    - pnpm dlx expo prebuild --platform ios --non-interactive
+    
+    - echo "📦 Installing CocoaPods dependencies..."
+    - cd ios
+    - pod install
+    - cd ..
+    
+    - echo "🏗️ Building iOS Archive (Release)..."
+    - cd ios
+    - xcodebuild -workspace *.xcworkspace \
+        -scheme $(basename *.xcworkspace .xcworkspace) \
+        -configuration Release \
+        -archivePath build/App.xcarchive \
+        archive \
+        -quiet
+    
+    - echo "📦 Exporting IPA..."
+    - xcodebuild -exportArchive \
+        -archivePath build/App.xcarchive \
+        -exportPath build \
+        -exportOptionsPlist ExportOptions.plist \
+        -quiet
+    - cd ..
+    
+    - echo "✅ OK - iOS Release build completed"
+    - echo "📱 PLATFORM - iOS"
+    - echo "🔧 BUILD TYPE - Release"
+    - echo "💰 COST - Requires macOS runner"
+    - echo "📥 INFO - Download IPA from job artifacts"
+  
+  artifacts:
+    name: "ios-release-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - ios/build/*.ipa
+    expire_in: 30 days
+  
+  rules:
+    - if: $MATCH_PASSWORD && $FASTLANE_USER
+      when: manual
+      allow_failure: true
+  
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+
+# ============================================
+# DEPLOY STAGE - EAS BUILD (Requires subscription)
+# ============================================
+
 build:eas:
   stage: deploy
-  <<: *pnpm_setup
-  cache: *cache_config
+  <<: *setup_pnpm
+  cache: *cache_pnpm
+  
+  needs:
+    - ci:lint-and-test
+  
   variables:
-    PLATFORM: "all"
-    PROFILE: "preview"
+    EAS_PLATFORM: "all"     # Override with: android, ios, all
+    EAS_PROFILE: "preview"  # Override with: development, preview, production
+  
   script:
+    - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
+    
+    - echo "🔧 Installing EAS CLI..."
     - pnpm add -g eas-cli
+    
+    - echo "🚀 Triggering EAS Build..."
     - |
       eas build \
-        --platform $PLATFORM \
-        --profile $PROFILE \
+        --platform $EAS_PLATFORM \
+        --profile $EAS_PROFILE \
         --non-interactive \
         --no-wait
-    - echo "OK - EAS Build triggered"
-    - echo "PLATFORM - $PLATFORM"
-    - echo "PROFILE - $PROFILE"
-    - echo "COST - Using paid EAS subscription"
-    - echo "INFO - Check build status at https://expo.dev"
+    
+    - echo "✅ OK - EAS Build triggered successfully"
+    - echo "📱 PLATFORM - $EAS_PLATFORM"
+    - echo "🔧 PROFILE - $EAS_PROFILE"
+    - echo "💰 COST - Using paid EAS Build subscription"
+    - echo "🔔 INFO - Check build status at https://expo.dev"
+  
   rules:
+    # Only run if EXPO_TOKEN is configured
     - if: $EXPO_TOKEN
       when: manual
       allow_failure: true
+  
+  retry:
+    max: 1
+    when:
+      - script_failure
 
-# DEPLOY STAGE - EAS Update
+# ============================================
+# DEPLOY STAGE - EAS UPDATE (OTA - FREE)
+# ============================================
+
 update:eas:
   stage: deploy
-  <<: *pnpm_setup
-  cache: *cache_config
+  <<: *setup_pnpm
+  cache: *cache_pnpm
+  
+  needs:
+    - ci:lint-and-test
+  
   variables:
-    BRANCH: "preview"
-    MESSAGE: "OTA update from GitLab CI"
+    EAS_BRANCH: "preview"                          # Override with branch name
+    UPDATE_MESSAGE: "OTA update from GitLab CI"    # Override with custom message
+  
   script:
+    - echo "📦 Installing dependencies..."
     - pnpm install --frozen-lockfile
+    
+    - echo "🔧 Installing EAS CLI..."
     - pnpm add -g eas-cli
+    
+    - echo "🚀 Publishing EAS Update..."
     - |
       eas update \
-        --branch $BRANCH \
-        --message "$MESSAGE" \
+        --branch $EAS_BRANCH \
+        --message "$UPDATE_MESSAGE" \
         --non-interactive
-    - echo "OK - EAS Update published"
-    - echo "BRANCH - $BRANCH"
-    - echo "INFO - Users will receive update on next app launch"
+    
+    - echo "✅ OK - EAS Update published successfully"
+    - echo "🌿 BRANCH - $EAS_BRANCH"
+    - echo "💰 COST - FREE (OTA updates are free)"
+    - echo "📱 INFO - Users will receive update on next app launch"
+  
   rules:
+    # Auto-run on main branch if EXPO_TOKEN configured
     - if: $EXPO_TOKEN && $CI_COMMIT_BRANCH == "main"
+    # Manual trigger on other branches
     - if: $EXPO_TOKEN
       when: manual
       allow_failure: true
+  
+  retry:
+    max: 2
+    when:
+      - script_failure
+
+# ============================================
+# WORKFLOW SUMMARY
+# ============================================
+# 
+# TEST STAGE (Always runs on MR/main/develop):
+#   ✅ ci:lint-and-test - Lint, type-check, format, tests
+# 
+# BUILD STAGE (Manual or auto on main):
+#   ✅ build:web              - Static web export (FREE)
+#   🔧 build:android:debug   - Android Debug APK (FREE, manual)
+#   🔧 build:android:release - Android Release APK (requires secrets, manual)
+#   🍎 build:ios:debug       - iOS Debug build (requires macOS runner, manual)
+#   🍎 build:ios:release     - iOS Release IPA (requires macOS runner + secrets, manual)
+# 
+# DEPLOY STAGE (Manual or conditional):
+#   📱 build:eas   - EAS Build (requires EXPO_TOKEN, manual)
+#   🔄 update:eas  - EAS Update OTA (auto on main if EXPO_TOKEN, else manual)
+# 
+# REQUIRED SECRETS:
+#   - EXPO_TOKEN               (for EAS builds/updates)
+#   - SENTRY_ORG               (optional, for error tracking)
+#   - SENTRY_PROJECT           (optional)
+#   - SENTRY_AUTH_TOKEN        (optional)
+#   - ANDROID_KEYSTORE_BASE64  (for release builds)
+#   - KEYSTORE_PASSWORD        (for release builds)
+#   - KEY_ALIAS                (for release builds)
+#   - KEY_PASSWORD             (for release builds)
+#   - MATCH_PASSWORD           (for iOS release)
+#   - FASTLANE_USER            (for iOS release)
+#   - FASTLANE_PASSWORD        (for iOS release)
+# 
+# ============================================
