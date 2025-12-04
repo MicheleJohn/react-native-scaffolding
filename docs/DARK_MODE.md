@@ -15,59 +15,114 @@ Complete guide to implementing and using dark mode with **NativeWind v5**.
 ### How It Works
 
 1. **global.css** defines colors with CSS variables
-   - `@theme` block = light mode defaults
+   - `@theme` block = light mode defaults (RGB format)
    - `.dark` class = dark mode overrides
 
 2. **tailwind.config.js** maps variables to utility classes
-   - `background: 'rgb(var(--color-background))'`
+   - Semantic colors: `background: 'rgb(var(--color-background))'`
+   - Brand colors: `primary: '#009fe3'` (static HEX)
 
 3. **ThemeProvider** manages state and persistence
 
 4. **_layout.tsx** applies `.dark` class to root element
    - Web: `document.documentElement.classList`
-   - Mobile: `<View className="dark">`
+   - Mobile: `<View className="dark">` wrapper
 
 ### File Structure
 
 ```
 src/
-├── theme/tokens.ts          # Color constants
+├── theme/tokens.ts          # Color constants (HEX values)
 ├── providers/ThemeProvider.tsx
 ├── app/_layout.tsx
-global.css
-tailwind.config.js
+global.css                   # CSS variables (RGB format)
+tailwind.config.js           # Color mappings
 ```
 
 ## 📝 Usage
 
-### Semantic Colors (Recommended)
+### Option 1: Semantic Colors (Recommended ✅)
 
-Auto-adapting colors:
+Auto-adapting colors that change with theme:
 
 ```tsx
 <View className="bg-background">
   <Text className="text-primary-text">Auto-adapts!</Text>
+  <View className="border border-border" />
 </View>
 ```
 
-### Manual Override (When Needed)
+**Works on all platforms (iOS, Android, Web).**
+
+### Option 2: Manual Conditional (Special Cases)
+
+When you need colors not covered by semantic colors:
 
 ```tsx
-<View className="bg-white dark:bg-slate-900">
-  <Text className="text-black dark:text-white">Custom!</Text>
+import { useTheme } from '@/providers';
+
+const { isDark } = useTheme();
+
+<View className={isDark ? 'bg-slate-900' : 'bg-white'}>
+  <Text className={isDark ? 'text-white' : 'text-black'}>Custom!</Text>
 </View>
 ```
+
+**Works on all platforms.**
+
+### Option 3: Static Brand Colors (Don't Change)
+
+Colors that stay the same regardless of theme:
+
+```tsx
+<Button className="bg-primary">Always cyan</Button>
+<Text className="text-danger">Always red</Text>
+```
+
+### ⚠️ `dark:` Prefix - Web Only!
+
+The `dark:` prefix works **only on web**, not on mobile in NativeWind v5:
+
+```tsx
+// ✅ Works on WEB ONLY
+<View className="bg-white dark:bg-black">
+  <Text className="text-black dark:text-white">Web only!</Text>
+</View>
+
+// ✅ Works on ALL platforms (use semantic colors)
+<View className="bg-background">
+  <Text className="text-primary-text">Cross-platform!</Text>
+</View>
+
+// ✅ Works on ALL platforms (manual conditional)
+const { isDark } = useTheme();
+<View className={isDark ? 'bg-black' : 'bg-white'}>
+  <Text className={isDark ? 'text-white' : 'text-black'}>All platforms!</Text>
+</View>
+```
+
+**Why?** NativeWind v5 uses CSS variables for mobile theming. The `dark:` prefix is a CSS selector that only works in actual CSS (web), not in React Native's StyleSheet system.
+
+## 🔧 Theme Management
 
 ### Toggle Theme
 
 ```tsx
 import { useTheme } from '@/providers';
 
-const { isDark, setThemeMode } = useTheme();
+const { isDark, themeMode, setThemeMode } = useTheme();
 
-<Button onPress={() => void setThemeMode('dark')}>
-  Dark Mode
-</Button>
+<Button onPress={() => void setThemeMode('dark')}>Dark</Button>
+<Button onPress={() => void setThemeMode('light')}>Light</Button>
+<Button onPress={() => void setThemeMode('system')}>System</Button>
+```
+
+### Theme Toggle Icon
+
+```tsx
+import { ThemeToggleIcon } from '@/components/shared';
+
+<ThemeToggleIcon /> // Cycles: light → dark → system
 ```
 
 ### Runtime Access
@@ -75,16 +130,17 @@ const { isDark, setThemeMode } = useTheme();
 ```tsx
 import { tokens } from '@/theme/tokens';
 
-const color = tokens.colors.primary.cyan; // '#009FE3'
+const brandColor = tokens.colors.primary.cyan; // '#009FE3'
+<View style={{ borderColor: brandColor }} />
 ```
 
 ## ➕ Adding New Colors
 
-### 1. global.css
+### 1. global.css (RGB format)
 
 ```css
 @theme {
-  --color-my-color: 100 150 200; /* RGB format */
+  --color-my-color: 100 150 200; /* RGB: space-separated */
 }
 
 .dark {
@@ -96,7 +152,7 @@ const color = tokens.colors.primary.cyan; // '#009FE3'
 
 ```javascript
 colors: {
-  'my-color': 'rgb(var(--color-my-color))',
+  'my-color': 'rgb(var(--color-my-color))', // Wrap with rgb()
 }
 ```
 
@@ -109,31 +165,52 @@ colors: {
 ## ✅ Best Practices
 
 **✅ DO:**
-- Use RGB format: `255 255 255` (not `#ffffff`)
+- Use semantic colors: `bg-background`, `text-primary-text`
+- Use RGB format in CSS: `255 255 255` (not `#ffffff`)
 - Wrap with `rgb()`: `rgb(var(--color-background))`
-- Use semantic names: `bg-background`, `text-primary-text`
-- Test both light and dark modes
+- Use manual conditionals for special cases
+- Test on all platforms
 
 **❌ DON'T:**
-- Use HEX in CSS variables
-- Hardcode colors: `style={{ backgroundColor: '#fff' }}`
-- Mix semantic and manual approaches
+- ~~Use `dark:` prefix on mobile~~ (web only)
+- Use HEX in CSS variables (breaks rgb())
+- Hardcode colors in style props
+- Mix semantic and hardcoded approaches
 
-## 🔧 Troubleshooting
+## 🔍 Color Types
 
-### Colors not changing?
+### Semantic Colors (CSS Variables)
 
-1. Check `.dark` class is applied (debug with `console.log(isDark)`)
+**Purpose:** Auto-adapting theme colors
+
+**Format:**
+- global.css: `--color-background: 255 255 255` (RGB)
+- tailwind.config: `background: 'rgb(var(--color-background))'`
+- Usage: `className="bg-background"`
+
+### Brand Colors (Static)
+
+**Purpose:** Fixed brand colors
+
+**Format:**
+- tokens.ts: `cyan: '#009fe3'` (HEX)
+- tailwind.config: `primary: tokens.colors.primary.cyan`
+- Usage: `className="bg-primary"` or `style={{ color: tokens.colors.primary.cyan }}`
+
+## 🛠️ Troubleshooting
+
+### Colors Not Changing?
+
+1. Check using semantic colors: `bg-background` not `bg-white`
 2. Verify RGB format in global.css
-3. Ensure `rgb()` wrapper in tailwind.config.js
+3. Check `rgb()` wrapper in tailwind.config.js
+4. Debug: `console.log(isDark, colorScheme)`
 
-### Warning about className changes?
+### `dark:` Prefix Not Working on Mobile?
 
-Add `key` prop:
-
-```tsx
-<View key={colorScheme} className={isDark ? 'dark flex-1' : 'flex-1'}>
-```
+**Expected!** Use alternatives:
+- Semantic colors: `bg-background`
+- Manual conditional: `className={isDark ? 'bg-black' : 'bg-white'}`
 
 ## 📚 Reference
 
@@ -154,7 +231,15 @@ const {
 - Text: `primary-text`, `secondary-text`, `tertiary-text`
 - Borders: `border`, `border-light`, `divider`
 - States: `success`, `error`, `warning`, `info`
+- Inputs: `input-bg`, `input-border`, `input-text`
+- Buttons: `button-primary-bg`, `button-primary-text`
+
+### Static Brand Colors
+
+- Primary: `primary`, `primary-dark`, `mid-blue`, `danger`
+- Neutral: `neutral-50` through `neutral-900`
+- Secondary: `secondary-light-blue`, `secondary-green`
 
 ---
 
-**✨ Full implementation details in the code!**
+**✨ Happy theming!**
