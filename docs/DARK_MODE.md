@@ -1,238 +1,160 @@
-# Dark Mode Guide
+# 🌙 Dark Mode Guide
 
-Complete guide to using dark mode in this React Native app with NativeWind.
+Complete guide to implementing and using dark mode with **NativeWind v5**.
 
-## 📚 Overview
+## ✨ Features
 
-Dark mode is **automatically applied** throughout the entire app using NativeWind's `dark:` prefix. No dedicated demo page needed - just use the theme toggle!
+- ✅ **Three Modes**: Light, Dark, System (follows device)
+- ✅ **Persistent**: User preference saved in AsyncStorage  
+- ✅ **CSS Variables**: Auto-switching theme colors
+- ✅ **Type-Safe**: Runtime color access via tokens
+- ✅ **Cross-Platform**: iOS, Android, Web
 
-### ✨ Features
+## 🎨 Architecture
 
-- ✅ **Three theme modes**: Light, Dark, System (follows device settings)
-- ✅ **Persistent preference**: Theme choice saved in AsyncStorage
-- ✅ **Automatic switching**: System mode auto-updates with device
-- ✅ **Type-safe context**: useTheme hook with TypeScript
-- ✅ **CSS Variables**: Comprehensive color system that adapts
-- ✅ **NativeWind integration**: Use Tailwind's `dark:` prefix everywhere
-- ✅ **Theme toggle**: Icon in top-right corner of app
+### How It Works
 
----
+1. **global.css** defines colors with CSS variables
+   - `@theme` block = light mode defaults
+   - `.dark` class = dark mode overrides
 
-## Quick Start
+2. **tailwind.config.js** maps variables to utility classes
+   - `background: 'rgb(var(--color-background))'`
 
-### 1. Change Theme in App
+3. **ThemeProvider** manages state and persistence
 
-Click the sun/moon icon in the top-right corner of the home page.
+4. **_layout.tsx** applies `.dark` class to root element
+   - Web: `document.documentElement.classList`
+   - Mobile: `<View className="dark">`
 
-### 2. Use Dark Mode in Your Components
+### File Structure
 
-**Method 1: Tailwind `dark:` prefix (recommended)**
-
-```tsx
-<View className="bg-white dark:bg-neutral-900">
-  <Text className="text-neutral-900 dark:text-neutral-50">
-    Adapts to theme automatically
-  </Text>
-</View>
+```
+src/
+├── theme/tokens.ts          # Color constants
+├── providers/ThemeProvider.tsx
+├── app/_layout.tsx
+global.css
+tailwind.config.js
 ```
 
-**Method 2: CSS Variables**
+## 📝 Usage
+
+### Semantic Colors (Recommended)
+
+Auto-adapting colors:
 
 ```tsx
 <View className="bg-background">
-  <Text className="text-primary-text">
-    Uses CSS variables that auto-adapt
-  </Text>
+  <Text className="text-primary-text">Auto-adapts!</Text>
 </View>
 ```
 
-**Method 3: useTheme Hook**
+### Manual Override (When Needed)
+
+```tsx
+<View className="bg-white dark:bg-slate-900">
+  <Text className="text-black dark:text-white">Custom!</Text>
+</View>
+```
+
+### Toggle Theme
 
 ```tsx
 import { useTheme } from '@/providers';
 
-function MyComponent() {
-  const { isDark, colorScheme } = useTheme();
+const { isDark, setThemeMode } = useTheme();
 
-  return (
-    <View>
-      <Text>Current theme: {colorScheme}</Text>
-      {isDark && <Text>Dark mode is active!</Text>}
-    </View>
-  );
+<Button onPress={() => void setThemeMode('dark')}>
+  Dark Mode
+</Button>
+```
+
+### Runtime Access
+
+```tsx
+import { tokens } from '@/theme/tokens';
+
+const color = tokens.colors.primary.cyan; // '#009FE3'
+```
+
+## ➕ Adding New Colors
+
+### 1. global.css
+
+```css
+@theme {
+  --color-my-color: 100 150 200; /* RGB format */
+}
+
+.dark {
+  --color-my-color: 200 100 150;
 }
 ```
 
----
+### 2. tailwind.config.js
 
-## Theme System
+```javascript
+colors: {
+  'my-color': 'rgb(var(--color-my-color))',
+}
+```
 
-### ThemeProvider
+### 3. Use
 
-Located in `src/providers/ThemeProvider.tsx`
+```tsx
+<View className="bg-my-color" />
+```
 
-**Features:**
-- Manages theme state (light, dark, system)
-- Saves preference to AsyncStorage
-- Listens to system color scheme changes
-- Provides context via `useTheme` hook
+## ✅ Best Practices
 
-**Already integrated in `src/app/_layout.tsx`**
+**✅ DO:**
+- Use RGB format: `255 255 255` (not `#ffffff`)
+- Wrap with `rgb()`: `rgb(var(--color-background))`
+- Use semantic names: `bg-background`, `text-primary-text`
+- Test both light and dark modes
+
+**❌ DON'T:**
+- Use HEX in CSS variables
+- Hardcode colors: `style={{ backgroundColor: '#fff' }}`
+- Mix semantic and manual approaches
+
+## 🔧 Troubleshooting
+
+### Colors not changing?
+
+1. Check `.dark` class is applied (debug with `console.log(isDark)`)
+2. Verify RGB format in global.css
+3. Ensure `rgb()` wrapper in tailwind.config.js
+
+### Warning about className changes?
+
+Add `key` prop:
+
+```tsx
+<View key={colorScheme} className={isDark ? 'dark flex-1' : 'flex-1'}>
+```
+
+## 📚 Reference
 
 ### useTheme Hook
 
-**API:**
-
 ```tsx
 const {
-  colorScheme,  // 'light' | 'dark' - effective color scheme
-  themeMode,    // 'light' | 'dark' | 'system' - user preference
-  setThemeMode, // (mode: ThemeMode) => Promise<void>
-  isDark,       // boolean - true if dark mode active
+  colorScheme,  // 'light' | 'dark'
+  themeMode,    // 'light' | 'dark' | 'system'
+  setThemeMode, // (mode) => Promise<void>
+  isDark,       // boolean
 } = useTheme();
 ```
 
----
+### Semantic Colors
 
-## Using Dark Mode
-
-### Tailwind Dark Mode (Recommended)
-
-**NativeWind supports Tailwind's `dark:` prefix:**
-
-```tsx
-// Background colors
-<View className="bg-white dark:bg-neutral-900" />
-
-// Text colors
-<Text className="text-neutral-900 dark:text-neutral-50" />
-
-// Border colors
-<View className="border border-neutral-200 dark:border-neutral-700" />
-
-// Multiple properties
-<View className="
-  bg-white dark:bg-neutral-900
-  border dark:border-neutral-700
-  shadow-sm dark:shadow-none
-" />
-```
-
-### CSS Variables (Auto-Adapting)
-
-**Defined in `global.css`, automatically switch:**
-
-**Background Variables:**
-```tsx
-<View className="bg-background" />     // White → Dark
-<View className="bg-surface" />        // Light gray → Darker
-<View className="bg-card" />           // White → Dark
-```
-
-**Text Variables:**
-```tsx
-<Text className="text-primary-text" />    // Dark → Light
-<Text className="text-secondary-text" />  // Medium → Medium-light
-<Text className="text-tertiary-text" />   // Light → Medium
-```
-
-**Semantic Variables:**
-```tsx
-<Text className="text-success" />  // Green (adjusts for dark)
-<Text className="text-error" />    // Red (adjusts for dark)
-<Text className="text-warning" />  // Yellow (adjusts for dark)
-<Text className="text-info" />     // Blue (adjusts for dark)
-```
+- Background: `background`, `surface`, `card`
+- Text: `primary-text`, `secondary-text`, `tertiary-text`
+- Borders: `border`, `border-light`, `divider`
+- States: `success`, `error`, `warning`, `info`
 
 ---
 
-## Customizing Colors
-
-### Edit `global.css`
-
-**Add new variables or modify existing:**
-
-```css
-/* global.css */
-
-@theme {
-  /* Your custom light mode color */
-  --color-custom: #ff6b6b;
-}
-
-@layer base {
-  .dark {
-    /* Your custom dark mode color */
-    --color-custom: #fa5252;
-  }
-}
-```
-
-### Use in Components
-
-```tsx
-<Text className="text-custom">
-  Custom color that adapts!
-</Text>
-```
-
----
-
-## Best Practices
-
-### 1. Use CSS Variables for Semantic Colors
-
-**✅ Good:**
-```tsx
-<View className="bg-background">
-  <Text className="text-primary-text">Hello</Text>
-</View>
-```
-
-**❌ Bad:**
-```tsx
-<View className="bg-white dark:bg-neutral-900">
-  <Text className="text-black dark:text-white">Hello</Text>
-</View>
-```
-
-**Why:** CSS variables are more maintainable.
-
-### 2. Use `dark:` for Custom Overrides
-
-**When you need specific dark mode adjustments:**
-
-```tsx
-// Custom shadow only in light mode
-<View className="shadow-lg dark:shadow-none" />
-
-// Different padding in dark mode
-<View className="p-4 dark:p-6" />
-
-// Hide element in dark mode
-<View className="block dark:hidden" />
-```
-
-### 3. Test Both Themes
-
-**Always test your UI in both modes using the theme toggle icon!**
-
----
-
-## Troubleshooting
-
-### Issue: Dark mode not activating
-
-**Solution:** Check if `darkMode: 'class'` in `tailwind.config.js`
-
-### Issue: Colors not changing in component
-
-**Solution:** Ensure using Tailwind classes or CSS variables, not inline styles
-
-### Issue: Theme not persisting
-
-**Solution:** ThemeProvider automatically saves to AsyncStorage - check console for errors
-
----
-
-**Happy theming! 🌙**
+**✨ Full implementation details in the code!**
