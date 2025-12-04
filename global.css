@@ -4,22 +4,25 @@
 @import 'nativewind/theme';
 
 /**
- * NativeWind v5 Theme System
+ * NativeWind v5 Theme System with VariableContextProvider
  *
- * Approach: CSS Variables + Theme Classes
- * - Define base colors in @theme
- * - Define theme-specific values in .theme-light and .theme-dark
- * - CSS variables auto-update when theme class changes
+ * CSS variables are injected at runtime by VariableContextProvider.
+ * No need to define theme classes here!
+ *
+ * Themes are defined in src/theme/themes.ts and injected via:
+ * <VariableContextProvider value={lightTheme | darkTheme}>
  */
 
 @theme {
-  /* Base brand colors (don't change with theme) */
+  /* Only define static colors that don't change with theme */
+  
+  /* Base brand colors */
   --color-primary: #009fe3;
   --color-primary-dark: #28529c;
   --color-mid-blue: #0074a5;
   --color-danger: #cc1a1a;
 
-  /* Neutral colors (don't change with theme) */
+  /* Neutral colors */
   --color-neutral-50: #f2f4f7;
   --color-neutral-100: #f9fafb;
   --color-neutral-200: #e5e7eb;
@@ -31,7 +34,7 @@
   --color-neutral-800: #1d2939;
   --color-neutral-900: #0f172a;
 
-  /* Secondary colors (don't change with theme) */
+  /* Secondary colors */
   --color-secondary-light: #e6f4fa;
   --color-secondary-green: #a6c48a;
   --color-secondary-yellow: #f2c94c;
@@ -39,123 +42,12 @@
 }
 
 @layer base {
-  /**
-   * Light Theme
-   * Default theme, also explicitly available as .theme-light
-   */
-  :root,
-  .theme-light {
-    /* Background colors */
-    --color-background: #ffffff;
-    --color-surface: #f2f4f7;
-    --color-card: #ffffff;
-    --color-overlay: rgba(0, 0, 0, 0.5);
-
-    /* Text colors */
-    --color-primary-text: #0f172a;
-    --color-secondary-text: #344054;
-    --color-tertiary-text: #98a2b3;
-    --color-inverse-text: #ffffff;
-    --color-link: #009fe3;
-    --color-disabled: #98a2b3;
-
-    /* Semantic colors */
-    --color-success: #a6c48a;
-    --color-success-light: #d4e4c4;
-    --color-error: #cc1a1a;
-    --color-error-light: #fecaca;
-    --color-warning: #f2c94c;
-    --color-warning-light: #fef3c7;
-    --color-info: #009fe3;
-    --color-info-light: #dbeafe;
-
-    /* Border colors */
-    --color-border: #e5e7eb;
-    --color-border-light: #f2f4f7;
-    --color-border-dark: #344054;
-    --color-border-focus: #009fe3;
-    --color-divider: #e5e7eb;
-
-    /* Input colors */
-    --color-input-bg: #ffffff;
-    --color-input-border: #d1d5db;
-    --color-input-text: #0f172a;
-    --color-input-placeholder: #98a2b3;
-    --color-input-disabled: #f9fafb;
-
-    /* Button colors */
-    --color-button-primary-bg: #009fe3;
-    --color-button-primary-text: #ffffff;
-    --color-button-secondary-bg: #f2f4f7;
-    --color-button-secondary-text: #344054;
-    --color-button-ghost-text: #009fe3;
-
-    /* Shadows */
-    --color-shadow: rgba(0, 0, 0, 0.1);
-    --color-shadow-lg: rgba(0, 0, 0, 0.2);
-  }
-
-  /**
-   * Dark Theme
-   * Activated by .theme-dark class OR .dark class (for compatibility)
-   */
-  .theme-dark,
-  .dark {
-    /* Background colors */
-    --color-background: #0f172a;
-    --color-surface: #1d2939;
-    --color-card: #1d2939;
-    --color-overlay: rgba(0, 0, 0, 0.7);
-
-    /* Text colors */
-    --color-primary-text: #f9fafb;
-    --color-secondary-text: #d1d5db;
-    --color-tertiary-text: #98a2b3;
-    --color-inverse-text: #0f172a;
-    --color-link: #60a5fa;
-    --color-disabled: #6b7280;
-
-    /* Semantic colors */
-    --color-success: #86b967;
-    --color-success-light: #3f5437;
-    --color-error: #ef4444;
-    --color-error-light: #7f1d1d;
-    --color-warning: #f59e0b;
-    --color-warning-light: #78350f;
-    --color-info: #3b82f6;
-    --color-info-light: #1e3a8a;
-
-    /* Border colors */
-    --color-border: #374151;
-    --color-border-light: #1d2939;
-    --color-border-dark: #d1d5db;
-    --color-border-focus: #60a5fa;
-    --color-divider: #374151;
-
-    /* Input colors */
-    --color-input-bg: #1d2939;
-    --color-input-border: #374151;
-    --color-input-text: #f9fafb;
-    --color-input-placeholder: #6b7280;
-    --color-input-disabled: #0f172a;
-
-    /* Button colors */
-    --color-button-primary-bg: #3b82f6;
-    --color-button-primary-text: #ffffff;
-    --color-button-secondary-bg: #374151;
-    --color-button-secondary-text: #f9fafb;
-    --color-button-ghost-text: #60a5fa;
-
-    /* Shadows */
-    --color-shadow: rgba(0, 0, 0, 0.3);
-    --color-shadow-lg: rgba(0, 0, 0, 0.5);
-  }
-
   /* Base styles */
   * {
     box-sizing: border-box;
   }
 
+  /* body styles use CSS variables injected by VariableContextProvider */
   body {
     background-color: var(--color-background);
     color: var(--color-primary-text);

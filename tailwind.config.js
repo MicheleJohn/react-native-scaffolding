@@ -2,29 +2,29 @@ const { tokens } = require('./src/theme/tokens');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
+  darkMode: 'class', // Still needed for dark: prefix support
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      // Use tokens for colors (shared between config and code)
+      // Static brand colors from tokens
       colors: {
-        // Primary brand colors
+        // Primary brand colors (don't change with theme)
         primary: tokens.colors.primary.cyan,
         'primary-dark': tokens.colors.primary.blue,
         'mid-blue': tokens.colors.primary.teal,
         danger: tokens.colors.primary.red,
 
-        // Neutral palette
+        // Neutral palette (don't change with theme)
         neutral: tokens.colors.neutral,
 
-        // Secondary colors
+        // Secondary colors (don't change with theme)
         'secondary-light-blue': tokens.colors.secondary.lightBlue,
         'secondary-green': tokens.colors.secondary.green,
         'secondary-yellow': tokens.colors.secondary.yellow,
         'secondary-navy': tokens.colors.secondary.darkNavy,
 
-        // Semantic colors (CSS variables for theme switching)
+        // Semantic colors using CSS variables (injected by VariableContextProvider)
         background: 'var(--color-background)',
         surface: 'var(--color-surface)',
         card: 'var(--color-card)',
