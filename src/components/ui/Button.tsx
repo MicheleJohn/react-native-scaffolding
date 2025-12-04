@@ -158,7 +158,10 @@ export type ButtonProps = TouchableOpacityProps &
  * </Link>
  * ```
  */
-export const Button = React.forwardRef<View, ButtonProps>(
+export const Button = React.forwardRef<
+  React.ElementRef<typeof TouchableOpacity>,
+  ButtonProps
+>(
   (
     {
       variant = 'filled',
