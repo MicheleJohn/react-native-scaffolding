@@ -18,7 +18,6 @@ import {
 } from '@/components/ui';
 import { ButtonShowcase } from '@/components/ui/examples/ButtonShowcase';
 import { CardShowcase } from '@/components/ui/examples/CardShowcase';
-import { colors } from '@/theme/colors';
 
 /**
  * Design System Showcase Page
@@ -85,10 +84,34 @@ export default function DesignSystemPage() {
           className={`w-16 h-16 rounded-lg mb-2 border border-border dark:border-neutral-700 bg-(--color-palette)`}
         />
       </VariableContextProvider>
-      <Text className="text-xs text-secondary dark:text-neutral-400 text-center">{name}</Text>
-      <Text className="text-xs text-tertiary dark:text-neutral-500 font-mono">{color}</Text>
+      <Text className="text-xs text-secondary-text dark:text-neutral-400 text-center">{name}</Text>
+      <Text className="text-xs text-tertiary-text dark:text-neutral-500 font-mono">{color}</Text>
     </View>
   );
+
+  // Design system colors (from global.css CSS variables)
+  const designColors = {
+    primary: {
+      cyan: '#009FE3',
+      blue: '#28529C',
+      teal: '#0074A5',
+      red: '#CC1A1A',
+    },
+    neutral: {
+      white: '#FFFFFF',
+      gray50: '#F2F4F7',
+      gray400: '#98A2B3',
+      gray700: '#344054',
+      gray800: '#1D2939',
+      gray900: '#0F172A',
+    },
+    secondary: {
+      lightBlue: '#E6F4FA',
+      green: '#A6C48A',
+      yellow: '#F2C94C',
+      darkNavy: '#0F172A',
+    },
+  };
 
   return (
     <SafeAreaView className="bg-background dark:bg-neutral-900">
@@ -107,7 +130,7 @@ export default function DesignSystemPage() {
             <Text className="text-3xl font-bold text-primary dark:text-primary-dark mb-2">
               🎨 Design System
             </Text>
-            <Text className="text-base text-secondary dark:text-neutral-400">
+            <Text className="text-base text-secondary-text dark:text-neutral-400">
               Complete UI component library and color palette
             </Text>
           </View>
@@ -122,10 +145,10 @@ export default function DesignSystemPage() {
                 Primary
               </Text>
               <View className="flex-row flex-wrap gap-4">
-                <ColorSwatch color={colors.primary.cyan} name="Cyan" />
-                <ColorSwatch color={colors.primary.blue} name="Blue" />
-                <ColorSwatch color={colors.primary.teal} name="Teal" />
-                <ColorSwatch color={colors.primary.red} name="Red" />
+                <ColorSwatch color={designColors.primary.cyan} name="Cyan" />
+                <ColorSwatch color={designColors.primary.blue} name="Blue" />
+                <ColorSwatch color={designColors.primary.teal} name="Teal" />
+                <ColorSwatch color={designColors.primary.red} name="Red" />
               </View>
             </Card>
 
@@ -135,12 +158,12 @@ export default function DesignSystemPage() {
                 Neutral
               </Text>
               <View className="flex-row flex-wrap gap-4">
-                <ColorSwatch color={colors.neutral.white} name="White" />
-                <ColorSwatch color={colors.neutral.gray50} name="Gray 50" />
-                <ColorSwatch color={colors.neutral.gray400} name="Gray 400" />
-                <ColorSwatch color={colors.neutral.gray700} name="Gray 700" />
-                <ColorSwatch color={colors.neutral.gray800} name="Gray 800" />
-                <ColorSwatch color={colors.neutral.gray900} name="Gray 900" />
+                <ColorSwatch color={designColors.neutral.white} name="White" />
+                <ColorSwatch color={designColors.neutral.gray50} name="Gray 50" />
+                <ColorSwatch color={designColors.neutral.gray400} name="Gray 400" />
+                <ColorSwatch color={designColors.neutral.gray700} name="Gray 700" />
+                <ColorSwatch color={designColors.neutral.gray800} name="Gray 800" />
+                <ColorSwatch color={designColors.neutral.gray900} name="Gray 900" />
               </View>
             </Card>
 
@@ -151,13 +174,13 @@ export default function DesignSystemPage() {
               </Text>
               <View className="flex-row flex-wrap gap-4">
                 <ColorSwatch
-                  color={colors.secondary.lightBlue}
+                  color={designColors.secondary.lightBlue}
                   name="Light Blue"
                 />
-                <ColorSwatch color={colors.secondary.green} name="Green" />
-                <ColorSwatch color={colors.secondary.yellow} name="Yellow" />
+                <ColorSwatch color={designColors.secondary.green} name="Green" />
+                <ColorSwatch color={designColors.secondary.yellow} name="Yellow" />
                 <ColorSwatch
-                  color={colors.secondary.darkNavy}
+                  color={designColors.secondary.darkNavy}
                   name="Dark Navy"
                 />
               </View>
@@ -242,13 +265,13 @@ export default function DesignSystemPage() {
             </Text>
             <View className="gap-4">
               <View>
-                <Text className="text-sm text-secondary dark:text-neutral-400 mb-2">
+                <Text className="text-sm text-secondary-text dark:text-neutral-400 mb-2">
                   Light Variant
                 </Text>
                 <NavigationBar items={navigationItems} variant="light" />
               </View>
               <View>
-                <Text className="text-sm text-secondary dark:text-neutral-400 mb-2">
+                <Text className="text-sm text-secondary-text dark:text-neutral-400 mb-2">
                   Dark Variant
                 </Text>
                 <NavigationBar items={navigationItems} variant="dark" />
