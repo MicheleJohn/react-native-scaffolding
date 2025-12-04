@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Image, RefreshControl, ScrollView, Text, View } from 'react-native';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,14 +15,47 @@ import { usePosts } from '@/hooks/usePosts';
 import { useRandomDog } from '@/hooks/useRandomDog';
 
 /**
+ * Zod schema for post creation form
+ */
+const createPostSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .min(3, 'Title must be at least 3 characters')
+    .max(100, 'Title must be less than 100 characters'),
+  body: z
+    .string()
+    .min(1, 'Body is required')
+    .min(10, 'Body must be at least 10 characters')
+    .max(500, 'Body must be less than 500 characters'),
+});
+
+type CreatePostFormData = z.infer<typeof createPostSchema>;
+
+/**
  * TanStack Query Demo Page
- * Comprehensive showcase of query features
+ * Comprehensive showcase of query features with React Hook Form
  */
 export default function TanStackDemoPage() {
   const [countrySearch, setCountrySearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [newPostTitle, setNewPostTitle] = useState('');
-  const [newPostBody, setNewPostBody] = useState('');
+
+  /**
+   * React Hook Form setup with Zod resolver
+   */
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<CreatePostFormData>({
+    resolver: zodResolver(createPostSchema),
+    mode: 'onChange',
+    defaultValues: {
+      title: '',
+      body: '',
+    },
+  });
 
   // Debounce country search
   React.useEffect(() => {
@@ -68,13 +104,15 @@ export default function TanStackDemoPage() {
    */
   const createPostMutation = useCreatePost();
 
-  const handleCreatePost = () => {
-    if (newPostTitle && newPostBody) {
-      createPostMutation.mutate({
-        title: newPostTitle,
-        body: newPostBody,
-      });
-    }
+  /**
+   * Form submission handler
+   */
+  const onSubmit = (data: CreatePostFormData) => {
+    createPostMutation.mutate(data, {
+      onSuccess: () => {
+        reset(); // Reset form after successful submission
+      },
+    });
   };
 
   return (
@@ -101,7 +139,7 @@ export default function TanStackDemoPage() {
               🚀 TanStack Query Demo
             </Text>
             <Text className="text-base text-text-secondary">
-              Real-world examples with loading, error, and success states
+              Real-world examples with React Hook Form & Zod validation
             </Text>
           </View>
 
@@ -268,39 +306,56 @@ export default function TanStackDemoPage() {
             )}
           </Card>
 
-          {/* Example 4: Mutation - Create Post */}
+          {/* Example 4: Mutation - Create Post with React Hook Form */}
           <Card variant="elevated" className="mb-6">
             <Text className="text-xl font-bold text-text mb-3">
-              4️⃣ Mutation - Create Post
+              4️⃣ Mutation - Create Post (React Hook Form + Zod)
             </Text>
             <Text className="text-sm text-text-secondary mb-4">
-              POST request with cache invalidation and optimistic updates
+              POST request with validation, cache invalidation and optimistic
+              updates
             </Text>
 
-            <Input
-              label="Post Title"
-              placeholder="Enter title"
-              value={newPostTitle}
-              onChangeText={setNewPostTitle}
-              className="mb-3"
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Post Title"
+                  placeholder="Enter title (min 3 characters)"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.title?.message}
+                  containerClassName="mb-3"
+                />
+              )}
             />
 
-            <Input
-              label="Post Body"
-              placeholder="Enter body text"
-              value={newPostBody}
-              onChangeText={setNewPostBody}
-              multiline
-              numberOfLines={3}
-              className="mb-4"
+            <Controller
+              control={control}
+              name="body"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Post Body"
+                  placeholder="Enter body text (min 10 characters)"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.body?.message}
+                  multiline
+                  numberOfLines={3}
+                  containerClassName="mb-4"
+                />
+              )}
             />
 
             <Button
               variant="filled"
               fullWidth
               loading={createPostMutation.isPending}
-              disabled={!newPostTitle || !newPostBody}
-              onPress={handleCreatePost}>
+              disabled={!isValid || createPostMutation.isPending}
+              onPress={handleSubmit(onSubmit)}>
               {createPostMutation.isPending ? 'Creating...' : 'Create Post'}
             </Button>
 
@@ -342,6 +397,10 @@ export default function TanStackDemoPage() {
               <Text className="text-sm text-text">
                 • <Text className="font-semibold">Mutations</Text> - POST
                 requests with invalidation
+              </Text>
+              <Text className="text-sm text-text">
+                • <Text className="font-semibold">Form Validation</Text> -
+                React Hook Form with Zod
               </Text>
               <Text className="text-sm text-text">
                 • <Text className="font-semibold">Loading States</Text> - Per
