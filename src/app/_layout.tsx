@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui';
 import { useAppState } from '@/hooks';
+import { ThemeProvider, useTheme } from '@/providers';
 
 import '../../global.css';
 
@@ -28,8 +29,20 @@ const _i18n = initI18n();
 
 function RootLayoutContent() {
   const _network = useNetworkState();
-  // Esempio di warning connessione
-  // if (!network.isConnected) {/* render warning banner */}
+  const { colorScheme } = useTheme();
+
+  // Apply dark class to root element for NativeWind
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const root = document.documentElement;
+      if (colorScheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [colorScheme]);
+
   return (
     <>
       <Slot />
@@ -78,17 +91,13 @@ function RootLayout() {
       void SplashScreen.hideAsync();
     }
   }, [appState]);
-  // Expo Router error boundary già attivo, non serve custom
-  // Puoi gestire errori route-specific nei file [...]error.tsx
-  // Docs: https://docs.expo.dev/router/error-handling/
-  //
-  // Puoi comunque esportare l'ErrorBoundary ufficiale se vuoi
-  // export { ErrorBoundary } from 'expo-router';
 
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <RootLayoutContent />
+        <ThemeProvider>
+          <RootLayoutContent />
+        </ThemeProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
   );
