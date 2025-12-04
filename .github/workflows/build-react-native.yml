@@ -1,7 +1,8 @@
 name: Build React Native (Free)
 
 # FREE - Alternative to EAS using GitHub Actions
-# No subscription needed!
+# Modern workflow with xcodebuild (iOS equivalent of Gradle)
+# Uses Expo prebuild which handles SPM automatically
 on:
   workflow_dispatch:
     inputs:
@@ -130,11 +131,12 @@ jobs:
 
       - name: Build info
         run: |
-          echo "OK - Android build completed"
-          echo "PLATFORM - Android"
-          echo "BUILD TYPE - ${{ inputs.build_type }}"
-          echo "COST - FREE (GitHub Actions minutes)"
-          echo "INFO - Download APK from Actions artifacts"
+          echo "✅ OK - Android build completed"
+          echo "📱 PLATFORM - Android"
+          echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
+          echo "🛠️ TOOL - Gradle (native Android build tool)"
+          echo "💰 COST - FREE (GitHub Actions minutes)"
+          echo "📥 INFO - Download APK from Actions artifacts"
 
   build-ios:
     name: Build iOS IPA (FREE)
@@ -171,69 +173,162 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Prebuild iOS (Expo)
-        run: pnpm dlx expo prebuild --platform ios --non-interactive
-
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
-
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
+      - name: Prebuild iOS with Expo (handles SPM automatically)
+        run: |
+          echo "🔧 Running Expo prebuild for iOS..."
+          echo "📦 This will:"
+          echo "   - Generate native iOS project"
+          echo "   - Configure SPM dependencies (modern, no CocoaPods needed)"
+          echo "   - Setup autolinking for native modules"
+          echo "   - Apply config plugins from app.json"
+          echo ""
+          pnpm dlx expo prebuild --platform ios --clean
+          echo ""
+          echo "✅ Expo prebuild completed!"
+          echo "📁 iOS project generated with modern SPM support"
+
+      - name: Verify iOS project structure
+        run: |
+          echo "📂 Checking generated iOS project..."
+          ls -la ios/
+          echo ""
+          echo "📦 SPM packages (if any):"
+          if [ -f "ios/Podfile" ]; then
+            echo "⚠️ CocoaPods Podfile detected (legacy dependencies present)"
+          else
+            echo "✅ No Podfile - pure SPM project!"
+          fi
+
+      - name: Install CocoaPods dependencies (only if needed)
+        run: |
+          if [ -f "ios/Podfile" ]; then
+            echo "📦 Installing CocoaPods dependencies (legacy deps detected)..."
+            cd ios
+            pod install
+            echo "✅ CocoaPods dependencies installed"
+          else
+            echo "✅ No CocoaPods needed - using pure SPM!"
+            echo "🚀 Build will be faster without CocoaPods overhead"
+          fi
+
       - name: Detect iOS workspace and scheme
         id: ios-info
         run: |
           cd ios
-          # Find workspace file
-          WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
-          # Extract scheme name (same as workspace name without extension)
-          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          # Find workspace file (works with both CocoaPods and SPM projects)
+          WORKSPACE=$(ls -1 *.xcworkspace 2>/dev/null | head -n 1 || echo "")
           
-          echo "WORKSPACE=$WORKSPACE" >> $GITHUB_OUTPUT
+          if [ -z "$WORKSPACE" ]; then
+            # No workspace, use xcodeproj instead (pure SPM case)
+            PROJECT=$(ls -1 *.xcodeproj | head -n 1)
+            SCHEME=$(basename "$PROJECT" .xcodeproj)
+            USE_PROJECT=true
+            echo "USE_PROJECT=true" >> $GITHUB_OUTPUT
+            echo "PROJECT=$PROJECT" >> $GITHUB_OUTPUT
+          else
+            # Workspace found
+            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+            USE_PROJECT=false
+            echo "USE_PROJECT=false" >> $GITHUB_OUTPUT
+            echo "WORKSPACE=$WORKSPACE" >> $GITHUB_OUTPUT
+          fi
+          
           echo "SCHEME=$SCHEME" >> $GITHUB_OUTPUT
           
           echo "✅ Detected iOS project:"
-          echo "   Workspace: $WORKSPACE"
+          if [ "$USE_PROJECT" = "true" ]; then
+            echo "   Project: $PROJECT"
+            echo "   Type: Pure Xcode project (SPM)"
+          else
+            echo "   Workspace: $WORKSPACE"
+            echo "   Type: Workspace (SPM + optional CocoaPods)"
+          fi
           echo "   Scheme: $SCHEME"
 
-      - name: Build iOS (Debug)
+      - name: Build iOS (Debug) with xcodebuild
         if: inputs.build_type == 'debug'
         run: |
           cd ios
-          xcodebuild -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
-            -scheme ${{ steps.ios-info.outputs.SCHEME }} \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO
+          echo "🏗️ Building iOS Debug with xcodebuild (iOS equivalent of Gradle)..."
+          echo ""
+          
+          if [ "${{ steps.ios-info.outputs.USE_PROJECT }}" = "true" ]; then
+            # Use project file
+            xcodebuild \
+              -project ${{ steps.ios-info.outputs.PROJECT }} \
+              -scheme ${{ steps.ios-info.outputs.SCHEME }} \
+              -configuration Debug \
+              -sdk iphonesimulator \
+              -destination 'platform=iOS Simulator,name=iPhone 15' \
+              -derivedDataPath build \
+              CODE_SIGNING_ALLOWED=NO \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          else
+            # Use workspace file
+            xcodebuild \
+              -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
+              -scheme ${{ steps.ios-info.outputs.SCHEME }} \
+              -configuration Debug \
+              -sdk iphonesimulator \
+              -destination 'platform=iOS Simulator,name=iPhone 15' \
+              -derivedDataPath build \
+              CODE_SIGNING_ALLOWED=NO \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          fi
+          
+          echo ""
+          echo "✅ iOS Debug build completed!"
 
-      - name: Build iOS (Release)
+      - name: Build iOS (Release) with xcodebuild
         if: inputs.build_type == 'release'
         run: |
           cd ios
-          xcodebuild -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
-            -scheme ${{ steps.ios-info.outputs.SCHEME }} \
-            -configuration Release \
-            -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
-            archive
+          echo "🏗️ Building iOS Release with xcodebuild..."
+          echo "📦 Creating archive for distribution..."
+          echo ""
+          
+          if [ "${{ steps.ios-info.outputs.USE_PROJECT }}" = "true" ]; then
+            # Use project file
+            xcodebuild \
+              -project ${{ steps.ios-info.outputs.PROJECT }} \
+              -scheme ${{ steps.ios-info.outputs.SCHEME }} \
+              -configuration Release \
+              -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
+              archive \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          else
+            # Use workspace file
+            xcodebuild \
+              -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
+              -scheme ${{ steps.ios-info.outputs.SCHEME }} \
+              -configuration Release \
+              -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
+              archive \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          fi
+          
+          echo ""
+          echo "✅ iOS archive created!"
         env:
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
-          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
 
       - name: Export IPA
         if: inputs.build_type == 'release'
         run: |
           cd ios
+          echo "📦 Exporting IPA from archive..."
+          
           xcodebuild -exportArchive \
             -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
+          
+          echo "✅ IPA exported successfully!"
 
       - name: Upload IPA
         if: inputs.build_type == 'release'
@@ -253,10 +348,23 @@ jobs:
 
       - name: Build info
         run: |
-          echo "OK - iOS build completed"
-          echo "PLATFORM - iOS"
-          echo "BUILD TYPE - ${{ inputs.build_type }}"
-          echo "WORKSPACE - ${{ steps.ios-info.outputs.WORKSPACE }}"
-          echo "SCHEME - ${{ steps.ios-info.outputs.SCHEME }}"
-          echo "COST - FREE (GitHub Actions minutes)"
-          echo "INFO - Download from Actions artifacts"
+          echo "✅ OK - iOS build completed"
+          echo "📱 PLATFORM - iOS"
+          echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
+          if [ "${{ steps.ios-info.outputs.USE_PROJECT }}" = "true" ]; then
+            echo "📁 PROJECT - ${{ steps.ios-info.outputs.PROJECT }}"
+            echo "🚀 TYPE - Pure SPM (no CocoaPods!)"
+          else
+            echo "📁 WORKSPACE - ${{ steps.ios-info.outputs.WORKSPACE }}"
+            echo "📦 TYPE - SPM + optional CocoaPods"
+          fi
+          echo "🎯 SCHEME - ${{ steps.ios-info.outputs.SCHEME }}"
+          echo "🛠️ TOOL - xcodebuild (native iOS build tool, like Gradle for Android)"
+          echo "💰 COST - FREE (GitHub Actions minutes)"
+          echo "📥 INFO - Download from Actions artifacts"
+          echo ""
+          echo "📚 Modern workflow:"
+          echo "   1. Expo prebuild generates native project"
+          echo "   2. SPM handles dependencies (faster than CocoaPods)"
+          echo "   3. xcodebuild compiles like Gradle does for Android"
+          echo "   4. No EAS subscription needed!"
