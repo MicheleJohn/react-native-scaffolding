@@ -52,9 +52,7 @@ describe('Button', () => {
 
   describe('Filled variants', () => {
     it('renders filled variant correctly', () => {
-      const { getByText } = render(
-        <Button variant="filled">Primary</Button>
-      );
+      const { getByText } = render(<Button variant="filled">Primary</Button>);
       expect(getByText('Primary')).toBeTruthy();
     });
 
@@ -98,38 +96,8 @@ describe('Button', () => {
 
   describe('Text variant', () => {
     it('renders text variant correctly', () => {
-      const { getByText } = render(
-        <Button variant="text">Text Button</Button>
-      );
+      const { getByText } = render(<Button variant="text">Text Button</Button>);
       expect(getByText('Text Button')).toBeTruthy();
-    });
-  });
-
-  describe('Legacy variants (backward compatibility)', () => {
-    it('renders legacy primary variant', () => {
-      const { getByText } = render(
-        <Button variant="primary">Primary</Button>
-      );
-      expect(getByText('Primary')).toBeTruthy();
-    });
-
-    it('renders legacy secondary variant', () => {
-      const { getByText } = render(
-        <Button variant="secondary">Secondary</Button>
-      );
-      expect(getByText('Secondary')).toBeTruthy();
-    });
-
-    it('renders legacy outline variant', () => {
-      const { getByText } = render(
-        <Button variant="outline">Outline</Button>
-      );
-      expect(getByText('Outline')).toBeTruthy();
-    });
-
-    it('renders legacy ghost variant', () => {
-      const { getByText } = render(<Button variant="ghost">Ghost</Button>);
-      expect(getByText('Ghost')).toBeTruthy();
     });
   });
 
@@ -177,9 +145,7 @@ describe('Button', () => {
 
     it('renders button with both left and right icons', () => {
       const { getAllByTestId, getByText } = render(
-        <Button
-          icon={<MockIcon />}
-          iconRight={<MockIcon />}>
+        <Button icon={<MockIcon />} iconRight={<MockIcon />}>
           Both Icons
         </Button>
       );
@@ -228,9 +194,7 @@ describe('Button', () => {
 
   describe('Full width option', () => {
     it('renders full width button', () => {
-      const { getByText } = render(
-        <Button fullWidth>Full Width</Button>
-      );
+      const { getByText } = render(<Button fullWidth>Full Width</Button>);
       expect(getByText('Full Width')).toBeTruthy();
     });
 

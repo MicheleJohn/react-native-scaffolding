@@ -16,7 +16,6 @@ export default function PortalDetailPage() {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
         <Button
-          variant="primary"
           onPress={() => {
             router.back();
           }}>
@@ -31,7 +30,6 @@ export default function PortalDetailPage() {
       {/* Header */}
       <View className="px-4 py-3 border-b border-secondary-200">
         <Button
-          variant="ghost"
           onPress={() => {
             router.back();
           }}>

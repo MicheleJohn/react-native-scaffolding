@@ -59,7 +59,7 @@ export default function PortalsPage() {
         {/* Header */}
         <View className="mb-6">
           <Button
-            variant="ghost"
+            variant="text"
             onPress={() => {
               router.back();
             }}
@@ -90,7 +90,6 @@ export default function PortalsPage() {
                 </View>
               </View>
               <Button
-                variant="primary"
                 size="sm"
                 onPress={() => {
                   handleOpenPortal(portal);
