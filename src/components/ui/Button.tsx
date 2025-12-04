@@ -151,9 +151,14 @@ export type ButtonProps = TouchableOpacityProps &
  * <Button variant="filled" icon={<SearchIcon />}>
  *   Search
  * </Button>
+ *
+ * // With Expo Router Link (asChild)
+ * <Link href="/profile" asChild>
+ *   <Button>Go to Profile</Button>
+ * </Link>
  * ```
  */
-export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
+export const Button = React.forwardRef<View, ButtonProps>(
   (
     {
       variant = 'filled',
@@ -167,7 +172,7 @@ export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
       fullWidth = false,
       ...props
     },
-    _ref
+    ref
   ) => {
     const isDisabled = disabled ?? loading;
     const isIconOnly = size === 'icon' && !children;
@@ -193,7 +198,7 @@ export const Button = React.forwardRef<typeof TouchableOpacity, ButtonProps>(
 
     return (
       <TouchableOpacity
-        // ref={ref}
+        ref={ref}
         disabled={isDisabled}
         className={cn(
           buttonVariants({ variant, size, fullWidth }),
