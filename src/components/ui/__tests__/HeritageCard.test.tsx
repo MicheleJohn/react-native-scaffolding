@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 import { HeritageCard } from '../HeritageCard';
 
@@ -23,7 +23,9 @@ describe('HeritageCard', () => {
       expect(getByText('Presepe napoletano')).toBeTruthy();
       expect(getByText('Artigianato e tradizione')).toBeTruthy();
       expect(
-        getByText("L'arte del presepe è una tradizione che risale al Settecento")
+        getByText(
+          "L'arte del presepe è una tradizione che risale al Settecento"
+        )
       ).toBeTruthy();
       expect(getByText('Ecosistema')).toBeTruthy();
       expect(getByText('Napoli')).toBeTruthy();
@@ -148,13 +150,15 @@ describe('HeritageCard', () => {
 
   describe('Edge cases', () => {
     it('handles very long titles', () => {
-      const longTitle = 'This is a very long heritage title that should be truncated';
+      const longTitle =
+        'This is a very long heritage title that should be truncated';
       const { getByText } = render(<HeritageCard title={longTitle} />);
       expect(getByText(longTitle)).toBeTruthy();
     });
 
     it('handles very long descriptions', () => {
-      const longDescription = 'This is a very long description that should be truncated after three lines';
+      const longDescription =
+        'This is a very long description that should be truncated after three lines';
       const { getByText } = render(
         <HeritageCard title="Test" description={longDescription} />
       );

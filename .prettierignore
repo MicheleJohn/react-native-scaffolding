@@ -32,17 +32,3 @@ coverage/
 Dockerfile
 *.md
 *.json
-
-**/node_modules/**
-**/dist/**
-**/build/**
-**/coverage/**
-**/.expo/**
-**/.expo-shared/**
-**/android/**
-**/ios/**
-**/*.spec.ts
-**/*.test.ts
-**/*.spec.tsx
-**/*.test.tsx
-expo-env.d.ts

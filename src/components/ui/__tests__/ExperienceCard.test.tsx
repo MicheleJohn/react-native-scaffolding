@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 import { ExperienceCard } from '../ExperienceCard';
 
@@ -148,13 +148,15 @@ describe('ExperienceCard', () => {
 
   describe('Edge cases', () => {
     it('handles very long titles', () => {
-      const longTitle = 'This is a very long experience title that should be truncated';
+      const longTitle =
+        'This is a very long experience title that should be truncated';
       const { getByText } = render(<ExperienceCard title={longTitle} />);
       expect(getByText(longTitle)).toBeTruthy();
     });
 
     it('handles very long subtitles', () => {
-      const longSubtitle = 'This is a very long subtitle that should be truncated';
+      const longSubtitle =
+        'This is a very long subtitle that should be truncated';
       const { getByText } = render(
         <ExperienceCard title="Test" subtitle={longSubtitle} />
       );

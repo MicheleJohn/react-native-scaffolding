@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 import { EventCard } from '../EventCard';
 
@@ -43,22 +43,14 @@ describe('EventCard', () => {
   describe('Badge variants', () => {
     it('renders price badge variant', () => {
       const { getByText } = render(
-        <EventCard
-          title="Test Event"
-          price="€5"
-          badgeVariant="price"
-        />
+        <EventCard title="Test Event" price="€5" badgeVariant="price" />
       );
       expect(getByText('€5')).toBeTruthy();
     });
 
     it('renders free badge variant', () => {
       const { getByText } = render(
-        <EventCard
-          title="Test Event"
-          price="Gratuito"
-          badgeVariant="free"
-        />
+        <EventCard title="Test Event" price="Gratuito" badgeVariant="free" />
       );
       expect(getByText('Gratuito')).toBeTruthy();
     });
@@ -155,7 +147,8 @@ describe('EventCard', () => {
 
   describe('Edge cases', () => {
     it('handles very long titles', () => {
-      const longTitle = 'This is a very long event title that should be truncated';
+      const longTitle =
+        'This is a very long event title that should be truncated';
       const { getByText } = render(<EventCard title={longTitle} />);
       expect(getByText(longTitle)).toBeTruthy();
     });

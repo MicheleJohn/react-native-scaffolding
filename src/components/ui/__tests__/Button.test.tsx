@@ -1,5 +1,6 @@
-import { render, fireEvent } from '@testing-library/react-native';
 import { ActivityIndicator, View } from 'react-native';
+
+import { fireEvent, render } from '@testing-library/react-native';
 
 import { Button } from '../Button';
 
@@ -30,7 +31,7 @@ describe('Button', () => {
       );
 
       const button = getByText('Click me').parent;
-      fireEvent.press(button!);
+      fireEvent.press(button);
       expect(onPress).not.toHaveBeenCalled();
     });
 
@@ -183,7 +184,7 @@ describe('Button', () => {
     });
 
     it('shows loading indicator for icon button', () => {
-      const { UNSAFE_getByType, queryByTestId } = render(
+      const { UNSAFE_getByType } = render(
         <Button size="icon" icon={<MockIcon />} loading />
       );
       expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
