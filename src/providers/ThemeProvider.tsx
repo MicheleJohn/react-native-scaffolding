@@ -1,7 +1,14 @@
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { useColorScheme as useRNColorScheme, View } from 'react-native';
 
 import { secureStorage } from '@/lib/secure-storage';
+import { cn } from '@/utils/cn';
 
 type ColorScheme = 'light' | 'dark';
 type ThemeMode = ColorScheme | 'system';
@@ -39,7 +46,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [isReady, setIsReady] = useState(false);
 
   // Determine effective color scheme
-  const colorScheme: ColorScheme = themeMode === 'system' ? systemColorScheme : themeMode;
+  const colorScheme: ColorScheme =
+    themeMode === 'system' ? systemColorScheme : themeMode;
 
   const isDark = colorScheme === 'dark';
 
@@ -83,7 +91,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setThemeMode,
         isDark,
       }}>
-      {children}
+      <View key={themeMode} className={cn(isDark && 'dark')}>
+        {children}
+      </View>
     </ThemeContext.Provider>
   );
 }
