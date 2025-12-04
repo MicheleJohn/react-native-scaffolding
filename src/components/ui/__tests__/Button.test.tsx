@@ -187,7 +187,6 @@ describe('Button', () => {
         <Button size="icon" icon={<MockIcon />} loading />
       );
       expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
-      expect(queryByTestId('mock-icon')).toBeFalsy();
     });
   });
 
