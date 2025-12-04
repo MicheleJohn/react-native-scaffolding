@@ -76,15 +76,21 @@ jobs:
       - name: Prebuild Android (Expo)
         run: pnpm run prebuild:android
 
+      - name: Configure Sentry for release build
+        if: inputs.build_type == 'release'
+        run: |
+          cat > android/sentry.properties << EOF
+          defaults.url=https://sentry.io/
+          defaults.org=${{ secrets.SENTRY_ORG }}
+          defaults.project=${{ secrets.SENTRY_PROJECT }}
+          auth.token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          EOF
+          echo "✅ Sentry configured for sourcemap upload"
+
       - name: Make Gradle wrapper executable
         run: |
           cd android
           chmod +x gradlew
-
-      - name: Debug - Check @sentry/cli
-        run: |
-          ls -la node_modules/@sentry/cli/bin/ || echo "@sentry/cli not hoisted"
-          pnpm why @sentry/cli
 
       - name: Build Android APK (Debug)
         if: inputs.build_type == 'debug'
