@@ -1,9 +1,11 @@
-import { useRouter } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
+
+import { useRouter } from 'expo-router';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Input } from '@/components/ui';
 import { ThemeToggle } from '@/components/shared';
+import { Button, Input } from '@/components/ui';
 import { useTheme } from '@/providers';
 
 export default function ThemeDemoPage() {
@@ -15,7 +17,12 @@ export default function ThemeDemoPage() {
       <ScrollView className="flex-1 px-4 py-6">
         {/* Header */}
         <View className="mb-6">
-          <Button variant="text" size="sm" onPress={() => router.back()}>
+          <Button
+            variant="text"
+            size="sm"
+            onPress={() => {
+              router.back();
+            }}>
             ← Back
           </Button>
           <Text className="text-3xl font-bold text-primary-text mt-4">
@@ -108,7 +115,7 @@ export default function ThemeDemoPage() {
               <Button variant="filled" size="md">
                 Primary Button
               </Button>
-              <Button variant="outline" size="md">
+              <Button variant="outlined" size="md">
                 Outline Button
               </Button>
               <Button variant="text" size="md">
@@ -155,14 +162,14 @@ export default function ThemeDemoPage() {
                 Card Title
               </Text>
               <Text className="text-secondary-text mb-3">
-                This is a card component that adapts to the current theme. Notice
-                how the background and text colors change.
+                This is a card component that adapts to the current theme.
+                Notice how the background and text colors change.
               </Text>
               <View className="flex-row gap-2">
                 <Button variant="filled" size="sm">
                   Action
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outlined" size="sm">
                   Cancel
                 </Button>
               </View>

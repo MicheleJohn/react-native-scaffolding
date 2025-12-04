@@ -3,9 +3,10 @@ import { ScrollView, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 
 import { Button, Card } from '@components/ui';
-import { ThemeToggleIcon } from '@/components/shared';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ThemeToggleIcon } from '@/components/shared';
 
 export default function HomePage() {
   const { t } = useTranslation();

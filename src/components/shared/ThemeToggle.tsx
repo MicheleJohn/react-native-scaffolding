@@ -20,7 +20,9 @@ export function ThemeToggle() {
         return (
           <Pressable
             key={option.value}
-            onPress={() => void setThemeMode(option.value)}
+            onPress={() => {
+              setThemeMode(option.value);
+            }}
             className={`
               flex-1 items-center justify-center py-3 px-4 rounded-md
               ${isActive ? 'bg-primary' : 'bg-transparent'}
@@ -47,7 +49,7 @@ export function ThemeToggleIcon() {
   const { themeMode, setThemeMode, isDark } = useTheme();
 
   const handleToggle = () => {
-    void setThemeMode(isDark ? 'light' : 'dark');
+    setThemeMode(isDark ? 'light' : 'dark');
   };
 
   return (

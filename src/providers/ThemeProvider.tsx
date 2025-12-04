@@ -1,13 +1,13 @@
 import {
   createContext,
+  type ReactNode,
   useContext,
   useEffect,
   useState,
-  type ReactNode,
 } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { secureStorage } from '@/lib/secure-storage';
 
 type ColorScheme = 'light' | 'dark';
 type ThemeMode = ColorScheme | 'system';
@@ -21,7 +21,7 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = '@app/theme-mode';
+const THEME_STORAGE_KEY = 'app_theme-mode';
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     async function loadTheme() {
       try {
-        const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        const saved = await secureStorage.getItem(THEME_STORAGE_KEY);
         if (saved === 'light' || saved === 'dark' || saved === 'system') {
           setThemeModeState(saved);
         }
@@ -58,7 +58,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Save theme preference when it changes
   const setThemeMode = async (mode: ThemeMode) => {
     try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      await secureStorage.setItem(THEME_STORAGE_KEY, mode);
       setThemeModeState(mode);
     } catch (error) {
       console.error('Failed to save theme:', error);
@@ -75,7 +75,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       value={{
         colorScheme,
         themeMode,
-        setThemeMode,
+        setThemeMode: (mode) => {
+          void setThemeMode(mode);
+        },
         isDark,
       }}>
       {children}
