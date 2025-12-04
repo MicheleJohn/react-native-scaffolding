@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { cva, type VariantProps } from 'class-variance-authority';
+import type { ComponentRef } from 'react';
 
 import { cn } from '@/utils/cn';
 
@@ -159,7 +160,7 @@ export type ButtonProps = TouchableOpacityProps &
  * ```
  */
 export const Button = React.forwardRef<
-  React.ElementRef<typeof TouchableOpacity>,
+  ComponentRef<typeof TouchableOpacity>,
   ButtonProps
 >(
   (
@@ -177,6 +178,7 @@ export const Button = React.forwardRef<
     },
     ref
   ) => {
+    const { style, ...restProps } = props;
     const isDisabled = disabled ?? loading;
     const isIconOnly = size === 'icon' && !children;
 
@@ -208,7 +210,7 @@ export const Button = React.forwardRef<
           isDisabled && 'opacity-40',
           className
         )}
-        {...props}>
+        {...restProps}>
         {loading && (
           <ActivityIndicator size="small" className={getSpinnerColor()} />
         )}
