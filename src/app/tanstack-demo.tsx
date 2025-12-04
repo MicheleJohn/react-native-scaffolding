@@ -116,9 +116,9 @@ export default function TanStackDemoPage() {
   };
 
   return (
-    <SafeAreaView className="bg-background dark:bg-neutral-900">
+    <SafeAreaView className="bg-background">
       <ScrollView
-        className="bg-background dark:bg-neutral-900"
+        className="bg-background"
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -136,32 +136,32 @@ export default function TanStackDemoPage() {
                 ← Back
               </Button>
             </Link>
-            <Text className="text-3xl font-bold text-text dark:text-neutral-50 mb-2">
+            <Text className="text-3xl font-bold text-primary-text mb-2">
               🚀 TanStack Query Demo
             </Text>
-            <Text className="text-base text-text-secondary dark:text-neutral-400">
+            <Text className="text-base text-secondary-text">
               Real-world examples with React Hook Form & Zod validation
             </Text>
           </View>
 
           {/* Example 1: Infinite Query - Posts */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-xl font-bold text-text dark:text-neutral-50 mb-3">
+            <Text className="text-xl font-bold text-primary-text mb-3">
               1️⃣ Infinite Query - Posts
             </Text>
-            <Text className="text-sm text-text-secondary dark:text-neutral-400 mb-4">
+            <Text className="text-sm text-secondary-text mb-4">
               JSONPlaceholder API with pagination and infinite scroll
             </Text>
 
             {postsLoading && (
-              <Text className="text-center text-text-secondary dark:text-neutral-400 py-4">
+              <Text className="text-center text-secondary-text py-4">
                 Loading posts...
               </Text>
             )}
 
             {postsError && (
-              <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3">
-                <Text className="text-red-800 dark:text-red-400 text-sm">
+              <View className="bg-error-light border border-error rounded-lg p-3 mb-3">
+                <Text className="text-error text-sm">
                   ❌ Error loading posts
                 </Text>
               </View>
@@ -171,12 +171,10 @@ export default function TanStackDemoPage() {
               <View key={pageIndex} className="gap-3">
                 {page.posts.map((post) => (
                   <Card key={post.id} variant="outlined" size="sm">
-                    <Text className="text-base font-semibold text-text dark:text-neutral-50 mb-1">
+                    <Text className="text-base font-semibold text-primary-text mb-1">
                       {post.title}
                     </Text>
-                    <Text
-                      className="text-sm text-text-secondary dark:text-neutral-400"
-                      numberOfLines={2}>
+                    <Text className="text-sm text-secondary-text" numberOfLines={2}>
                       {post.body}
                     </Text>
                   </Card>
@@ -199,10 +197,10 @@ export default function TanStackDemoPage() {
 
           {/* Example 2: Query with Search - Countries */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-xl font-bold text-text dark:text-neutral-50 mb-3">
+            <Text className="text-xl font-bold text-primary-text mb-3">
               2️⃣ Search Query - Countries
             </Text>
-            <Text className="text-sm text-text-secondary dark:text-neutral-400 mb-4">
+            <Text className="text-sm text-secondary-text mb-4">
               REST Countries API with debounced search (5min cache)
             </Text>
 
@@ -215,21 +213,19 @@ export default function TanStackDemoPage() {
             />
 
             {countriesLoading && debouncedSearch && (
-              <Text className="text-center text-text-secondary dark:text-neutral-400 py-4">
-                Searching...
-              </Text>
+              <Text className="text-center text-secondary-text py-4">Searching...</Text>
             )}
 
             {countriesError && (
-              <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3">
-                <Text className="text-red-800 dark:text-red-400 text-sm">
+              <View className="bg-error-light border border-error rounded-lg p-3 mb-3">
+                <Text className="text-error text-sm">
                   ❌ Error searching countries
                 </Text>
               </View>
             )}
 
             {countries?.length === 0 && debouncedSearch && (
-              <Text className="text-center text-text-secondary dark:text-neutral-400 py-4">
+              <Text className="text-center text-secondary-text py-4">
                 No countries found
               </Text>
             )}
@@ -245,10 +241,10 @@ export default function TanStackDemoPage() {
                         resizeMode="cover"
                       />
                       <View className="flex-1">
-                        <Text className="text-base font-semibold text-text dark:text-neutral-50">
+                        <Text className="text-base font-semibold text-primary-text">
                           {country.name.common}
                         </Text>
-                        <Text className="text-sm text-text-secondary dark:text-neutral-400">
+                        <Text className="text-sm text-secondary-text">
                           {country.capital?.[0] ?? 'N/A'} •{' '}
                           {country.population.toLocaleString()} people
                         </Text>
@@ -260,7 +256,7 @@ export default function TanStackDemoPage() {
             )}
 
             {!debouncedSearch && (
-              <Text className="text-center text-text-secondary dark:text-neutral-400 py-4 text-sm">
+              <Text className="text-center text-secondary-text py-4 text-sm">
                 Type at least 3 characters to search
               </Text>
             )}
@@ -268,22 +264,20 @@ export default function TanStackDemoPage() {
 
           {/* Example 3: Polling Query - Dog Images */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-xl font-bold text-text dark:text-neutral-50 mb-3">
+            <Text className="text-xl font-bold text-primary-text mb-3">
               3️⃣ Polling Query - Random Dog
             </Text>
-            <Text className="text-sm text-text-secondary dark:text-neutral-400 mb-4">
+            <Text className="text-sm text-secondary-text mb-4">
               Dog CEO API with auto-refresh every 10 seconds
             </Text>
 
             {dogLoading && (
-              <Text className="text-center text-text-secondary dark:text-neutral-400 py-4">
-                Loading dog...
-              </Text>
+              <Text className="text-center text-secondary-text py-4">Loading dog...</Text>
             )}
 
             {dogError && (
-              <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3">
-                <Text className="text-red-800 dark:text-red-400 text-sm">
+              <View className="bg-error-light border border-error rounded-lg p-3 mb-3">
+                <Text className="text-error text-sm">
                   ❌ Error loading dog image
                 </Text>
               </View>
@@ -309,12 +303,11 @@ export default function TanStackDemoPage() {
 
           {/* Example 4: Mutation - Create Post with React Hook Form */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-xl font-bold text-text dark:text-neutral-50 mb-3">
+            <Text className="text-xl font-bold text-primary-text mb-3">
               4️⃣ Mutation - Create Post (React Hook Form + Zod)
             </Text>
-            <Text className="text-sm text-text-secondary dark:text-neutral-400 mb-4">
-              POST request with validation, cache invalidation and optimistic
-              updates
+            <Text className="text-sm text-secondary-text mb-4">
+              POST request with validation, cache invalidation and optimistic updates
             </Text>
 
             <Controller
@@ -361,16 +354,16 @@ export default function TanStackDemoPage() {
             </Button>
 
             {createPostMutation.isSuccess && (
-              <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 mt-3">
-                <Text className="text-emerald-800 dark:text-emerald-400 text-sm">
+              <View className="bg-success-light border border-success rounded-lg p-3 mt-3">
+                <Text className="text-success text-sm">
                   ✅ Post created successfully!
                 </Text>
               </View>
             )}
 
             {createPostMutation.isError && (
-              <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3">
-                <Text className="text-red-800 dark:text-red-400 text-sm">
+              <View className="bg-error-light border border-error rounded-lg p-3 mt-3">
+                <Text className="text-error text-sm">
                   ❌ Error creating post
                 </Text>
               </View>
@@ -379,45 +372,45 @@ export default function TanStackDemoPage() {
 
           {/* Features Info */}
           <Card variant="outlined" className="mb-6">
-            <Text className="text-lg font-bold text-text dark:text-neutral-50 mb-3">
+            <Text className="text-lg font-bold text-primary-text mb-3">
               ✨ TanStack Query Features Demonstrated
             </Text>
             <View className="gap-2">
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Infinite Queries</Text> -
-                Pagination with fetchNextPage
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Infinite Queries</Text> - Pagination
+                with fetchNextPage
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Search Queries</Text> -
-                Debounced search with cache
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Search Queries</Text> - Debounced search
+                with cache
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Polling</Text> - Auto-refresh
-                every 10 seconds
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Polling</Text> - Auto-refresh every 10
+                seconds
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Mutations</Text> - POST
-                requests with invalidation
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Mutations</Text> - POST requests with
+                invalidation
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Form Validation</Text> - React
-                Hook Form with Zod
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Form Validation</Text> - React Hook Form
+                with Zod
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Loading States</Text> - Per
-                query and mutation
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Loading States</Text> - Per query and
+                mutation
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Error Handling</Text> -
-                Try/catch with error states
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Error Handling</Text> - Try/catch with
+                error states
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Refetching</Text> -
-                Pull-to-refresh support
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Refetching</Text> - Pull-to-refresh
+                support
               </Text>
-              <Text className="text-sm text-text dark:text-neutral-300">
-                • <Text className="font-semibold">Caching</Text> - 5min stale
-                time for countries
+              <Text className="text-sm text-primary-text">
+                • <Text className="font-semibold">Caching</Text> - 5min stale time for
+                countries
               </Text>
             </View>
           </Card>

@@ -2,7 +2,8 @@ const { tokens } = require('./src/theme/tokens');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NO darkMode needed! VariableContextProvider handles theme switching
+  // Keep darkMode for dark: prefix support (available for future overrides)
+  darkMode: 'class',
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
