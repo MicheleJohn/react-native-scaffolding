@@ -36,26 +36,26 @@ stages:
     - .pnpm-store
   policy: pull
 
-# Cache configuration for Gradle packages (FIXED - use file hash!)
+# Cache configuration for Gradle packages
+# NOTE: GitLab allows max 2 files in cache key
 .cache_gradle_packages: &cache_gradle_packages
   key:
     files:
       - android/build.gradle
       - android/app/build.gradle
-      - android/gradle/wrapper/gradle-wrapper.properties
   paths:
     - .gradle/wrapper
     - .gradle/caches
     - .gradle/native
   policy: pull
 
-# Cache configuration for Gradle build outputs (FIXED - use file hash!)
+# Cache configuration for Gradle build outputs
+# NOTE: GitLab allows max 2 files in cache key
 .cache_gradle_build: &cache_gradle_build
   key:
     files:
       - android/build.gradle
       - android/app/build.gradle
-      - android/gradle/wrapper/gradle-wrapper.properties
   paths:
     - android/.gradle
     - android/app/build
@@ -728,7 +728,7 @@ build:ios:release:signed:
     - security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
     - echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
     - security import certificate.p12 -k $KEYCHAIN_PATH -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-    - security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+    - security set-key-partition-list -S "apple-tool:,apple:,codesign:" -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
     - security list-keychain -d user -s $KEYCHAIN_PATH
     - mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
     - echo "$APPLE_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
