@@ -62,13 +62,22 @@ stages:
     - android/build
   policy: pull
 
-# Cache configuration for CocoaPods + SPM (ADVANCED)
+# Cache configuration for CocoaPods (iOS dependencies)
 .cache_cocoapods: &cache_cocoapods
   key: pods-v3-$CI_COMMIT_REF_SLUG
   paths:
     - ios/Pods
     - Library/Caches/CocoaPods
     - .cocoapods
+  policy: pull
+
+# Cache configuration for Xcode artifacts (DerivedData + SPM combined)
+# NOTE: Combined to stay within GitLab's 4 cache limit per job
+.cache_xcode: &cache_xcode
+  key: xcode-v1-$CI_COMMIT_REF_SLUG
+  paths:
+    - Library/Developer/Xcode/DerivedData
+    - ios/SourcePackages
   policy: pull
 
 # pnpm setup script
@@ -375,24 +384,17 @@ build:ios:debug:
   needs:
     - ci:lint-and-test
 
+  # NOTE: GitLab allows max 4 caches per job
+  # Combined DerivedData + SPM into single cache to meet limit
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
       policy: pull-push
-    # ADVANCED: Cache ccache
     - key: ccache-$CI_COMMIT_REF_SLUG
       paths:
         - Library/Caches/ccache
       policy: pull-push
-    # ADVANCED: Cache DerivedData
-    - key: deriveddata-v2-$CI_COMMIT_REF_SLUG
-      paths:
-        - Library/Developer/Xcode/DerivedData
-      policy: pull-push
-    # ADVANCED: Cache SPM
-    - key: spm-$CI_COMMIT_REF_SLUG
-      paths:
-        - ios/SourcePackages
+    - <<: *cache_xcode
       policy: pull-push
 
   variables:
@@ -493,7 +495,7 @@ build:ios:debug:
     - echo "📱 PLATFORM - iOS"
     - echo "🔧 BUILD TYPE - Debug"
     - echo "💰 COST - Requires macOS runner"
-    - echo "⚡ CACHING - Advanced (DerivedData + CocoaPods + SPM + ccache)"
+    - echo "⚡ CACHING - Advanced (4 caches: pnpm + CocoaPods + ccache + Xcode)"
     - echo "📥 OUTPUT - Debug .app for simulator"
 
   artifacts:
@@ -520,6 +522,7 @@ build:ios:release:unsigned:
   needs:
     - ci:lint-and-test
 
+  # NOTE: GitLab allows max 4 caches per job
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
@@ -528,13 +531,7 @@ build:ios:release:unsigned:
       paths:
         - Library/Caches/ccache
       policy: pull-push
-    - key: deriveddata-v2-$CI_COMMIT_REF_SLUG
-      paths:
-        - Library/Developer/Xcode/DerivedData
-      policy: pull-push
-    - key: spm-$CI_COMMIT_REF_SLUG
-      paths:
-        - ios/SourcePackages
+    - <<: *cache_xcode
       policy: pull-push
 
   variables:
@@ -676,6 +673,7 @@ build:ios:release:signed:
   needs:
     - ci:lint-and-test
 
+  # NOTE: GitLab allows max 4 caches per job
   cache:
     - <<: *cache_pnpm
     - <<: *cache_cocoapods
@@ -684,13 +682,7 @@ build:ios:release:signed:
       paths:
         - Library/Caches/ccache
       policy: pull-push
-    - key: deriveddata-v2-$CI_COMMIT_REF_SLUG
-      paths:
-        - Library/Developer/Xcode/DerivedData
-      policy: pull-push
-    - key: spm-$CI_COMMIT_REF_SLUG
-      paths:
-        - ios/SourcePackages
+    - <<: *cache_xcode
       policy: pull-push
 
   variables:
@@ -1012,6 +1004,11 @@ update:eas:
 #   🔧 ExportOptions.plist generated dynamically
 #   🔧 Expo prebuild for native project generation
 #   🔧 Modern iOS/Android build approach (2025 best practices)
+#
+# ⚠️  GITLAB LIMITS:
+#   - Max 2 files in cache key
+#   - Max 4 caches per job
+#   - Solution: Combined DerivedData + SPM into single Xcode cache
 #
 # REQUIRED SECRETS:
 #   - EXPO_TOKEN (for EAS builds/updates)
