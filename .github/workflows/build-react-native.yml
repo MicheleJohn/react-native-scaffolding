@@ -187,54 +187,19 @@ jobs:
           echo "   - Setup SPM/CocoaPods dependencies"
           echo "   - ⚠️  IMPORTANT: This DELETES ios/ folder first (--clean)"
           echo ""
-          pnpm run prebuild:ios
+          pnpm dlx expo prebuild --platform ios --clean
           echo ""
           echo "✅ Native iOS project generated!"
 
-      - name: Create ExportOptions.plist (after prebuild)
-        if: inputs.build_type == 'release'
-        run: |
-          echo "📝 Creating ExportOptions.plist for IPA export..."
-          echo "ℹ️  This must be created AFTER prebuild because --clean removes ios/ folder"
-          echo ""
-          cat > ios/ExportOptions.plist << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-          	<!-- Distribution method: ad-hoc for testing without App Store -->
-          	<key>method</key>
-          	<string>ad-hoc</string>
-          	
-          	<!-- Compile bitcode for App Store optimization -->
-          	<key>compileBitcode</key>
-          	<true/>
-          	
-          	<!-- Upload symbols for crash reporting (Sentry) -->
-          	<key>uploadSymbols</key>
-          	<true/>
-          	
-          	<!-- Thinning: create separate IPAs per device (none = universal IPA) -->
-          	<key>thinning</key>
-          	<string>&lt;none&gt;</string>
-          	
-          	<!-- Strip Swift symbols to reduce IPA size -->
-          	<key>stripSwiftSymbols</key>
-          	<true/>
-          </dict>
-          </plist>
-          EOF
-          echo "✅ ExportOptions.plist created!"
-
-      - name: Build iOS (Debug) with expo run:ios approach
+      - name: Build iOS (Debug)
         if: inputs.build_type == 'debug'
         run: |
           echo "🏗️ Building iOS Debug..."
           echo "📱 Using Expo's native build approach (no deprecated pod install)"
           echo ""
-
+          
           cd ios
-
+          
           # Detect project structure - find directories only, not internal files
           if [ -d *.xcworkspace ]; then
             # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
@@ -269,19 +234,21 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
           echo "✅ iOS Debug build completed!"
 
-      - name: Build iOS (Release) with expo run:ios approach
+      - name: Build iOS (Release - unsigned for CI testing)
         if: inputs.build_type == 'release'
         run: |
-          echo "🏗️ Building iOS Release..."
+          echo "🏗️ Building iOS Release (unsigned)..."
           echo "📦 Creating archive for distribution..."
+          echo "ℹ️  Note: This creates an unsigned archive for CI testing"
+          echo "ℹ️  Real signing happens when distributing to App Store"
           echo ""
-
+          
           cd ios
-
+          
           # Detect project structure - find directories only, not internal files
           if [ -d *.xcworkspace ]; then
             # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
@@ -294,8 +261,12 @@ jobs:
               -workspace "$WORKSPACE" \
               -scheme "$SCHEME" \
               -configuration Release \
+              -sdk iphoneos \
               -archivePath build/$SCHEME.xcarchive \
               archive \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           else
             # Find .xcodeproj directory
@@ -308,44 +279,27 @@ jobs:
               -project "$PROJECT" \
               -scheme "$SCHEME" \
               -configuration Release \
+              -sdk iphoneos \
               -archivePath build/$SCHEME.xcarchive \
               archive \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
-          echo "✅ iOS archive created!"
+          echo "✅ iOS unsigned archive created!"
+          echo "ℹ️  This archive can be signed later for distribution"
         env:
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
 
-      - name: Export IPA
-        if: inputs.build_type == 'release'
-        run: |
-          cd ios
-          echo "📦 Exporting IPA from archive..."
-
-          # Detect scheme name
-          if [ -d *.xcworkspace ]; then
-            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
-            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
-          else
-            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
-            SCHEME=$(basename "$PROJECT" .xcodeproj)
-          fi
-
-          xcodebuild -exportArchive \
-            -archivePath build/$SCHEME.xcarchive \
-            -exportPath build \
-            -exportOptionsPlist ExportOptions.plist
-
-          echo "✅ IPA exported successfully!"
-
-      - name: Upload IPA
+      - name: Upload Archive
         if: inputs.build_type == 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: ios-${{ inputs.build_type }}
-          path: ios/build/*.ipa
+          name: ios-${{ inputs.build_type }}-archive
+          path: ios/build/*.xcarchive
           retention-days: 30
 
       - name: Upload Debug Build
@@ -359,7 +313,7 @@ jobs:
       - name: Build info
         run: |
           cd ios
-
+          
           # Detect project type
           if [ -d *.xcworkspace ]; then
             WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
@@ -370,7 +324,7 @@ jobs:
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             PROJECT_TYPE="Project (pure SPM)"
           fi
-
+          
           echo "✅ OK - iOS build completed"
           echo "📱 PLATFORM - iOS"
           echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
@@ -378,11 +332,18 @@ jobs:
           echo "🎯 SCHEME - $SCHEME"
           echo "🛠️ TOOL - xcodebuild (native iOS build tool)"
           echo "💰 COST - FREE (GitHub Actions minutes)"
-          echo "📥 INFO - Download from Actions artifacts"
+          
+          if [ "${{ inputs.build_type }}" = "release" ]; then
+            echo "📦 OUTPUT - Unsigned .xcarchive (can be signed later)"
+            echo "ℹ️  NOTE - For App Store, sign with your Apple Developer account"
+          else
+            echo "📥 OUTPUT - Debug .app for simulator"
+          fi
+          
           echo ""
           echo "📚 Modern workflow:"
           echo "   1. expo prebuild generates native project once"
-          echo "   2. ExportOptions.plist created dynamically after prebuild"
-          echo "   3. Expo manages dependencies (no direct pod install)"
-          echo "   4. xcodebuild compiles natively"
-          echo "   5. No EAS subscription needed!"
+          echo "   2. Expo manages dependencies (no direct pod install)"
+          echo "   3. xcodebuild compiles natively"
+          echo "   4. No Apple Developer account needed for CI builds!"
+          echo "   5. Sign later when ready to distribute"
