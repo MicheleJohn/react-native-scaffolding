@@ -110,157 +110,164 @@ import { MyIcon } from '@/components/icons';
 <MyIcon size={24} color="#009FE3" />
 ```
 
-### Workflow Completo
+**📚 Documentazione Completa:** Vedi [`docs/ICON_SYSTEM.md`](./docs/ICON_SYSTEM.md)
 
-**Export da Figma:**
-1. Seleziona icona in Figma
-2. Right-click → **Copy as SVG**
-3. Salva come `icon-name.svg` in `assets/icons/`
-4. Naming: lowercase con dash (`home.svg`, `user-profile.svg`)
+---
 
-**Generazione Automatica:**
-```bash
-# Genera tutti i componenti da SVG
-pnpm run icons:generate
+## 🔍 TanStack Query v5
 
-# Output:
-# ✅ src/components/icons/HomeIcon.tsx
-# ✅ src/components/icons/UserProfileIcon.tsx
-# ✅ src/components/icons/index.ts (barrel export)
-```
-
-**Uso nel Codice:**
-```tsx
-import { HomeIcon, UserProfileIcon } from '@/components/icons';
-
-// Basic usage
-<HomeIcon />
-
-// Custom size and color
-<UserProfileIcon size={32} color="#009FE3" />
-
-// With NativeWind
-<HomeIcon size={20} className="text-primary" />
-
-// With design system
-<HomeIcon color={colors.primary} />
-```
-
-### Icon Props API
-
-Tutti i componenti icona hanno la stessa API:
-```tsx
-interface IconProps {
-  size?: number;        // Default: 24
-  color?: string;       // Default: 'currentColor'
-  className?: string;   // NativeWind support
-  // + tutti i props di react-native-svg
-}
-```
-
-**📚 Documentazione Completa:** Vedi [`docs/ICON_SYSTEM.md`](./docs/ICON_SYSTEM.md) per:
-- Setup dettagliato
-- Best practices Figma
-- Advanced patterns
-- Troubleshooting
-- CI/CD integration
-
-## 🔍 TanStack Query Demo
-
-Il progetto include una **demo completa di TanStack Query v5** con esempi pratici e API reali.
+Questo scaffolding usa **TanStack Query** (React Query) per gestire lo stato server-side con caching automatico, background updates, e polling.
 
 ### 🎯 Live Demo
 
-Esegui l'app e vai alla sezione **"TanStack Query"** dalla home, oppure naviga a `/tanstack-demo`.
+**Demo interattiva completa disponibile!**
 
-### 📚 Cosa Imparerai
+Esegui l'app e naviga a `/tanstack-demo` per vedere:
+- ♾️ **Infinite Queries** - Pagination con "Load More"
+- 🔎 **Search Queries** - Debounced search con cache (5min)
+- 🔄 **Polling** - Auto-refresh ogni 10 secondi
+- ✏️ **Mutations** - POST con cache invalidation
+- 📱 **React Hook Form** - Form validation con Zod
 
-La demo mostra 4 esempi diversi con API gratuite:
+### 📚 Documentazione Completa
 
-#### 1️⃣ **Infinite Query** - Posts Pagination
-- 📋 JSONPlaceholder API
-- ♾️ Infinite scroll con `useInfiniteQuery`
-- 📄 Paginazione con `fetchNextPage`
-- 🔄 Loading states per page
+**Impara i pattern TanStack Query:**
+- **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Guida completa con esempi
+  - Setup e configurazione
+  - Query patterns (basic, infinite, polling, conditional)
+  - Mutation patterns (create, update, optimistic updates)
+  - Best practices e troubleshooting
+  - TypeScript integration
 
-#### 2️⃣ **Search Query** - Countries Search
-- 🌍 REST Countries API
-- 🔎 Debounced search (500ms)
-- 💾 Cache con `staleTime` (5 minuti)
-- 🎯 Query condizionali con `enabled`
+### Quick Example
 
-#### 3️⃣ **Polling Query** - Random Dog Images
-- 🐕 Dog CEO API
-- 🔄 Auto-refresh ogni 10 secondi
-- ⏱️ `refetchInterval` per polling
-- 🖼️ Image loading optimization
-
-#### 4️⃣ **Mutations** - Create Post
-- ✏️ POST request con form
-- 🔄 Cache invalidation automatica
-- ✅ Success/Error states
-- 🎯 Optimistic updates ready
-
-### 💻 Code Examples
-
-**Basic Query:**
 ```tsx
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const { data, isLoading, error } = useQuery({
-  queryKey: ['posts'],
-  queryFn: fetchPosts,
-});
+// Query
+function useEvents() {
+  return useQuery({
+    queryKey: ['events'],
+    queryFn: fetchEvents,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+// Mutation with cache invalidation
+function useCreateEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+}
+
+// Usage in component
+function EventsList() {
+  const { data, isLoading, error } = useEvents();
+  const createEvent = useCreateEvent();
+
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <View>{/* Render events */}</View>;
+}
 ```
 
-**Search with Debounce:**
+---
+
+## 📝 Form Management con React Hook Form + Zod
+
+Gestione form type-safe con validazione runtime usando **React Hook Form** e **Zod**.
+
+### 🎯 Perché React Hook Form + Zod?
+
+- ✅ **Type Safety** - TypeScript types auto-generati da schema Zod
+- ✅ **Performance** - Minimal re-renders
+- ✅ **Validazione Runtime** - Catch errors prima che vadano al server
+- ✅ **DX Eccellente** - Autocomplete e error messages automatici
+- ✅ **Small Bundle** - ~9KB react-hook-form + Zod
+
+### 📚 Documentazione Completa
+
+**Impara i pattern form:**
+- **[Form Management Guide](./docs/FORMS.md)** - Guida completa React Hook Form + Zod
+  - Setup e configurazione
+  - Validazione con Zod schemas
+  - Integrazione con UI components
+  - Form patterns (create, edit, multi-step)
+  - TanStack Query integration
+  - Best practices e troubleshooting
+
+### Quick Example
+
 ```tsx
-const { data } = useQuery({
-  queryKey: ['countries', searchTerm],
-  queryFn: () => searchCountries(searchTerm),
-  enabled: searchTerm.length > 2,
-  staleTime: 5 * 60 * 1000, // 5 minutes
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Input, Button } from '@/components/ui';
+
+// 1. Define Zod schema
+const loginSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
+
+// 2. Infer TypeScript type
+type LoginFormData = z.infer<typeof loginSchema>;
+
+// 3. Create form component
+function LoginForm({ onSubmit }: { onSubmit: (data: LoginFormData) => void }) {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+  });
+
+  return (
+    <View className="gap-4">
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label="Email"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors.email?.message}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label="Password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors.password?.message}
+            secureTextEntry
+          />
+        )}
+      />
+
+      <Button onPress={handleSubmit(onSubmit)}>Login</Button>
+    </View>
+  );
+}
 ```
 
-**Mutation with Invalidation:**
-```tsx
-const mutation = useMutation({
-  mutationFn: createPost,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['posts'] });
-  },
-});
-```
-
-**Infinite Scroll:**
-```tsx
-const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-  queryKey: ['posts'],
-  queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam),
-  getNextPageParam: (lastPage) => lastPage.nextPage,
-});
-```
-
-### ✨ Features Dimostrate
-
-- ✅ **Loading States** - Per ogni query e mutation
-- ✅ **Error Handling** - Try/catch con error boundaries
-- ✅ **Caching** - Configurazione `staleTime` e cache
-- ✅ **Refetching** - Pull-to-refresh support
-- ✅ **Polling** - Auto-refresh periodico
-- ✅ **Pagination** - Infinite scroll pattern
-- ✅ **Search** - Debounced queries
-- ✅ **Mutations** - POST con invalidation
-- ✅ **TypeScript** - Full type safety
-
-### 🌐 API Usate
-
-- **[JSONPlaceholder](https://jsonplaceholder.typicode.com/)** - Fake REST API per testing
-- **[REST Countries](https://restcountries.com/)** - Dati geografici completi
-- **[Dog CEO](https://dog.ceo/dog-api/)** - Random dog images
-
-Tutte le API sono **GRATUITE** e non richiedono autenticazione! 🎉
+---
 
 ## 🔧 Configurazione
 
@@ -314,22 +321,6 @@ import { WebView } from 'react-native-webview';
 <WebView source={{ uri: 'https://example.com' }} />
 ```
 
-### Form Management
-
-```typescript
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-const schema = z.object({
-  email: z.string().email(),
-});
-
-const { control, handleSubmit } = useForm({
-  resolver: zodResolver(schema),
-});
-```
-
 ## 🎨 Styling con NativeWind
 
 ```tsx
@@ -363,10 +354,6 @@ Questo progetto include workflow GitHub Actions per build **GRATUITE** iOS e And
 
 **Vedi documentazione completa:**
 - **📦 [App Distribution Guide](./docs/APP_DISTRIBUTION.md)** - Come distribuire e installare le app
-  - Android: Installazione diretta APK
-  - iOS: TestFlight, Xcode Direct Install, Expo Go
-  - Cosa fare con file `.xcarchive`
-  - Metodi GRATIS vs a pagamento
 - [Build Strategies](./docs/BUILD_STRATEGIES.md) - Comparazione metodi build
 - [iOS Signing Setup](./docs/IOS_SIGNING_SETUP.md) - Setup certificati iOS
 - [Build Caching Guide](./docs/BUILD_CACHING_GUIDE.md) - Ottimizzazioni cache
@@ -390,7 +377,7 @@ eas build --platform android
 eas build --platform ios
 ```
 
-**Note:** Icons vengono generati automaticamente durante build CI/CD (vedi `.github/workflows/ci.yml`).
+**Note:** Icons vengono generati automaticamente durante build CI/CD.
 
 ## 🧪 Testing
 
@@ -427,7 +414,28 @@ GitHub Actions verifica automaticamente:
 - ✅ Tests
 - ✅ Build
 
-Vedi [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) per dettagli.
+## 📚 Documentazione
+
+### Guide Complete
+
+- **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Queries, mutations, patterns, best practices
+- **[Form Management Guide](./docs/FORMS.md)** - React Hook Form + Zod validation completa
+- **[Examples & Patterns](./docs/EXAMPLES.md)** - Feature modules, hooks, componenti
+- **[Icon System](./docs/ICON_SYSTEM.md)** - Automated icon generation
+- **[Design System](./README_DESIGN_SYSTEM.md)** - CVA, NativeWind, UI components
+
+### Build & Deploy
+
+- **[App Distribution](./docs/APP_DISTRIBUTION.md)** - Come installare e distribuire app
+- **[Build Strategies](./docs/BUILD_STRATEGIES.md)** - Comparazione metodi build
+- **[iOS Signing](./docs/IOS_SIGNING_SETUP.md)** - Setup certificati iOS
+- **[Build Caching](./docs/BUILD_CACHING_GUIDE.md)** - Ottimizzazioni build
+- **[CI/CD](./docs/CI_CD.md)** - GitHub Actions setup
+
+### Troubleshooting
+
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Problemi comuni e soluzioni
+- **[NativeWind Issues](./docs/NATIVEWIND_TROUBLESHOOTING.md)** - Fix styling problems
 
 ## 🤝 Contributing
 
@@ -454,11 +462,12 @@ Per domande o problemi, apri una issue su GitHub.
 
 **✨ Features Highlight:**
 - 🚀 Production-ready scaffolding
-- 🔍 **TanStack Query live demo** with real APIs
+- 🔍 **TanStack Query** - Complete demo with real APIs
+- 📝 **React Hook Form + Zod** - Type-safe form validation
 - 🎨 Automated icon generation from Figma
 - 📱 Cross-platform (iOS, Android, Web)
 - 🔒 Security best practices
 - 🧪 Full testing setup
-- 📚 Comprehensive documentation
+- 📚 **Comprehensive documentation** with guides
 - 🤖 CI/CD with GitHub Actions
 - 💰 **FREE native builds** (no EAS subscription needed!)
