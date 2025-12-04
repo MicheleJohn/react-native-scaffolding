@@ -117,5 +117,8 @@ src/components/icons/index.ts
 
 expo-env.d.ts
 
-android
+android/*
+android/app/*
+!android/app/
+!android/app/proguard-rules.pro
 ios

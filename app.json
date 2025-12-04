@@ -50,7 +50,15 @@
         }
       ],
       "expo-localization",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native-scaffolding",
+          "organization": "itsvil"
+        }
+      ]
     ],
     "scheme": "rnscaffolding",
     "experiments": {
