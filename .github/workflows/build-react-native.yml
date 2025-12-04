@@ -20,6 +20,14 @@ on:
           - debug
           - release
         default: release
+      ios_signing:
+        description: "iOS Signing (only for iOS release)"
+        required: false
+        type: choice
+        options:
+          - unsigned
+          - signed
+        default: unsigned
 
 jobs:
   build-android:
@@ -138,7 +146,7 @@ jobs:
           echo "📥 INFO - Download APK from Actions artifacts"
 
   build-ios:
-    name: Build iOS IPA (FREE)
+    name: Build iOS (${{ inputs.ios_signing == 'signed' && 'Signed' || 'Unsigned' }})
     if: inputs.platform == 'ios'
     runs-on: macos-latest
 
@@ -177,6 +185,53 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Check signing requirements
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          echo "🔐 Checking for Apple Developer signing secrets..."
+          
+          if [ -z "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" ]; then
+            echo "❌ ERROR: APPLE_CERTIFICATE_BASE64 secret not configured!"
+            echo ""
+            echo "To use signed builds, configure these secrets in GitHub:"
+            echo "  1. APPLE_CERTIFICATE_BASE64 - Your .p12 certificate (base64)"
+            echo "  2. APPLE_CERTIFICATE_PASSWORD - Certificate password"
+            echo "  3. APPLE_PROVISIONING_PROFILE_BASE64 - Provisioning profile (base64)"
+            echo "  4. APPLE_TEAM_ID - Your Apple Developer Team ID"
+            echo ""
+            echo "Or use 'unsigned' mode for testing without Apple Developer account."
+            exit 1
+          fi
+          
+          echo "✅ Signing secrets found!"
+
+      - name: Import Apple signing certificate
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          echo "🔐 Importing signing certificate..."
+          
+          # Create temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+          
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Import certificate
+          echo "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" | base64 --decode > certificate.p12
+          security import certificate.p12 -k $KEYCHAIN_PATH -P "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Add to system keychain list
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # Install provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+          
+          echo "✅ Certificate and provisioning profile imported!"
+
       - name: Prebuild iOS (generate native project)
         run: |
           echo "🔧 Generating native iOS project with Expo..."
@@ -191,6 +246,30 @@ jobs:
           echo ""
           echo "✅ Native iOS project generated!"
 
+      - name: Create ExportOptions.plist (signed build)
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          echo "📝 Creating ExportOptions.plist for signed IPA export..."
+          cat > ios/ExportOptions.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+          	<key>method</key>
+          	<string>app-store</string>
+          	<key>teamID</key>
+          	<string>${{ secrets.APPLE_TEAM_ID }}</string>
+          	<key>uploadBitcode</key>
+          	<false/>
+          	<key>uploadSymbols</key>
+          	<true/>
+          	<key>compileBitcode</key>
+          	<false/>
+          </dict>
+          </plist>
+          EOF
+          echo "✅ ExportOptions.plist created for App Store distribution!"
+
       - name: Build iOS (Debug)
         if: inputs.build_type == 'debug'
         run: |
@@ -202,7 +281,6 @@ jobs:
           
           # Detect project structure - find directories only, not internal files
           if [ -d *.xcworkspace ]; then
-            # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
             WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
@@ -218,7 +296,6 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           else
-            # Find .xcodeproj directory
             PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             echo "✅ Found project: $PROJECT"
@@ -238,20 +315,18 @@ jobs:
           echo ""
           echo "✅ iOS Debug build completed!"
 
-      - name: Build iOS (Release - unsigned for CI testing)
-        if: inputs.build_type == 'release'
+      - name: Build iOS Release (Unsigned)
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'unsigned'
         run: |
-          echo "🏗️ Building iOS Release (unsigned)..."
-          echo "📦 Creating archive for distribution..."
+          echo "🏗️ Building iOS Release (UNSIGNED)..."
+          echo "📦 Creating archive without code signing..."
           echo "ℹ️  Note: This creates an unsigned archive for CI testing"
-          echo "ℹ️  Real signing happens when distributing to App Store"
+          echo "ℹ️  Use 'signed' mode when you have Apple Developer account"
           echo ""
           
           cd ios
           
-          # Detect project structure - find directories only, not internal files
           if [ -d *.xcworkspace ]; then
-            # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
             WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
@@ -269,7 +344,6 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           else
-            # Find .xcodeproj directory
             PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             echo "✅ Found project: $PROJECT"
@@ -290,15 +364,91 @@ jobs:
           
           echo ""
           echo "✅ iOS unsigned archive created!"
-          echo "ℹ️  This archive can be signed later for distribution"
         env:
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
 
-      - name: Upload Archive
-        if: inputs.build_type == 'release'
+      - name: Build iOS Release (Signed)
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          echo "🏗️ Building iOS Release (SIGNED)..."
+          echo "📦 Creating signed archive for App Store..."
+          echo "🔐 Using Apple Developer certificate and provisioning profile"
+          echo ""
+          
+          cd ios
+          
+          if [ -d *.xcworkspace ]; then
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+            echo "✅ Found workspace: $WORKSPACE"
+            echo "✅ Using scheme: $SCHEME"
+            
+            xcodebuild \
+              -workspace "$WORKSPACE" \
+              -scheme "$SCHEME" \
+              -configuration Release \
+              -sdk iphoneos \
+              -archivePath build/$SCHEME.xcarchive \
+              archive \
+              DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          else
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$PROJECT" .xcodeproj)
+            echo "✅ Found project: $PROJECT"
+            echo "✅ Using scheme: $SCHEME"
+            
+            xcodebuild \
+              -project "$PROJECT" \
+              -scheme "$SCHEME" \
+              -configuration Release \
+              -sdk iphoneos \
+              -archivePath build/$SCHEME.xcarchive \
+              archive \
+              DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+              COMPILER_INDEX_STORE_ENABLE=NO
+          fi
+          
+          echo ""
+          echo "✅ iOS signed archive created!"
+        env:
+          EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+
+      - name: Export IPA (Signed)
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          cd ios
+          echo "📦 Exporting signed IPA for App Store..."
+          
+          if [ -d *.xcworkspace ]; then
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          else
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$PROJECT" .xcodeproj)
+          fi
+          
+          xcodebuild -exportArchive \
+            -archivePath build/$SCHEME.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist ExportOptions.plist
+          
+          echo "✅ Signed IPA exported successfully!"
+          echo "📦 Ready for App Store upload!"
+
+      - name: Upload Signed IPA
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
         uses: actions/upload-artifact@v4
         with:
-          name: ios-${{ inputs.build_type }}-archive
+          name: ios-release-signed
+          path: ios/build/*.ipa
+          retention-days: 30
+
+      - name: Upload Unsigned Archive
+        if: inputs.build_type == 'release' && inputs.ios_signing == 'unsigned'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-unsigned
           path: ios/build/*.xcarchive
           retention-days: 30
 
@@ -306,7 +456,7 @@ jobs:
         if: inputs.build_type == 'debug'
         uses: actions/upload-artifact@v4
         with:
-          name: ios-${{ inputs.build_type }}
+          name: ios-debug
           path: ios/build/Build/Products/Debug-iphonesimulator/*.app
           retention-days: 30
 
@@ -334,16 +484,30 @@ jobs:
           echo "💰 COST - FREE (GitHub Actions minutes)"
           
           if [ "${{ inputs.build_type }}" = "release" ]; then
-            echo "📦 OUTPUT - Unsigned .xcarchive (can be signed later)"
-            echo "ℹ️  NOTE - For App Store, sign with your Apple Developer account"
+            if [ "${{ inputs.ios_signing }}" = "signed" ]; then
+              echo "🔐 SIGNING - Signed with Apple Developer certificate"
+              echo "📦 OUTPUT - Signed IPA ready for App Store"
+              echo "✅ PRODUCTION READY - Can upload to TestFlight/App Store"
+            else
+              echo "🔓 SIGNING - Unsigned (testing mode)"
+              echo "📦 OUTPUT - Unsigned .xcarchive"
+              echo "ℹ️  NOTE - Use 'signed' mode when you have Apple Developer account"
+            fi
           else
             echo "📥 OUTPUT - Debug .app for simulator"
           fi
           
           echo ""
           echo "📚 Modern workflow:"
-          echo "   1. expo prebuild generates native project once"
-          echo "   2. Expo manages dependencies (no direct pod install)"
+          echo "   1. expo prebuild generates native project"
+          echo "   2. Expo manages dependencies (SPM/CocoaPods)"
           echo "   3. xcodebuild compiles natively"
-          echo "   4. No Apple Developer account needed for CI builds!"
-          echo "   5. Sign later when ready to distribute"
+          echo "   4. Choose signed/unsigned based on your needs"
+          echo "   5. No EAS subscription needed!"
+
+      - name: Cleanup keychain
+        if: always() && inputs.build_type == 'release' && inputs.ios_signing == 'signed'
+        run: |
+          if [ -f "$RUNNER_TEMP/app-signing.keychain-db" ]; then
+            security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          fi
