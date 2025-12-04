@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Platform, StatusBar, Text, View } from 'react-native';
 
 import { useNetworkState } from 'expo-network';
 import type { ErrorBoundaryProps } from 'expo-router';
@@ -45,6 +45,9 @@ function RootLayoutContent() {
 
   return (
     <>
+      <StatusBar
+        barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+      />
       <Slot />
       {__DEV__ && Platform.OS === 'web' && (
         <ReactQueryDevtools initialIsOpen={false} />

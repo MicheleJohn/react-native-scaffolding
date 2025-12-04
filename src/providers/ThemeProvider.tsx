@@ -5,12 +5,10 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
-
-import { VariableContextProvider } from 'nativewind';
+import { useColorScheme as useRNColorScheme, View } from 'react-native';
 
 import { secureStorage } from '@/lib/secure-storage';
-import { darkTheme, lightTheme } from '@/theme/themes';
+import { cn } from '@/utils/cn';
 
 type ColorScheme = 'light' | 'dark';
 type ThemeMode = ColorScheme | 'system';
@@ -42,9 +40,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     themeMode === 'system' ? systemColorScheme : themeMode;
 
   const isDark = colorScheme === 'dark';
-
-  // Select theme object based on color scheme
-  const theme = isDark ? darkTheme : lightTheme;
 
   // Load saved theme preference on mount
   useEffect(() => {
@@ -86,10 +81,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setThemeMode,
         isDark,
       }}>
-      {/* NativeWind's VariableContextProvider injects CSS variables */}
-      <VariableContextProvider value={theme}>
+      <View key={themeMode} className={cn(isDark && 'dark')}>
         {children}
-      </VariableContextProvider>
+      </View>
     </ThemeContext.Provider>
   );
 }
