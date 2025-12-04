@@ -94,6 +94,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       # ADVANCED: Cache Gradle build outputs (huge speedup!)
+      # FIX: Use same hash as packages cache for consistent key
       - name: Cache Gradle build cache
         uses: actions/cache@v4
         with:
@@ -101,7 +102,7 @@ jobs:
             android/.gradle
             android/app/build
             android/build
-          key: ${{ runner.os }}-gradle-build-${{ github.sha }}
+          key: ${{ runner.os }}-gradle-build-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt') }}
           restore-keys: |
             ${{ runner.os }}-gradle-build-
 
