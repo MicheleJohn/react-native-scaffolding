@@ -136,7 +136,7 @@ jobs:
           echo "✅ Gradle performance features enabled!"
 
       - name: Configure Sentry for Android release build
-        if: inputs.build_type == 'release'
+        if: inputs.build_type == 'release' && env.SENTRY_AUTH_TOKEN != ''
         run: |
           echo "📝 Creating sentry.properties for Android..."
           cat > android/sentry.properties << EOF
@@ -146,6 +146,20 @@ jobs:
           auth.token=${{ secrets.SENTRY_AUTH_TOKEN }}
           EOF
           echo "✅ Sentry configured for Android sourcemap upload"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Skip Sentry configuration (secrets not found)
+        if: inputs.build_type == 'release' && env.SENTRY_AUTH_TOKEN == ''
+        run: |
+          echo "⚠️  Sentry secrets not configured - skipping Sentry setup"
+          echo "ℹ️  Build will complete without source map upload"
+          echo "ℹ️  To enable Sentry, add these GitHub secrets:"
+          echo "     - SENTRY_ORG"
+          echo "     - SENTRY_PROJECT"
+          echo "     - SENTRY_AUTH_TOKEN"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Make Gradle wrapper executable
         run: |
@@ -264,6 +278,34 @@ jobs:
           
           echo "✅ ccache installed and configured!"
 
+      # ADVANCED: Create ccache wrapper scripts
+      - name: Create ccache wrapper scripts
+        run: |
+          echo "🔧 Creating ccache wrapper scripts..."
+          
+          # Create ccache-clang wrapper
+          sudo tee /usr/local/bin/ccache-clang > /dev/null << 'EOF'
+          #!/bin/bash
+          exec ccache clang "$@"
+          EOF
+          
+          # Create ccache-clang++ wrapper
+          sudo tee /usr/local/bin/ccache-clang++ > /dev/null << 'EOF'
+          #!/bin/bash
+          exec ccache clang++ "$@"
+          EOF
+          
+          # Make them executable
+          sudo chmod +x /usr/local/bin/ccache-clang
+          sudo chmod +x /usr/local/bin/ccache-clang++
+          
+          # Verify they work
+          echo "✅ Testing wrapper scripts..."
+          ccache-clang --version
+          ccache-clang++ --version
+          
+          echo "✅ ccache wrapper scripts created and working!"
+
       # ADVANCED: Cache ccache compilation cache
       - name: Cache ccache
         uses: actions/cache@v4
@@ -367,24 +409,8 @@ jobs:
           echo ""
           echo "✅ Native iOS project generated!"
 
-      # ADVANCED: Configure Xcode to use ccache
-      - name: Configure Xcode for ccache
-        run: |
-          echo "⚙️ Configuring Xcode to use ccache for C++ compilation..."
-          
-          # Create user-defined build settings for ccache
-          cd ios
-          
-          # Enable ccache in build settings
-          # This wraps CC and CXX compilers with ccache
-          echo "export CC='ccache clang'" >> ~/.zshrc
-          echo "export CXX='ccache clang++'" >> ~/.zshrc
-          source ~/.zshrc || true
-          
-          echo "✅ Xcode configured for ccache!"
-
       - name: Configure Sentry for iOS release build
-        if: inputs.build_type == 'release'
+        if: inputs.build_type == 'release' && env.SENTRY_AUTH_TOKEN != ''
         run: |
           echo "📝 Creating sentry.properties for iOS..."
           echo "ℹ️  This must be created AFTER prebuild because --clean removes ios/ folder"
@@ -396,6 +422,20 @@ jobs:
           auth.token=${{ secrets.SENTRY_AUTH_TOKEN }}
           EOF
           echo "✅ Sentry configured for iOS sourcemap upload"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Skip Sentry configuration (secrets not found)
+        if: inputs.build_type == 'release' && env.SENTRY_AUTH_TOKEN == ''
+        run: |
+          echo "⚠️  Sentry secrets not configured - skipping Sentry setup"
+          echo "ℹ️  Build will complete without source map upload"
+          echo "ℹ️  To enable Sentry, add these GitHub secrets:"
+          echo "     - SENTRY_ORG"
+          echo "     - SENTRY_PROJECT"
+          echo "     - SENTRY_AUTH_TOKEN"
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Create ExportOptions.plist (signed build)
         if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
@@ -447,8 +487,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           else
             PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
@@ -466,8 +506,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           fi
           
@@ -506,8 +546,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           else
             PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
@@ -527,8 +567,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           fi
           
@@ -567,8 +607,8 @@ jobs:
               DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           else
             PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
@@ -586,8 +626,8 @@ jobs:
               DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
               COMPILER_INDEX_STORE_ENABLE=NO \
               CLANG_ENABLE_EXPLICIT_MODULES=NO \
-              CC="ccache clang" \
-              CXX="ccache clang++" \
+              CC=ccache-clang \
+              CXX=ccache-clang++ \
               CCACHE_DIR="$HOME/Library/Caches/ccache"
           fi
           
