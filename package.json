@@ -67,7 +67,6 @@
     "@react-native/babel-preset": "0.82.1",
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
-    "@sentry/cli": "^2.58.2",
     "@svgr/cli": "^8.1.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@tanstack/eslint-plugin-query": "^5.91.2",
