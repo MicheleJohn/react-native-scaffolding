@@ -187,7 +187,7 @@ jobs:
           echo "   - Setup SPM/CocoaPods dependencies"
           echo "   - ⚠️  IMPORTANT: This DELETES ios/ folder first (--clean)"
           echo ""
-          pnpm run prebuild:ios
+          pnpm dlx expo prebuild --platform ios --clean
           echo ""
           echo "✅ Native iOS project generated!"
 
@@ -232,12 +232,13 @@ jobs:
           echo "🏗️ Building iOS Debug..."
           echo "📱 Using Expo's native build approach (no deprecated pod install)"
           echo ""
-
+          
           cd ios
-
-          # Detect project structure
-          if ls *.xcworkspace 1> /dev/null 2>&1; then
-            WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
+          
+          # Detect project structure - find directories only, not internal files
+          if [ -d *.xcworkspace ]; then
+            # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
             echo "✅ Using scheme: $SCHEME"
@@ -252,7 +253,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           else
-            PROJECT=$(ls -1 *.xcodeproj | head -n 1)
+            # Find .xcodeproj directory
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             echo "✅ Found project: $PROJECT"
             echo "✅ Using scheme: $SCHEME"
@@ -267,7 +269,7 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
           echo "✅ iOS Debug build completed!"
 
@@ -277,12 +279,13 @@ jobs:
           echo "🏗️ Building iOS Release..."
           echo "📦 Creating archive for distribution..."
           echo ""
-
+          
           cd ios
-
-          # Detect project structure
-          if ls *.xcworkspace 1> /dev/null 2>&1; then
-            WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
+          
+          # Detect project structure - find directories only, not internal files
+          if [ -d *.xcworkspace ]; then
+            # Find the actual .xcworkspace directory (not contents.xcworkspacedata)
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
             echo "✅ Using scheme: $SCHEME"
@@ -295,7 +298,8 @@ jobs:
               archive \
               COMPILER_INDEX_STORE_ENABLE=NO
           else
-            PROJECT=$(ls -1 *.xcodeproj | head -n 1)
+            # Find .xcodeproj directory
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             echo "✅ Found project: $PROJECT"
             echo "✅ Using scheme: $SCHEME"
@@ -308,7 +312,7 @@ jobs:
               archive \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
           echo "✅ iOS archive created!"
         env:
@@ -319,21 +323,21 @@ jobs:
         run: |
           cd ios
           echo "📦 Exporting IPA from archive..."
-
+          
           # Detect scheme name
-          if ls *.xcworkspace 1> /dev/null 2>&1; then
-            WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
+          if [ -d *.xcworkspace ]; then
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
           else
-            PROJECT=$(ls -1 *.xcodeproj | head -n 1)
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
           fi
-
+          
           xcodebuild -exportArchive \
             -archivePath build/$SCHEME.xcarchive \
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
-
+          
           echo "✅ IPA exported successfully!"
 
       - name: Upload IPA
@@ -355,18 +359,18 @@ jobs:
       - name: Build info
         run: |
           cd ios
-
+          
           # Detect project type
-          if ls *.xcworkspace 1> /dev/null 2>&1; then
-            WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
+          if [ -d *.xcworkspace ]; then
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             PROJECT_TYPE="Workspace (managed by Expo)"
           else
-            PROJECT=$(ls -1 *.xcodeproj | head -n 1)
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             PROJECT_TYPE="Project (pure SPM)"
           fi
-
+          
           echo "✅ OK - iOS build completed"
           echo "📱 PLATFORM - iOS"
           echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
