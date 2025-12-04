@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { Text, View } from 'react-native';
+
+import { Archivio } from '@/components/icons';
+
 import { Button } from '../Button';
 
 /**
@@ -15,7 +18,9 @@ export const ButtonShowcase = () => {
 
   const handleLoadingPress = () => {
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
   };
 
   // Mock icon component (replace with actual icons in your project)
@@ -26,7 +31,7 @@ export const ButtonShowcase = () => {
   );
 
   return (
-    <ScrollView className="flex-1 bg-white p-6">
+    <View className="flex-1 bg-white">
       <Text className="text-2xl font-bold mb-8 text-neutral-gray900">
         Button Variants Showcase
       </Text>
@@ -91,22 +96,28 @@ export const ButtonShowcase = () => {
           Icon Buttons
         </Text>
         <View className="flex-row gap-4 mb-4">
-          <Button 
-            variant="filled" 
-            size="icon" 
+          <Button
+            variant="filled"
+            size="icon"
+            icon={<Archivio />}
+            onPress={handlePress}
+          />
+          <Button
+            variant="filled-secondary"
+            size="icon"
             icon={<PlusIcon />}
             onPress={handlePress}
           />
-          <Button 
-            variant="filled-secondary" 
-            size="icon" 
-            icon={<PlusIcon />}
-            onPress={handlePress}
-          />
-          <Button 
-            variant="filled-ghost" 
-            size="icon" 
-            icon={<View className="w-5 h-5 items-center justify-center"><Text className="text-neutral-gray700 font-bold text-lg">+</Text></View>}
+          <Button
+            variant="filled-ghost"
+            size="icon"
+            icon={
+              <View className="w-5 h-5 items-center justify-center">
+                <Text className="text-neutral-gray700 font-bold text-lg">
+                  +
+                </Text>
+              </View>
+            }
             onPress={handlePress}
           />
         </View>
@@ -195,41 +206,21 @@ export const ButtonShowcase = () => {
           Buttons with Icons
         </Text>
         <View className="flex-col gap-4">
-          <Button
-            variant="filled"
-            icon={<PlusIcon />}
-            onPress={handlePress}>
+          <Button variant="filled" icon={<PlusIcon />} onPress={handlePress}>
             Add Item
           </Button>
           <Button
             variant="outlined"
-            icon={<View className="w-5 h-5 items-center justify-center"><Text className="text-[#28529C] font-bold">→</Text></View>}
+            icon={
+              <View className="w-5 h-5 items-center justify-center">
+                <Text className="text-[#28529C] font-bold">→</Text>
+              </View>
+            }
             onPress={handlePress}>
             Next Step
           </Button>
         </View>
       </View>
-
-      {/* Backward Compatibility - Legacy Variants */}
-      <View className="mb-8">
-        <Text className="text-lg font-semibold mb-4 text-neutral-gray800">
-          Legacy Variants (Backward Compatibility)
-        </Text>
-        <View className="flex-col gap-4">
-          <Button variant="primary" onPress={handlePress}>
-            Legacy Primary
-          </Button>
-          <Button variant="secondary" onPress={handlePress}>
-            Legacy Secondary
-          </Button>
-          <Button variant="outline" onPress={handlePress}>
-            Legacy Outline
-          </Button>
-          <Button variant="ghost" onPress={handlePress}>
-            Legacy Ghost
-          </Button>
-        </View>
-      </View>
-    </ScrollView>
+    </View>
   );
 };

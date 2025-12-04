@@ -40,8 +40,8 @@ All colors are defined in `global.css` using CSS custom properties (Tailwind v4 
 | Color | Value | Usage | Tailwind Class |
 |-------|-------|-------|---------------|
 | **Cyan** | `#009FE3` | Default primary actions | `bg-primary` |
-| **Blue** | `#28529C` | Alternative primary | `bg-primary-blue` |
-| **Teal** | `#0074A5` | Hover/Active states | `bg-primary-teal` |
+| **Blue** | `#28529C` | Alternative primary | `bg-primary-dark` |
+| **Teal** | `#0074A5` | Hover/Active states | `bg-mid-blue` |
 | **Red** | `#CC1A1A` | Destructive actions | `bg-primary-red` |
 
 ### Neutral Colors

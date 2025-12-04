@@ -179,7 +179,7 @@ Grazie alla configurazione di `tailwind.config.js`, puoi usare i colori del desi
 
 ```tsx
 <View className="bg-primary">        {/* #009FE3 */}
-<View className="bg-primary-blue">   {/* #28529C */}
+<View className="bg-primary-dark">   {/* #28529C */}
 <View className="bg-neutral-50">     {/* #F2F4F7 */}
 <View className="bg-secondary-green"> {/* #A6C48A */}
 

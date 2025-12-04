@@ -25,7 +25,7 @@ const variantStyles = {
   dark: {
     container: 'bg-neutral-900',
     item: 'text-neutral-400',
-    activeItem: 'text-primary-cyan',
+    activeItem: 'text-primary',
   },
 };
 

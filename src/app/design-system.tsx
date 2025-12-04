@@ -16,6 +16,7 @@ import {
   type Tab,
   Tabs,
 } from '@/components/ui';
+import { ButtonShowcase } from '@/components/ui/examples/ButtonShowcase';
 import { colors } from '@/theme/colors';
 
 /**
@@ -96,7 +97,7 @@ export default function DesignSystemPage() {
           <View className="mb-6">
             <Link href="/" asChild>
               <Button
-                variant="ghost"
+                variant="text"
                 size="sm"
                 className="self-start -ml-2 mb-4">
                 ← Back
@@ -169,29 +170,7 @@ export default function DesignSystemPage() {
 
           {/* Buttons */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-primary mb-3">
-              Buttons
-            </Text>
-            <View className="gap-3">
-              <Button variant="primary">Primary Button</Button>
-              <Button variant="secondary">Secondary Button</Button>
-              <Button variant="outline">Outline Button</Button>
-              <Button variant="ghost">Ghost Button</Button>
-              <View className="flex-row gap-2">
-                <Button variant="primary" size="sm" className="flex-1">
-                  Small
-                </Button>
-                <Button variant="primary" size="md" className="flex-1">
-                  Medium
-                </Button>
-                <Button variant="primary" size="lg" className="flex-1">
-                  Large
-                </Button>
-              </View>
-              <Button variant="primary" loading>
-                Loading
-              </Button>
-            </View>
+            <ButtonShowcase />
           </Card>
 
           {/* Tabs */}
