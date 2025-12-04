@@ -160,7 +160,7 @@ export const CardShowcase = () => {
       </View>
 
       {/* Experience Cards */}
-      {/* <View className="mb-8">
+      <View className="mb-8">
         <Text className="text-xl font-semibold mb-4 text-text">
           Experience Cards
         </Text>
@@ -207,7 +207,7 @@ export const CardShowcase = () => {
             }}
           />
         </View>
-      </View> */}
+      </View>
 
       {/* Heritage Cards */}
       <View className="mb-8">
