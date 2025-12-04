@@ -10,6 +10,7 @@ import {
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/utils/cn';
+
 import { Card } from './Card';
 
 /**
@@ -124,7 +125,7 @@ export const EventCard = React.forwardRef<
       (price?.toLowerCase().includes('gratuito') ? 'free' : 'price');
 
     const imageSource =
-      typeof image === 'string' ? { uri: image } : image ?? undefined;
+      typeof image === 'string' ? { uri: image } : (image ?? undefined);
 
     return (
       <TouchableOpacity
@@ -179,9 +180,7 @@ export const EventCard = React.forwardRef<
 
             {/* Subtitle */}
             {subtitle && (
-              <Text
-                className="text-sm text-neutral-600"
-                numberOfLines={2}>
+              <Text className="text-sm text-neutral-600" numberOfLines={2}>
                 {subtitle}
               </Text>
             )}

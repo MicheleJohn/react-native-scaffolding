@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { cn } from '@/utils/cn';
+
 import { Card } from './Card';
 
 /**
@@ -103,7 +104,12 @@ export const HeritageCard = React.forwardRef<
 
       const configs: Record<
         HeritageCategoryType,
-        { label: string; bgColor: string; textColor: string; borderColor: string }
+        {
+          label: string;
+          bgColor: string;
+          textColor: string;
+          borderColor: string;
+        }
       > = {
         ecosystem: {
           label: 'Ecosistema',
@@ -137,7 +143,7 @@ export const HeritageCard = React.forwardRef<
 
     const categoryConfig = getCategoryConfig();
     const imageSource =
-      typeof image === 'string' ? { uri: image } : image ?? undefined;
+      typeof image === 'string' ? { uri: image } : (image ?? undefined);
 
     return (
       <TouchableOpacity

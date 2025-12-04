@@ -31,7 +31,7 @@ export const ButtonShowcase = () => {
   );
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="bg-background">
       <Text className="text-2xl font-bold mb-8 text-neutral-gray900">
         Button Variants Showcase
       </Text>
