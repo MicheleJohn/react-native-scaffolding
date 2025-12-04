@@ -160,7 +160,7 @@ export const HeritageCard = React.forwardRef<
                 resizeMode="cover"
                 accessibilityLabel={`${title} image`}
               />
-              {/* Category Badge */}
+              {/* Category Badge positioned on image */}
               <View className="absolute top-4 right-4">
                 <View
                   className={cn(
@@ -182,6 +182,26 @@ export const HeritageCard = React.forwardRef<
 
           {/* Content Section */}
           <View className="p-5 gap-3">
+            {/* Category Badge (when no image) */}
+            {!imageSource && (
+              <View className="self-start">
+                <View
+                  className={cn(
+                    'px-4 py-2 rounded-full border',
+                    categoryConfig.bgColor,
+                    categoryConfig.borderColor
+                  )}>
+                  <Text
+                    className={cn(
+                      'text-sm font-semibold',
+                      categoryConfig.textColor
+                    )}>
+                    {categoryConfig.label}
+                  </Text>
+                </View>
+              </View>
+            )}
+
             {/* Title */}
             <Text
               className="text-2xl font-bold text-neutral-800"
