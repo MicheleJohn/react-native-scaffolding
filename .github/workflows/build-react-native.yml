@@ -108,7 +108,7 @@ jobs:
       - name: Prebuild Android (Expo)
         run: pnpm run prebuild:android
 
-      # ADVANCED: Enable Gradle build cache and configuration cache
+      # ADVANCED: Enable Gradle build cache (configuration cache removed - not compatible with Expo)
       - name: Enable Gradle performance features
         run: |
           mkdir -p ~/.gradle
@@ -116,8 +116,9 @@ jobs:
           # Enable Gradle build cache (reuse task outputs)
           org.gradle.caching=true
           
-          # Enable configuration cache (faster configuration phase)
-          org.gradle.configuration-cache=true
+          # NOTE: Configuration cache disabled - not compatible with Expo/React Native
+          # Expo uses Task.project during execution which breaks configuration cache
+          # org.gradle.configuration-cache=true
           
           # Parallel execution
           org.gradle.parallel=true
@@ -211,7 +212,7 @@ jobs:
           echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
           echo "🛠️ TOOL - Gradle (native Android build tool)"
           echo "💰 COST - FREE (GitHub Actions minutes)"
-          echo "⚡ CACHING - Advanced (Gradle cache + configuration cache + build outputs)"
+          echo "⚡ CACHING - Advanced (Gradle cache + build outputs + parallel execution)"
           echo "📥 INFO - Download APK from Actions artifacts"
 
   build-ios:
@@ -732,7 +733,7 @@ jobs:
           echo "   3. Multi-layer caching (CocoaPods + SPM + DerivedData + ccache)"
           echo "   4. ccache reduces C++ compilation by 40-50%"
           echo "   5. xcodebuild compiles natively"
-          echo "   6. Expected: 60-70% faster than without advanced caching!"
+          echo "   6. Expected: 50-60% faster than without advanced caching!"
 
       - name: Cleanup keychain
         if: always() && inputs.build_type == 'release' && inputs.ios_signing == 'signed'
