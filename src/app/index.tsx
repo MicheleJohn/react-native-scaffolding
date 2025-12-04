@@ -33,7 +33,6 @@ export default function HomePage() {
               TypeScript, TanStack Query, i18n, and more.
             </Text>
             <Button
-              variant="primary"
               onPress={() => {
                 console.log('Pressed!');
               }}>
@@ -50,9 +49,7 @@ export default function HomePage() {
               Explore all UI components and color palette
             </Text>
             <Link href="/design-system" asChild>
-              <Button variant="primary" size="md">
-                View Components & Colors
-              </Button>
+              <Button size="md">View Components & Colors</Button>
             </Link>
           </Card>
 
@@ -106,9 +103,7 @@ export default function HomePage() {
             </Text>
 
             <Link href="/portals" asChild>
-              <Button variant="outline" className="w-full">
-                {t('navigation.portals')}
-              </Button>
+              <Button className="w-full">{t('navigation.portals')}</Button>
             </Link>
           </View>
         </View>

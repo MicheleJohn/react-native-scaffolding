@@ -6,10 +6,9 @@
 @theme {
   /* Primary colors - Design System */
   --color-primary: #009fe3;
-  --color-primary-cyan: #009fe3;
-  --color-primary-blue: #28529c;
-  --color-primary-teal: #0074a5;
-  --color-primary-red: #cc1a1a;
+  --color-primary-dark: #28529c;
+  --color-mid-blue: #0074a5;
+  --color-danger: #cc1a1a;
 
   /* Neutral colors - Design System */
   --color-neutral-50: #f2f4f7;

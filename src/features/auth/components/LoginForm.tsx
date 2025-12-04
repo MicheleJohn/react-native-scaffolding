@@ -81,7 +81,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       </View>
 
       <Button
-        variant="primary"
         size="lg"
         loading={isSubmitting}
         onPress={handleSubmit(handleFormSubmit)}>
