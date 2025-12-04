@@ -187,7 +187,7 @@ jobs:
           echo "   - Setup autolinking for native modules"
           echo "   - Apply config plugins from app.json"
           echo ""
-          pnpm dlx expo prebuild --platform ios --clean
+          pnpm prebuild:ios
           echo ""
           echo "✅ Expo prebuild completed!"
           echo "📁 iOS project generated with modern SPM support"
@@ -222,7 +222,7 @@ jobs:
           cd ios
           # Find workspace file (works with both CocoaPods and SPM projects)
           WORKSPACE=$(ls -1 *.xcworkspace 2>/dev/null | head -n 1 || echo "")
-          
+
           if [ -z "$WORKSPACE" ]; then
             # No workspace, use xcodeproj instead (pure SPM case)
             PROJECT=$(ls -1 *.xcodeproj | head -n 1)
@@ -237,9 +237,9 @@ jobs:
             echo "USE_PROJECT=false" >> $GITHUB_OUTPUT
             echo "WORKSPACE=$WORKSPACE" >> $GITHUB_OUTPUT
           fi
-          
+
           echo "SCHEME=$SCHEME" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Detected iOS project:"
           if [ "$USE_PROJECT" = "true" ]; then
             echo "   Project: $PROJECT"
@@ -256,7 +256,7 @@ jobs:
           cd ios
           echo "🏗️ Building iOS Debug with xcodebuild (iOS equivalent of Gradle)..."
           echo ""
-          
+
           if [ "${{ steps.ios-info.outputs.USE_PROJECT }}" = "true" ]; then
             # Use project file
             xcodebuild \
@@ -280,7 +280,7 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-          
+
           echo ""
           echo "✅ iOS Debug build completed!"
 
@@ -291,7 +291,7 @@ jobs:
           echo "🏗️ Building iOS Release with xcodebuild..."
           echo "📦 Creating archive for distribution..."
           echo ""
-          
+
           if [ "${{ steps.ios-info.outputs.USE_PROJECT }}" = "true" ]; then
             # Use project file
             xcodebuild \
@@ -311,7 +311,7 @@ jobs:
               archive \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-          
+
           echo ""
           echo "✅ iOS archive created!"
         env:
@@ -322,12 +322,12 @@ jobs:
         run: |
           cd ios
           echo "📦 Exporting IPA from archive..."
-          
+
           xcodebuild -exportArchive \
             -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
-          
+
           echo "✅ IPA exported successfully!"
 
       - name: Upload IPA
