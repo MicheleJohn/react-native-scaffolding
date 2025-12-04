@@ -127,7 +127,7 @@ export const EventCard = React.forwardRef<
     const imageSource =
       typeof image === 'string' ? { uri: image } : (image ?? undefined);
 
-    const hasBadges = badge || price;
+    const hasBadges = badge ?? price;
 
     return (
       <TouchableOpacity
