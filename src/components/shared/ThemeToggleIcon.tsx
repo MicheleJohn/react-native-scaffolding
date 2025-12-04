@@ -37,7 +37,7 @@ export function ThemeToggleIcon() {
   return (
     <Pressable
       onPress={handlePress}
-      className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800"
+      className="p-2 rounded-lg bg-surface"
       accessibilityLabel="Toggle theme"
       accessibilityRole="button">
       <Text className="text-2xl">{label}</Text>

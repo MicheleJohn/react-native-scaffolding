@@ -71,54 +71,43 @@ export default function DesignSystemPage() {
 
   /**
    * ColorSwatch Component
-   *
-   * ⚠️ IMPORTANT: Uses ONLY className for styling to avoid React Native
-   * style precedence issues. When mixing `style` and `className` props,
-   * inline styles always override className properties.
-   *
-   * Using Tailwind arbitrary values: bg-[#HEXCODE]
    */
   const ColorSwatch = ({ color, name }: { color: string; name: string }) => (
     <View className="items-center mb-3">
       <VariableContextProvider value={{ '--color-palette': color }}>
-        <View
-          className={`w-16 h-16 rounded-lg mb-2 border border-border dark:border-neutral-700 bg-(--color-palette)`}
-        />
+        <View className="w-16 h-16 rounded-lg mb-2 border border-border bg-(--color-palette)" />
       </VariableContextProvider>
-      <Text className="text-xs text-secondary-text dark:text-neutral-400 text-center">{name}</Text>
-      <Text className="text-xs text-tertiary-text dark:text-neutral-500 font-mono">{color}</Text>
+      <Text className="text-xs text-secondary-text text-center">{name}</Text>
+      <Text className="text-xs text-tertiary-text font-mono">{color}</Text>
     </View>
   );
 
   return (
-    <SafeAreaView className="bg-background dark:bg-neutral-900">
-      <ScrollView className="bg-background dark:bg-neutral-900">
+    <SafeAreaView className="bg-background">
+      <ScrollView className="bg-background">
         <View className="p-4">
           {/* Header */}
           <View className="mb-6">
             <Link href="/" asChild>
-              <Button
-                variant="text"
-                size="sm"
-                className="self-start -ml-2 mb-4">
+              <Button variant="text" size="sm" className="self-start -ml-2 mb-4">
                 ← Back
               </Button>
             </Link>
-            <Text className="text-3xl font-bold text-primary dark:text-primary-dark mb-2">
+            <Text className="text-3xl font-bold text-primary mb-2">
               🎨 Design System
             </Text>
-            <Text className="text-base text-secondary-text dark:text-neutral-400">
+            <Text className="text-base text-secondary-text">
               Complete UI component library and color palette
             </Text>
           </View>
 
           {/* Colors Section */}
           <View className="mb-8">
-            <Text className="text-2xl font-bold text-primary dark:text-primary-dark mb-4">Colors</Text>
+            <Text className="text-2xl font-bold text-primary-text mb-4">Colors</Text>
 
             {/* Primary Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+              <Text className="text-lg font-semibold text-primary-text mb-3">
                 Primary
               </Text>
               <View className="flex-row flex-wrap gap-4">
@@ -131,7 +120,7 @@ export default function DesignSystemPage() {
 
             {/* Neutral Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+              <Text className="text-lg font-semibold text-primary-text mb-3">
                 Neutral
               </Text>
               <View className="flex-row flex-wrap gap-4">
@@ -146,26 +135,20 @@ export default function DesignSystemPage() {
 
             {/* Secondary Colors */}
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+              <Text className="text-lg font-semibold text-primary-text mb-3">
                 Secondary
               </Text>
               <View className="flex-row flex-wrap gap-4">
-                <ColorSwatch
-                  color={tokens.colors.secondary.lightBlue}
-                  name="Light Blue"
-                />
+                <ColorSwatch color={tokens.colors.secondary.lightBlue} name="Light Blue" />
                 <ColorSwatch color={tokens.colors.secondary.green} name="Green" />
                 <ColorSwatch color={tokens.colors.secondary.yellow} name="Yellow" />
-                <ColorSwatch
-                  color={tokens.colors.secondary.darkNavy}
-                  name="Dark Navy"
-                />
+                <ColorSwatch color={tokens.colors.secondary.darkNavy} name="Dark Navy" />
               </View>
             </Card>
           </View>
 
           {/* Components Section */}
-          <Text className="text-2xl font-bold text-primary dark:text-primary-dark mb-4">
+          <Text className="text-2xl font-bold text-primary-text mb-4">
             Components
           </Text>
 
@@ -181,7 +164,7 @@ export default function DesignSystemPage() {
 
           {/* Tabs */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+            <Text className="text-lg font-semibold text-primary-text mb-3">
               Tabs (Pills)
             </Text>
             <Tabs
@@ -194,7 +177,7 @@ export default function DesignSystemPage() {
 
           {/* Chips */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+            <Text className="text-lg font-semibold text-primary-text mb-3">
               Chips
             </Text>
             <View className="flex-row flex-wrap gap-2">
@@ -214,7 +197,7 @@ export default function DesignSystemPage() {
 
           {/* Input */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+            <Text className="text-lg font-semibold text-primary-text mb-3">
               Input Fields
             </Text>
             <View className="gap-3">
@@ -237,18 +220,18 @@ export default function DesignSystemPage() {
 
           {/* Navigation Bars */}
           <Card variant="elevated" className="mb-6">
-            <Text className="text-lg font-semibold text-primary dark:text-primary-dark mb-3">
+            <Text className="text-lg font-semibold text-primary-text mb-3">
               Navigation Bars
             </Text>
             <View className="gap-4">
               <View>
-                <Text className="text-sm text-secondary-text dark:text-neutral-400 mb-2">
+                <Text className="text-sm text-secondary-text mb-2">
                   Light Variant
                 </Text>
                 <NavigationBar items={navigationItems} variant="light" />
               </View>
               <View>
-                <Text className="text-sm text-secondary-text dark:text-neutral-400 mb-2">
+                <Text className="text-sm text-secondary-text mb-2">
                   Dark Variant
                 </Text>
                 <NavigationBar items={navigationItems} variant="dark" />

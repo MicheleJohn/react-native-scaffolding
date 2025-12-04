@@ -2,7 +2,7 @@ const { tokens } = require('./src/theme/tokens');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // Still needed for dark: prefix support
+  // NO darkMode needed! VariableContextProvider handles theme switching
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
@@ -24,7 +24,7 @@ module.exports = {
         'secondary-yellow': tokens.colors.secondary.yellow,
         'secondary-navy': tokens.colors.secondary.darkNavy,
 
-        // Semantic colors using CSS variables (injected by VariableContextProvider)
+        // Semantic colors using CSS variables (auto-adapt via VariableContextProvider)
         background: 'var(--color-background)',
         surface: 'var(--color-surface)',
         card: 'var(--color-card)',
