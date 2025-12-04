@@ -8,25 +8,29 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      // Static brand colors from tokens
       colors: {
-        // Primary brand colors (don't change with theme)
-        primary: tokens.colors.primary.cyan,
-        'primary-dark': tokens.colors.primary.blue,
-        'mid-blue': tokens.colors.primary.teal,
-        danger: tokens.colors.primary.red,
+        // ============================================
+        // STATIC BRAND COLORS (HEX - from tokens.ts)
+        // These are used in style props and don't change with theme
+        // ============================================
+        primary: tokens.colors.primary.cyan, // HEX: '#009fe3'
+        'primary-dark': tokens.colors.primary.blue, // HEX: '#28529c'
+        'mid-blue': tokens.colors.primary.teal, // HEX: '#0074a5'
+        danger: tokens.colors.primary.red, // HEX: '#cc1a1a'
 
-        // Neutral palette (don't change with theme)
-        neutral: tokens.colors.neutral,
+        // Neutral palette (HEX - from tokens.ts)
+        neutral: tokens.colors.neutral, // All HEX values
 
-        // Secondary colors (don't change with theme)
+        // Secondary colors (HEX - from tokens.ts)
         'secondary-light-blue': tokens.colors.secondary.lightBlue,
         'secondary-green': tokens.colors.secondary.green,
         'secondary-yellow': tokens.colors.secondary.yellow,
         'secondary-navy': tokens.colors.secondary.darkNavy,
 
-        // Semantic colors using CSS variables (auto-adapt with theme)
-        // IMPORTANT: Wrap with rgb() for NativeWind v5 compatibility
+        // ============================================
+        // SEMANTIC COLORS (RGB - from global.css CSS variables)
+        // These auto-adapt with theme via .dark class
+        // ============================================
         background: 'rgb(var(--color-background))',
         surface: 'rgb(var(--color-surface))',
         card: 'rgb(var(--color-card))',
