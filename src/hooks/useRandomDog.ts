@@ -1,6 +1,6 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { dogsApi, type DogImage } from '@/services/demo-api';
+import { dogsApi } from '@/services/demo-api';
 
 /**
  * Hook for fetching random dog images with polling
@@ -13,9 +13,7 @@ import { dogsApi, type DogImage } from '@/services/demo-api';
  * const { data, isLoading, refetch } = useRandomDog();
  * ```
  */
-export const useRandomDog = (
-  refetchInterval = 10000
-): UseQueryResult<DogImage, Error> => {
+export const useRandomDog = (refetchInterval = 10000) => {
   return useQuery({
     queryKey: ['randomDog'],
     queryFn: dogsApi.getRandomDog,

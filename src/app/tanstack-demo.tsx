@@ -3,99 +3,19 @@ import { Image, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { Link } from 'expo-router';
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Input } from '@/components/ui';
-
-/**
- * Type definitions for API responses
- */
-type Post = {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-};
-
-type Country = {
-  name: {
-    common: string;
-    official: string;
-  };
-  capital?: string[];
-  population: number;
-  flags: {
-    png: string;
-    svg: string;
-  };
-  cca2: string;
-};
-
-type DogImage = {
-  message: string;
-  status: string;
-};
-
-/**
- * API Functions
- */
-const fetchPosts = async (
-  page: number
-): Promise<{ posts: Post[]; nextPage: number | undefined }> => {
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=5`
-  );
-  if (!response.ok) throw new Error('Failed to fetch posts');
-  const posts = await response.json();
-  return {
-    posts,
-    nextPage: posts.length === 5 ? page + 1 : undefined,
-  };
-};
-
-const searchCountries = async (name: string): Promise<Country[]> => {
-  if (!name) return [];
-  const response = await fetch(
-    `https://restcountries.com/v3.1/name/${encodeURIComponent(name)}`
-  );
-  if (!response.ok) {
-    if (response.status === 404) return [];
-    throw new Error('Failed to search countries');
-  }
-  return response.json();
-};
-
-const fetchRandomDog = async (): Promise<DogImage> => {
-  const response = await fetch('https://dog.ceo/api/breeds/image/random');
-  if (!response.ok) throw new Error('Failed to fetch dog image');
-  return response.json();
-};
-
-const createPost = async (post: {
-  title: string;
-  body: string;
-}): Promise<Post> => {
-  const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...post, userId: 1 }),
-  });
-  if (!response.ok) throw new Error('Failed to create post');
-  return response.json();
-};
+import { useCountries } from '@/hooks/useCountries';
+import { useCreatePost } from '@/hooks/useCreatePost';
+import { usePosts } from '@/hooks/usePosts';
+import { useRandomDog } from '@/hooks/useRandomDog';
 
 /**
  * TanStack Query Demo Page
  * Comprehensive showcase of query features
  */
 export default function TanStackDemoPage() {
-  const queryClient = useQueryClient();
   const [countrySearch, setCountrySearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [newPostTitle, setNewPostTitle] = useState('');
@@ -103,8 +23,12 @@ export default function TanStackDemoPage() {
 
   // Debounce country search
   React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(countrySearch), 500);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(countrySearch);
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [countrySearch]);
 
   /**
@@ -118,12 +42,7 @@ export default function TanStackDemoPage() {
     isLoading: postsLoading,
     isError: postsError,
     refetch: refetchPosts,
-  } = useInfiniteQuery({
-    queryKey: ['posts'],
-    queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 1,
-  });
+  } = usePosts();
 
   /**
    * Example 2: Query with Search - Countries
@@ -132,12 +51,7 @@ export default function TanStackDemoPage() {
     data: countries,
     isLoading: countriesLoading,
     isError: countriesError,
-  } = useQuery({
-    queryKey: ['countries', debouncedSearch],
-    queryFn: () => searchCountries(debouncedSearch),
-    enabled: debouncedSearch.length > 2,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  } = useCountries(debouncedSearch, debouncedSearch.length > 2);
 
   /**
    * Example 3: Polling Query - Random Dog Images
@@ -147,24 +61,12 @@ export default function TanStackDemoPage() {
     isLoading: dogLoading,
     isError: dogError,
     refetch: refetchDog,
-  } = useQuery({
-    queryKey: ['randomDog'],
-    queryFn: fetchRandomDog,
-    refetchInterval: 10000, // Poll every 10 seconds
-  });
+  } = useRandomDog();
 
   /**
    * Example 4: Mutation - Create Post
    */
-  const createPostMutation = useMutation({
-    mutationFn: createPost,
-    onSuccess: () => {
-      // Invalidate and refetch posts
-      void queryClient.invalidateQueries({ queryKey: ['posts'] });
-      setNewPostTitle('');
-      setNewPostBody('');
-    },
-  });
+  const createPostMutation = useCreatePost();
 
   const handleCreatePost = () => {
     if (newPostTitle && newPostBody) {
@@ -176,9 +78,8 @@ export default function TanStackDemoPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="bg-background">
       <ScrollView
-        className="flex-1"
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -288,7 +189,7 @@ export default function TanStackDemoPage() {
               </View>
             )}
 
-            {countries && countries.length === 0 && debouncedSearch && (
+            {countries?.length === 0 && debouncedSearch && (
               <Text className="text-center text-text-secondary py-4">
                 No countries found
               </Text>
@@ -447,16 +348,16 @@ export default function TanStackDemoPage() {
                 query and mutation
               </Text>
               <Text className="text-sm text-text">
-                • <Text className="font-semibold">Error Handling</Text> - Try/catch
-                with error states
+                • <Text className="font-semibold">Error Handling</Text> -
+                Try/catch with error states
               </Text>
               <Text className="text-sm text-text">
                 • <Text className="font-semibold">Refetching</Text> -
                 Pull-to-refresh support
               </Text>
               <Text className="text-sm text-text">
-                • <Text className="font-semibold">Caching</Text> - 5min stale time
-                for countries
+                • <Text className="font-semibold">Caching</Text> - 5min stale
+                time for countries
               </Text>
             </View>
           </Card>

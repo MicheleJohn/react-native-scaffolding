@@ -1,9 +1,6 @@
-import {
-  useInfiniteQuery,
-  type UseInfiniteQueryResult,
-} from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { postsApi, type Post, type PostsResponse } from '@/services/demo-api';
+import { postsApi } from '@/services/demo-api';
 
 /**
  * Hook for fetching paginated posts with infinite scroll
@@ -14,7 +11,7 @@ import { postsApi, type Post, type PostsResponse } from '@/services/demo-api';
  * const { data, fetchNextPage, hasNextPage, isLoading } = usePosts();
  * ```
  */
-export const usePosts = (): UseInfiniteQueryResult<PostsResponse, Error> => {
+export const usePosts = () => {
   return useInfiniteQuery({
     queryKey: ['posts'],
     queryFn: ({ pageParam = 1 }) => postsApi.getPosts(pageParam),

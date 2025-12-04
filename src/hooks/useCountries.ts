@@ -1,6 +1,6 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { countriesApi, type Country } from '@/services/demo-api';
+import { countriesApi } from '@/services/demo-api';
 
 /**
  * Hook for searching countries by name
@@ -14,10 +14,7 @@ import { countriesApi, type Country } from '@/services/demo-api';
  * const { data, isLoading, error } = useCountries('Italy');
  * ```
  */
-export const useCountries = (
-  searchTerm: string,
-  enabled?: boolean
-): UseQueryResult<Country[], Error> => {
+export const useCountries = (searchTerm: string, enabled?: boolean) => {
   return useQuery({
     queryKey: ['countries', searchTerm],
     queryFn: () => countriesApi.searchByName(searchTerm),

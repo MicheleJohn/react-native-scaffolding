@@ -1,10 +1,6 @@
-import {
-  useMutation,
-  useQueryClient,
-  type UseMutationResult,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { postsApi, type Post } from '@/services/demo-api';
+import { postsApi } from '@/services/demo-api';
 
 /**
  * Hook for creating a new post with cache invalidation
@@ -16,12 +12,7 @@ import { postsApi, type Post } from '@/services/demo-api';
  * mutation.mutate({ title: 'Hello', body: 'World' });
  * ```
  */
-export const useCreatePost = (): UseMutationResult<
-  Post,
-  Error,
-  { title: string; body: string },
-  unknown
-> => {
+export const useCreatePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

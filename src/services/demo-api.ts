@@ -1,4 +1,6 @@
-import { createApiClient } from './api-client';
+import { isAxiosError } from 'axios';
+
+import createApiClient from '@/lib/api-client';
 
 /**
  * Type definitions for API responses
@@ -67,10 +69,7 @@ export const postsApi = {
   /**
    * Create a new post
    */
-  createPost: async (post: {
-    title: string;
-    body: string;
-  }): Promise<Post> => {
+  createPost: async (post: { title: string; body: string }): Promise<Post> => {
     const response = await jsonPlaceholderApi.post<Post>('/posts', {
       ...post,
       userId: 1,
@@ -95,9 +94,9 @@ export const countriesApi = {
         `/name/${encodeURIComponent(name)}`
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       // Return empty array for 404 (not found)
-      if (error.response?.status === 404) {
+      if (isAxiosError(error) && error.response?.status === 404) {
         return [];
       }
       throw error;
