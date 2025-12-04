@@ -10,7 +10,7 @@
 - **Expo Router 4** per navigazione file-based con deep linking integrato
 - **TanStack Query v5** per state management server-side
 - **React Hook Form** + **Zod** per gestione form e validazione
-- **NativeWind v4** (Tailwind CSS per React Native)
+- **NativeWind v4** (Tailwind CSS per React Native) con **Dark Mode**
 - **i18next** per internazionalizzazione
 - **Sentry** per error tracking e monitoring
 - **React Native WebView** per integrare portali web
@@ -31,6 +31,7 @@ src/
 │   └── events/
 ├── hooks/           # Custom React hooks
 ├── lib/             # Configurazioni librerie esterne
+├── providers/       # React Context providers (Theme, etc.)
 ├── services/        # API clients e servizi
 ├── store/           # State management (Zustand/Context)
 ├── types/           # TypeScript type definitions
@@ -111,6 +112,80 @@ import { MyIcon } from '@/components/icons';
 ```
 
 **📚 Documentazione Completa:** Vedi [`docs/ICON_SYSTEM.md`](./docs/ICON_SYSTEM.md)
+
+---
+
+## 🌙 Dark Mode
+
+Supporto completo per dark mode con **NativeWind**, inclusi light mode, dark mode e system mode (segue il tema del device).
+
+### ✨ Features
+
+- ✅ **Tre modalità**: Light, Dark, System (auto)
+- ✅ **Persistenza**: Preferenza salvata in AsyncStorage
+- ✅ **Auto-switch**: System mode segue le impostazioni device
+- ✅ **CSS Variables**: Colori che si adattano automaticamente
+- ✅ **Tailwind `dark:` prefix**: Stili custom per dark mode
+- ✅ **Live demo**: `/theme-demo` mostra tutte le funzionalità
+
+### 🎯 Live Demo
+
+**Demo interattiva completa disponibile!**
+
+Esegui l'app e naviga a `/theme-demo` per vedere:
+- 🎨 Color palette che si adatta
+- 🏛️ Tutti i componenti UI in entrambi i temi
+- 📝 Code examples con Tailwind e CSS Variables
+- 🔄 Theme toggle per switch rapido
+
+### 📚 Documentazione Completa
+
+**Impara i pattern dark mode:**
+- **[Dark Mode Guide](./docs/DARK_MODE.md)** - Guida completa
+  - Quick start e setup
+  - Theme system e provider
+  - Usare `dark:` prefix e CSS variables
+  - Customizzare colori
+  - Best practices
+  - Troubleshooting
+
+### Quick Example
+
+**Method 1: Tailwind `dark:` prefix**
+```tsx
+<View className="bg-white dark:bg-neutral-900">
+  <Text className="text-neutral-900 dark:text-neutral-50">
+    Auto-adapts to theme
+  </Text>
+</View>
+```
+
+**Method 2: CSS Variables (auto-adapting)**
+```tsx
+<View className="bg-background">
+  <Text className="text-primary-text">
+    Uses variables that change with theme
+  </Text>
+</View>
+```
+
+**Method 3: useTheme Hook**
+```tsx
+import { useTheme } from '@/providers';
+
+function MyComponent() {
+  const { isDark, colorScheme, setThemeMode } = useTheme();
+  
+  return (
+    <View>
+      <Text>Current: {colorScheme}</Text>
+      <Button onPress={() => void setThemeMode('dark')}>
+        Switch to Dark
+      </Button>
+    </View>
+  );
+}
+```
 
 ---
 
@@ -326,8 +401,8 @@ import { WebView } from 'react-native-webview';
 ```tsx
 import { View, Text } from 'react-native';
 
-<View className="flex-1 items-center justify-center bg-white">
-  <Text className="text-2xl font-bold text-blue-600">
+<View className="flex-1 items-center justify-center bg-white dark:bg-neutral-900">
+  <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400">
     Hello World
   </Text>
 </View>
@@ -418,6 +493,7 @@ GitHub Actions verifica automaticamente:
 
 ### Guide Complete
 
+- **[Dark Mode Guide](./docs/DARK_MODE.md)** - Light, dark, system modes con NativeWind
 - **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Queries, mutations, patterns, best practices
 - **[Form Management Guide](./docs/FORMS.md)** - React Hook Form + Zod validation completa
 - **[Examples & Patterns](./docs/EXAMPLES.md)** - Feature modules, hooks, componenti
@@ -462,6 +538,7 @@ Per domande o problemi, apri una issue su GitHub.
 
 **✨ Features Highlight:**
 - 🚀 Production-ready scaffolding
+- 🌙 **Dark Mode** - Light, dark, and system modes with NativeWind
 - 🔍 **TanStack Query** - Complete demo with real APIs
 - 📝 **React Hook Form + Zod** - Type-safe form validation
 - 🎨 Automated icon generation from Figma
