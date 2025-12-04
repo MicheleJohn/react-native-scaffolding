@@ -71,12 +71,17 @@ export default function HomePage() {
             </Card>
 
             <Card variant="elevated" className="mb-4">
-              <Text className="text-lg font-semibold text-primary mb-1">
+              <Text className="text-lg font-semibold text-primary mb-2">
                 🔍 TanStack Query
               </Text>
-              <Text className="text-secondary">
-                Powerful data fetching and caching
+              <Text className="text-secondary mb-3">
+                Powerful data fetching and caching with React Query
               </Text>
+              <Link href="/tanstack-demo" asChild>
+                <Button variant="outlined" size="sm">
+                  View Live Demo →
+                </Button>
+              </Link>
             </Card>
 
             <Card variant="elevated" className="mb-4">
