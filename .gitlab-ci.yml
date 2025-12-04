@@ -437,7 +437,7 @@ build:ios:debug:
     - pnpm install --frozen-lockfile
 
     - echo "🔨 Prebuilding iOS with Expo..."
-    - pnpm dlx expo prebuild --platform ios --clean
+    - pnpm run prebuild:ios
 
     - echo "🏗️ Building iOS (Debug) with advanced caching..."
     - cd ios
@@ -577,7 +577,7 @@ build:ios:release:unsigned:
     - pnpm install --frozen-lockfile
 
     - echo "🔨 Prebuilding iOS with Expo..."
-    - pnpm dlx expo prebuild --platform ios --clean
+    - pnpm run prebuild:ios
 
     # Configure Sentry AFTER prebuild (optional)
     - |
@@ -759,7 +759,7 @@ build:ios:release:signed:
     - pnpm install --frozen-lockfile
 
     - echo "🔨 Prebuilding iOS with Expo..."
-    - pnpm dlx expo prebuild --platform ios --clean
+    - pnpm run prebuild:ios
 
     # Configure Sentry AFTER prebuild
     - |

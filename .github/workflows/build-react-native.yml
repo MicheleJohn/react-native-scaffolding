@@ -172,7 +172,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Prebuild iOS (Expo)
-        run: pnpm dlx expo prebuild --platform ios --non-interactive
+        run: pnpm run prebuild:ios
 
       - name: Install CocoaPods
         run: |
