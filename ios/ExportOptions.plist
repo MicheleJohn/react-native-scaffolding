@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Distribution method: ad-hoc for testing without App Store -->
+	<key>method</key>
+	<string>ad-hoc</string>
+	
+	<!-- Compile bitcode for App Store optimization -->
+	<key>compileBitcode</key>
+	<true/>
+	
+	<!-- Upload symbols for crash reporting (Sentry) -->
+	<key>uploadSymbols</key>
+	<true/>
+	
+	<!-- Thinning: create separate IPAs per device (none = universal IPA) -->
+	<key>thinning</key>
+	<string>&lt;none&gt;</string>
+	
+	<!-- Strip Swift symbols to reduce IPA size -->
+	<key>stripSwiftSymbols</key>
+	<true/>
+</dict>
+</plist>
