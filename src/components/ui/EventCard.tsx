@@ -127,6 +127,8 @@ export const EventCard = React.forwardRef<
     const imageSource =
       typeof image === 'string' ? { uri: image } : (image ?? undefined);
 
+    const hasBadges = badge || price;
+
     return (
       <TouchableOpacity
         className={cn('w-full max-w-sm', className)}
@@ -143,7 +145,39 @@ export const EventCard = React.forwardRef<
                 accessibilityLabel={`${title} image`}
               />
               {/* Badges positioned on image */}
-              <View className="absolute top-3 left-3 flex-row gap-2">
+              {hasBadges && (
+                <View className="absolute top-3 left-3 flex-row gap-2">
+                  {badge && (
+                    <View className={cn(badgeVariants({ variant: 'type' }))}>
+                      <Text
+                        className={cn(badgeTextVariants({ variant: 'type' }))}>
+                        {badge}
+                      </Text>
+                    </View>
+                  )}
+                  {price && (
+                    <View
+                      className={cn(
+                        badgeVariants({ variant: finalBadgeVariant })
+                      )}>
+                      <Text
+                        className={cn(
+                          badgeTextVariants({ variant: finalBadgeVariant })
+                        )}>
+                        {price}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Content Section */}
+          <View className="p-4 gap-2">
+            {/* Badges (when no image) */}
+            {!imageSource && hasBadges && (
+              <View className="flex-row gap-2 mb-2">
                 {badge && (
                   <View className={cn(badgeVariants({ variant: 'type' }))}>
                     <Text
@@ -166,11 +200,8 @@ export const EventCard = React.forwardRef<
                   </View>
                 )}
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Content Section */}
-          <View className="p-4 gap-2">
             {/* Title */}
             <Text
               className="text-lg font-semibold text-neutral-800"
