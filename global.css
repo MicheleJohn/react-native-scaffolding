@@ -5,73 +5,73 @@
 
 @theme {
   /* Primary colors - Design System */
-  --color-primary: #009fe3;
-  --color-primary-dark: #28529c;
-  --color-mid-blue: #0074a5;
-  --color-danger: #cc1a1a;
+  --color-primary: 0 159 227;
+  --color-primary-dark: 40 82 156;
+  --color-mid-blue: 0 116 165;
+  --color-danger: 204 26 26;
 
   /* Neutral colors - Design System */
-  --color-neutral-50: #f2f4f7;
-  --color-neutral-100: #f9fafb;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #98a2b3;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #344054;
-  --color-neutral-800: #1d2939;
-  --color-neutral-900: #0f172a;
+  --color-neutral-50: 242 244 247;
+  --color-neutral-100: 249 250 251;
+  --color-neutral-200: 229 231 235;
+  --color-neutral-300: 209 213 219;
+  --color-neutral-400: 152 162 179;
+  --color-neutral-500: 107 114 128;
+  --color-neutral-600: 75 85 99;
+  --color-neutral-700: 52 64 84;
+  --color-neutral-800: 29 41 57;
+  --color-neutral-900: 15 23 42;
 
   /* Secondary colors - Design System */
-  --color-secondary-light: #e6f4fa;
-  --color-secondary-green: #a6c48a;
-  --color-secondary-yellow: #f2c94c;
-  --color-secondary-navy: #0f172a;
+  --color-secondary-light: 230 244 250;
+  --color-secondary-green: 166 196 138;
+  --color-secondary-yellow: 242 201 76;
+  --color-secondary-navy: 15 23 42;
 
   /* Semantic colors - Light mode defaults */
-  --color-success: #a6c48a;
-  --color-success-light: #d4e4c4;
-  --color-error: #cc1a1a;
-  --color-error-light: #fecaca;
-  --color-warning: #f2c94c;
-  --color-warning-light: #fef3c7;
-  --color-info: #009fe3;
-  --color-info-light: #dbeafe;
+  --color-success: 166 196 138;
+  --color-success-light: 212 228 196;
+  --color-error: 204 26 26;
+  --color-error-light: 254 202 202;
+  --color-warning: 242 201 76;
+  --color-warning-light: 254 243 199;
+  --color-info: 0 159 227;
+  --color-info-light: 219 234 254;
 
   /* Background colors - Light mode */
-  --color-background: #ffffff;
-  --color-surface: #f2f4f7;
-  --color-card: #ffffff;
+  --color-background: 255 255 255;
+  --color-surface: 242 244 247;
+  --color-card: 255 255 255;
   --color-overlay: rgba(0, 0, 0, 0.5);
 
   /* Text colors - Light mode */
-  --color-primary-text: #0f172a;
-  --color-secondary-text: #344054;
-  --color-tertiary-text: #98a2b3;
-  --color-inverse-text: #ffffff;
-  --color-link: #009fe3;
-  --color-disabled: #98a2b3;
+  --color-primary-text: 15 23 42;
+  --color-secondary-text: 52 64 84;
+  --color-tertiary-text: 152 162 179;
+  --color-inverse-text: 255 255 255;
+  --color-link: 0 159 227;
+  --color-disabled: 152 162 179;
 
   /* Border colors - Light mode */
-  --color-border: #e5e7eb;
-  --color-border-light: #f2f4f7;
-  --color-border-dark: #344054;
-  --color-border-focus: #009fe3;
-  --color-divider: #e5e7eb;
+  --color-border: 229 231 235;
+  --color-border-light: 242 244 247;
+  --color-border-dark: 52 64 84;
+  --color-border-focus: 0 159 227;
+  --color-divider: 229 231 235;
 
   /* Input colors - Light mode */
-  --color-input-bg: #ffffff;
-  --color-input-border: #d1d5db;
-  --color-input-text: #0f172a;
-  --color-input-placeholder: #98a2b3;
-  --color-input-disabled: #f9fafb;
+  --color-input-bg: 255 255 255;
+  --color-input-border: 209 213 219;
+  --color-input-text: 15 23 42;
+  --color-input-placeholder: 152 162 179;
+  --color-input-disabled: 249 250 251;
 
   /* Button colors - Light mode */
-  --color-button-primary-bg: #009fe3;
-  --color-button-primary-text: #ffffff;
-  --color-button-secondary-bg: #f2f4f7;
-  --color-button-secondary-text: #344054;
-  --color-button-ghost-text: #009fe3;
+  --color-button-primary-bg: 0 159 227;
+  --color-button-primary-text: 255 255 255;
+  --color-button-secondary-bg: 242 244 247;
+  --color-button-secondary-text: 52 64 84;
+  --color-button-ghost-text: 0 159 227;
 
   /* Shadow colors */
   --color-shadow: rgba(0, 0, 0, 0.1);
@@ -82,49 +82,49 @@
   /* Dark mode color overrides */
   .dark {
     /* Background colors - Dark mode */
-    --color-background: #0f172a;
-    --color-surface: #1d2939;
-    --color-card: #1d2939;
+    --color-background: 15 23 42;
+    --color-surface: 29 41 57;
+    --color-card: 29 41 57;
     --color-overlay: rgba(0, 0, 0, 0.7);
 
     /* Text colors - Dark mode */
-    --color-primary-text: #f9fafb;
-    --color-secondary-text: #d1d5db;
-    --color-tertiary-text: #98a2b3;
-    --color-inverse-text: #0f172a;
-    --color-link: #60a5fa;
-    --color-disabled: #6b7280;
+    --color-primary-text: 249 250 251;
+    --color-secondary-text: 209 213 219;
+    --color-tertiary-text: 152 162 179;
+    --color-inverse-text: 15 23 42;
+    --color-link: 96 165 250;
+    --color-disabled: 107 114 128;
 
     /* Border colors - Dark mode */
-    --color-border: #374151;
-    --color-border-light: #1d2939;
-    --color-border-dark: #d1d5db;
-    --color-border-focus: #60a5fa;
-    --color-divider: #374151;
+    --color-border: 55 65 81;
+    --color-border-light: 29 41 57;
+    --color-border-dark: 209 213 219;
+    --color-border-focus: 96 165 250;
+    --color-divider: 55 65 81;
 
     /* Semantic colors - Dark mode adjustments */
-    --color-success: #86b967;
-    --color-success-light: #3f5437;
-    --color-error: #ef4444;
-    --color-error-light: #7f1d1d;
-    --color-warning: #f59e0b;
-    --color-warning-light: #78350f;
-    --color-info: #3b82f6;
-    --color-info-light: #1e3a8a;
+    --color-success: 134 185 103;
+    --color-success-light: 63 84 55;
+    --color-error: 239 68 68;
+    --color-error-light: 127 29 29;
+    --color-warning: 245 158 11;
+    --color-warning-light: 120 53 15;
+    --color-info: 59 130 246;
+    --color-info-light: 30 58 138;
 
     /* Input colors - Dark mode */
-    --color-input-bg: #1d2939;
-    --color-input-border: #374151;
-    --color-input-text: #f9fafb;
-    --color-input-placeholder: #6b7280;
-    --color-input-disabled: #0f172a;
+    --color-input-bg: 29 41 57;
+    --color-input-border: 55 65 81;
+    --color-input-text: 249 250 251;
+    --color-input-placeholder: 107 114 128;
+    --color-input-disabled: 15 23 42;
 
     /* Button colors - Dark mode */
-    --color-button-primary-bg: #3b82f6;
-    --color-button-primary-text: #ffffff;
-    --color-button-secondary-bg: #374151;
-    --color-button-secondary-text: #f9fafb;
-    --color-button-ghost-text: #60a5fa;
+    --color-button-primary-bg: 59 130 246;
+    --color-button-primary-text: 255 255 255;
+    --color-button-secondary-bg: 55 65 81;
+    --color-button-secondary-text: 249 250 251;
+    --color-button-ghost-text: 96 165 250;
 
     /* Shadow colors - Dark mode */
     --color-shadow: rgba(0, 0, 0, 0.3);
@@ -137,7 +137,7 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-primary-text);
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-primary-text));
   }
 }
