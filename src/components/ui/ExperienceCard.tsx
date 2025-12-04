@@ -99,7 +99,7 @@ export const ExperienceCard = React.forwardRef<
     };
 
     const imageSource =
-      typeof image === 'string' ? { uri: image } : image ?? undefined;
+      typeof image === 'string' ? { uri: image } : (image ?? undefined);
 
     return (
       <TouchableOpacity
@@ -144,9 +144,7 @@ export const ExperienceCard = React.forwardRef<
                   {title}
                 </Text>
                 {subtitle && (
-                  <Text
-                    className="text-sm text-white/90"
-                    numberOfLines={1}>
+                  <Text className="text-sm text-white/90" numberOfLines={1}>
                     {subtitle}
                   </Text>
                 )}

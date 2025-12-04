@@ -105,7 +105,7 @@ export default function HomePage() {
             </Text>
 
             <Link href="/portals" asChild>
-              <Button className="w-full">{t('navigation.portals')}</Button>
+              <Button fullWidth>{t('navigation.portals')}</Button>
             </Link>
           </View>
         </View>
