@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Image, RefreshControl, ScrollView, Text, View } from 'react-native';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { z } from 'zod';
 
 import { Button, Card, Input } from '@/components/ui';
 import { useCountries } from '@/hooks/useCountries';
@@ -399,8 +399,8 @@ export default function TanStackDemoPage() {
                 requests with invalidation
               </Text>
               <Text className="text-sm text-text">
-                • <Text className="font-semibold">Form Validation</Text> -
-                React Hook Form with Zod
+                • <Text className="font-semibold">Form Validation</Text> - React
+                Hook Form with Zod
               </Text>
               <Text className="text-sm text-text">
                 • <Text className="font-semibold">Loading States</Text> - Per
