@@ -21,6 +21,7 @@
     "icons:generate": "node scripts/generate-icons.js",
     "icons:clean": "node scripts/clean-icons.js",
     "prebuild:android": "expo prebuild --platform android --non-interactive",
+    "prebuild:ios": "expo prebuild --platform ios --non-interactive --clean",
     "postinstall": "pnpm run icons:generate",
     "prepare": "husky"
   },

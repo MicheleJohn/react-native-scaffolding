@@ -254,7 +254,27 @@ import { View, Text } from 'react-native';
 
 ## 📦 Build & Deploy
 
-### EAS Build
+### Free Native Builds (GitHub Actions)
+
+Questo progetto include workflow GitHub Actions per build **GRATUITE** iOS e Android!
+
+```bash
+# Vai su GitHub Actions → Build React Native (Free)
+# Seleziona platform (android/ios) e build type
+# Download APK/IPA da Artifacts
+```
+
+**Vedi documentazione completa:**
+- **📦 [App Distribution Guide](./docs/APP_DISTRIBUTION.md)** - Come distribuire e installare le app
+  - Android: Installazione diretta APK
+  - iOS: TestFlight, Xcode Direct Install, Expo Go
+  - Cosa fare con file `.xcarchive`
+  - Metodi GRATIS vs a pagamento
+- [Build Strategies](./docs/BUILD_STRATEGIES.md) - Comparazione metodi build
+- [iOS Signing Setup](./docs/IOS_SIGNING_SETUP.md) - Setup certificati iOS
+- [Build Caching Guide](./docs/BUILD_CACHING_GUIDE.md) - Ottimizzazioni cache
+
+### EAS Build (Alternative)
 
 ```bash
 # Installa EAS CLI
@@ -325,7 +345,7 @@ Vedi [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) per dettagli.
 - 🤖 I componenti in `src/components/icons/` sono auto-generati
 - ✅ CI verificherà che icon generation funzioni
 
-## 📄 License
+## 📝 License
 
 MIT
 
@@ -343,3 +363,4 @@ Per domande o problemi, apri una issue su GitHub.
 - 🧪 Full testing setup
 - 📚 Comprehensive documentation
 - 🤖 CI/CD with GitHub Actions
+- 💰 **FREE native builds** (no EAS subscription needed!)
