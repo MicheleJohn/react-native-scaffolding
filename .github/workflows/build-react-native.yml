@@ -81,6 +81,11 @@ jobs:
           cd android
           chmod +x gradlew
 
+      - name: Debug - Check @sentry/cli
+        run: |
+          ls -la node_modules/@sentry/cli/bin/ || echo "@sentry/cli not hoisted"
+          pnpm why @sentry/cli
+
       - name: Build Android APK (Debug)
         if: inputs.build_type == 'debug'
         run: |
