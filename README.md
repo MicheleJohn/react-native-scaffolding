@@ -142,6 +142,10 @@ curl https://get.volta.sh | bash
 git clone https://github.com/MicheleJohn/react-native-scaffolding.git
 cd react-native-scaffolding
 
+# Riavvia il teminale e installa node e pnpm
+volta install node
+volta install pnpm
+
 # Installa dipendenze
 # ⚡ Icons vengono generati automaticamente dopo install (postinstall hook)
 pnpm install
