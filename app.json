@@ -43,22 +43,15 @@
     "plugins": [
       "expo-router",
       [
-        "@sentry/react-native",
+        "@sentry/react-native/expo",
         {
-          "organization": "your-org",
-          "project": "your-project"
+          "organization": "itsvil",
+          "project": "react-native-scaffolding",
+          "url": "https://sentry.io/"
         }
       ],
       "expo-localization",
-      "expo-secure-store",
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "react-native-scaffolding",
-          "organization": "itsvil"
-        }
-      ]
+      "expo-secure-store"
     ],
     "scheme": "rnscaffolding",
     "experiments": {
