@@ -1,14 +1,7 @@
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { useColorScheme as useRNColorScheme, View } from 'react-native';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import { useColorScheme as useRNColorScheme } from 'react-native';
 
 import { secureStorage } from '@/lib/secure-storage';
-import { cn } from '@/utils/cn';
 
 type ColorScheme = 'light' | 'dark';
 type ThemeMode = ColorScheme | 'system';
@@ -28,6 +21,16 @@ type ThemeProviderProps = {
   children: ReactNode;
 };
 
+/**
+ * ThemeProvider
+ *
+ * Manages theme mode (light/dark/system) and persists user preference.
+ * Works with NativeWind v5 CSS variables defined in global.css.
+ *
+ * The .dark class is applied to the root element in _layout.tsx:
+ * - Web: document.documentElement.classList
+ * - Mobile: View wrapper with className="dark"
+ */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   // React Native's system color scheme
   const systemColorScheme = useRNColorScheme() ?? 'light';
@@ -36,8 +39,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [isReady, setIsReady] = useState(false);
 
   // Determine effective color scheme
-  const colorScheme: ColorScheme =
-    themeMode === 'system' ? systemColorScheme : themeMode;
+  const colorScheme: ColorScheme = themeMode === 'system' ? systemColorScheme : themeMode;
 
   const isDark = colorScheme === 'dark';
 
@@ -81,9 +83,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setThemeMode,
         isDark,
       }}>
-      <View key={themeMode} className={cn(isDark && 'dark')}>
-        {children}
-      </View>
+      {children}
     </ThemeContext.Provider>
   );
 }

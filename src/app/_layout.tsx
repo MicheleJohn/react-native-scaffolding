@@ -29,7 +29,7 @@ const _i18n = initI18n();
 
 function RootLayoutContent() {
   const _network = useNetworkState();
-  const { colorScheme } = useTheme();
+  const { colorScheme, isDark } = useTheme();
 
   // Apply dark class to root element for NativeWind
   useEffect(() => {
@@ -43,16 +43,16 @@ function RootLayoutContent() {
     }
   }, [colorScheme]);
 
+  // For mobile: wrap everything in a View with dark class
+  const MobileWrapper = Platform.OS === 'web' ? View : View;
+  const wrapperClassName = Platform.OS === 'web' ? '' : isDark ? 'dark flex-1' : 'flex-1';
+
   return (
-    <>
-      <StatusBar
-        barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
-      />
+    <MobileWrapper className={wrapperClassName}>
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
       <Slot />
-      {__DEV__ && Platform.OS === 'web' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
-    </>
+      {__DEV__ && Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={false} />}
+    </MobileWrapper>
   );
 }
 
@@ -68,8 +68,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
         contexts: {
           error_boundary: {
             step: 'RootLayout error',
-            error_message:
-              error instanceof Error ? error.message : String(error),
+            error_message: error instanceof Error ? error.message : String(error),
           },
         },
         level: 'fatal',
