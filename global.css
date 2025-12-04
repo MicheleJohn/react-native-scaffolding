@@ -3,14 +3,23 @@
 @import 'tailwindcss/utilities.css';
 @import 'nativewind/theme';
 
+/**
+ * NativeWind v5 Theme System
+ *
+ * Approach: CSS Variables + Theme Classes
+ * - Define base colors in @theme
+ * - Define theme-specific values in .theme-light and .theme-dark
+ * - CSS variables auto-update when theme class changes
+ */
+
 @theme {
-  /* Primary colors - Design System */
+  /* Base brand colors (don't change with theme) */
   --color-primary: #009fe3;
   --color-primary-dark: #28529c;
   --color-mid-blue: #0074a5;
   --color-danger: #cc1a1a;
 
-  /* Neutral colors - Design System */
+  /* Neutral colors (don't change with theme) */
   --color-neutral-50: #f2f4f7;
   --color-neutral-100: #f9fafb;
   --color-neutral-200: #e5e7eb;
@@ -22,72 +31,83 @@
   --color-neutral-800: #1d2939;
   --color-neutral-900: #0f172a;
 
-  /* Secondary colors - Design System */
+  /* Secondary colors (don't change with theme) */
   --color-secondary-light: #e6f4fa;
   --color-secondary-green: #a6c48a;
   --color-secondary-yellow: #f2c94c;
   --color-secondary-navy: #0f172a;
-
-  /* Semantic colors - Light mode defaults */
-  --color-success: #a6c48a;
-  --color-success-light: #d4e4c4;
-  --color-error: #cc1a1a;
-  --color-error-light: #fecaca;
-  --color-warning: #f2c94c;
-  --color-warning-light: #fef3c7;
-  --color-info: #009fe3;
-  --color-info-light: #dbeafe;
-
-  /* Background colors - Light mode */
-  --color-background: #ffffff;
-  --color-surface: #f2f4f7;
-  --color-card: #ffffff;
-  --color-overlay: rgba(0, 0, 0, 0.5);
-
-  /* Text colors - Light mode */
-  --color-primary-text: #0f172a;
-  --color-secondary-text: #344054;
-  --color-tertiary-text: #98a2b3;
-  --color-inverse-text: #ffffff;
-  --color-link: #009fe3;
-  --color-disabled: #98a2b3;
-
-  /* Border colors - Light mode */
-  --color-border: #e5e7eb;
-  --color-border-light: #f2f4f7;
-  --color-border-dark: #344054;
-  --color-border-focus: #009fe3;
-  --color-divider: #e5e7eb;
-
-  /* Input colors - Light mode */
-  --color-input-bg: #ffffff;
-  --color-input-border: #d1d5db;
-  --color-input-text: #0f172a;
-  --color-input-placeholder: #98a2b3;
-  --color-input-disabled: #f9fafb;
-
-  /* Button colors - Light mode */
-  --color-button-primary-bg: #009fe3;
-  --color-button-primary-text: #ffffff;
-  --color-button-secondary-bg: #f2f4f7;
-  --color-button-secondary-text: #344054;
-  --color-button-ghost-text: #009fe3;
-
-  /* Shadow colors */
-  --color-shadow: rgba(0, 0, 0, 0.1);
-  --color-shadow-lg: rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
-  /* Dark mode color overrides */
+  /**
+   * Light Theme
+   * Default theme, also explicitly available as .theme-light
+   */
+  :root,
+  .theme-light {
+    /* Background colors */
+    --color-background: #ffffff;
+    --color-surface: #f2f4f7;
+    --color-card: #ffffff;
+    --color-overlay: rgba(0, 0, 0, 0.5);
+
+    /* Text colors */
+    --color-primary-text: #0f172a;
+    --color-secondary-text: #344054;
+    --color-tertiary-text: #98a2b3;
+    --color-inverse-text: #ffffff;
+    --color-link: #009fe3;
+    --color-disabled: #98a2b3;
+
+    /* Semantic colors */
+    --color-success: #a6c48a;
+    --color-success-light: #d4e4c4;
+    --color-error: #cc1a1a;
+    --color-error-light: #fecaca;
+    --color-warning: #f2c94c;
+    --color-warning-light: #fef3c7;
+    --color-info: #009fe3;
+    --color-info-light: #dbeafe;
+
+    /* Border colors */
+    --color-border: #e5e7eb;
+    --color-border-light: #f2f4f7;
+    --color-border-dark: #344054;
+    --color-border-focus: #009fe3;
+    --color-divider: #e5e7eb;
+
+    /* Input colors */
+    --color-input-bg: #ffffff;
+    --color-input-border: #d1d5db;
+    --color-input-text: #0f172a;
+    --color-input-placeholder: #98a2b3;
+    --color-input-disabled: #f9fafb;
+
+    /* Button colors */
+    --color-button-primary-bg: #009fe3;
+    --color-button-primary-text: #ffffff;
+    --color-button-secondary-bg: #f2f4f7;
+    --color-button-secondary-text: #344054;
+    --color-button-ghost-text: #009fe3;
+
+    /* Shadows */
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    --color-shadow-lg: rgba(0, 0, 0, 0.2);
+  }
+
+  /**
+   * Dark Theme
+   * Activated by .theme-dark class OR .dark class (for compatibility)
+   */
+  .theme-dark,
   .dark {
-    /* Background colors - Dark mode */
+    /* Background colors */
     --color-background: #0f172a;
     --color-surface: #1d2939;
     --color-card: #1d2939;
     --color-overlay: rgba(0, 0, 0, 0.7);
 
-    /* Text colors - Dark mode */
+    /* Text colors */
     --color-primary-text: #f9fafb;
     --color-secondary-text: #d1d5db;
     --color-tertiary-text: #98a2b3;
@@ -95,14 +115,7 @@
     --color-link: #60a5fa;
     --color-disabled: #6b7280;
 
-    /* Border colors - Dark mode */
-    --color-border: #374151;
-    --color-border-light: #1d2939;
-    --color-border-dark: #d1d5db;
-    --color-border-focus: #60a5fa;
-    --color-divider: #374151;
-
-    /* Semantic colors - Dark mode adjustments */
+    /* Semantic colors */
     --color-success: #86b967;
     --color-success-light: #3f5437;
     --color-error: #ef4444;
@@ -112,21 +125,28 @@
     --color-info: #3b82f6;
     --color-info-light: #1e3a8a;
 
-    /* Input colors - Dark mode */
+    /* Border colors */
+    --color-border: #374151;
+    --color-border-light: #1d2939;
+    --color-border-dark: #d1d5db;
+    --color-border-focus: #60a5fa;
+    --color-divider: #374151;
+
+    /* Input colors */
     --color-input-bg: #1d2939;
     --color-input-border: #374151;
     --color-input-text: #f9fafb;
     --color-input-placeholder: #6b7280;
     --color-input-disabled: #0f172a;
 
-    /* Button colors - Dark mode */
+    /* Button colors */
     --color-button-primary-bg: #3b82f6;
     --color-button-primary-text: #ffffff;
     --color-button-secondary-bg: #374151;
     --color-button-secondary-text: #f9fafb;
     --color-button-ghost-text: #60a5fa;
 
-    /* Shadow colors - Dark mode */
+    /* Shadows */
     --color-shadow: rgba(0, 0, 0, 0.3);
     --color-shadow-lg: rgba(0, 0, 0, 0.5);
   }
