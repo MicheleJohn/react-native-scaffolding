@@ -49,7 +49,9 @@ export default function HomePage() {
               Explore all UI components and color palette
             </Text>
             <Link href="/design-system" asChild>
-              <Button size="md">View Components & Colors</Button>
+              <Button variant="text" size="md">
+                View Components & Colors
+              </Button>
             </Link>
           </Card>
 
@@ -103,7 +105,7 @@ export default function HomePage() {
             </Text>
 
             <Link href="/portals" asChild>
-              <Button className="w-full">{t('navigation.portals')}</Button>
+              <Button fullWidth>{t('navigation.portals')}</Button>
             </Link>
           </View>
         </View>

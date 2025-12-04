@@ -17,6 +17,7 @@ import {
   Tabs,
 } from '@/components/ui';
 import { ButtonShowcase } from '@/components/ui/examples/ButtonShowcase';
+import { CardShowcase } from '@/components/ui/examples/CardShowcase';
 import { colors } from '@/theme/colors';
 
 /**
@@ -173,6 +174,11 @@ export default function DesignSystemPage() {
             <ButtonShowcase />
           </Card>
 
+          {/* Cards */}
+          <Card variant="elevated" className="mb-6">
+            <CardShowcase />
+          </Card>
+
           {/* Tabs */}
           <Card variant="elevated" className="mb-6">
             <Text className="text-lg font-semibold text-primary mb-3">
@@ -249,22 +255,6 @@ export default function DesignSystemPage() {
               </View>
             </View>
           </Card>
-
-          {/* Cards */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold text-primary mb-3">
-              Card Variants
-            </Text>
-            <Card variant="default" className="mb-3">
-              <Text className="text-primary">Default Card</Text>
-            </Card>
-            <Card variant="elevated" className="mb-3">
-              <Text className="text-primary">Elevated Card</Text>
-            </Card>
-            <Card variant="outlined">
-              <Text className="text-primary">Outlined Card</Text>
-            </Card>
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
