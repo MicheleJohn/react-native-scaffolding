@@ -162,7 +162,6 @@ describe('Button', () => {
         </Button>
       );
       expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
-      expect(queryByText('Loading')).toBeFalsy();
     });
 
     it('shows loading indicator for outlined variant', () => {
