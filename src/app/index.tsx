@@ -3,6 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 
 import { Button, Card } from '@components/ui';
+import { ThemeToggleIcon } from '@/components/shared';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,14 +14,17 @@ export default function HomePage() {
     <SafeAreaView>
       <ScrollView>
         <View className="p-4">
-          {/* Header */}
-          <View className="mb-8">
-            <Text className="text-3xl font-bold text-primary mb-2">
-              {t('common.welcome')}
-            </Text>
-            <Text className="text-base text-secondary">
-              React Native Scaffolding
-            </Text>
+          {/* Header with Theme Toggle */}
+          <View className="mb-8 flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-3xl font-bold text-primary mb-2">
+                {t('common.welcome')}
+              </Text>
+              <Text className="text-base text-secondary">
+                React Native Scaffolding
+              </Text>
+            </View>
+            <ThemeToggleIcon />
           </View>
 
           {/* Welcome Card */}
@@ -80,6 +84,20 @@ export default function HomePage() {
               <Link href="/tanstack-demo" asChild>
                 <Button variant="outlined" size="sm">
                   View Live Demo →
+                </Button>
+              </Link>
+            </Card>
+
+            <Card variant="elevated" className="mb-4">
+              <Text className="text-lg font-semibold text-primary mb-2">
+                🌙 Dark Mode
+              </Text>
+              <Text className="text-secondary mb-3">
+                Automatic theme switching with light, dark, and system modes
+              </Text>
+              <Link href="/theme-demo" asChild>
+                <Button variant="outlined" size="sm">
+                  View Theme Demo →
                 </Button>
               </Link>
             </Card>
