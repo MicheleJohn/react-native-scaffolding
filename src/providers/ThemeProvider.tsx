@@ -15,7 +15,7 @@ type ThemeMode = ColorScheme | 'system';
 type ThemeContextType = {
   colorScheme: ColorScheme;
   themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
+  setThemeMode: (mode: ThemeMode) => Promise<void>;
   isDark: boolean;
 };
 
@@ -28,7 +28,9 @@ type ThemeProviderProps = {
 };
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  // React Native's system color scheme
   const systemColorScheme = useRNColorScheme() ?? 'light';
+
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [isReady, setIsReady] = useState(false);
 
@@ -55,6 +57,18 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     void loadTheme();
   }, []);
 
+  // Apply dark mode to document root (web only)
+  // For React Native, this is handled by className="dark:" prefix
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [isDark]);
+
   // Save theme preference when it changes
   const setThemeMode = async (mode: ThemeMode) => {
     try {
@@ -75,9 +89,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       value={{
         colorScheme,
         themeMode,
-        setThemeMode: (mode) => {
-          void setThemeMode(mode);
-        },
+        setThemeMode,
         isDark,
       }}>
       {children}
