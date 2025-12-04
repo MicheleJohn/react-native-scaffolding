@@ -36,12 +36,29 @@ stages:
     - .pnpm-store
   policy: pull
 
-# Cache configuration for Gradle
-.cache_gradle: &cache_gradle
-  key: gradle-$CI_COMMIT_REF_SLUG
+# Cache configuration for Gradle packages
+.cache_gradle_packages: &cache_gradle_packages
+  key:
+    files:
+      - android/build.gradle
+      - android/app/build.gradle
+      - android/gradle/wrapper/gradle-wrapper.properties
   paths:
     - .gradle/wrapper
     - .gradle/caches
+  policy: pull
+
+# Cache configuration for Gradle build outputs (FIXED - use file hash!)
+.cache_gradle_build: &cache_gradle_build
+  key:
+    files:
+      - android/build.gradle
+      - android/app/build.gradle
+      - android/gradle/wrapper/gradle-wrapper.properties
+  paths:
+    - android/.gradle
+    - android/app/build
+    - android/build
   policy: pull
 
 # Cache configuration for CocoaPods
@@ -180,7 +197,9 @@ build:android:debug:
   
   cache:
     - <<: *cache_pnpm
-    - <<: *cache_gradle
+    - <<: *cache_gradle_packages
+      policy: pull-push
+    - <<: *cache_gradle_build
       policy: pull-push
   
   variables:
@@ -203,13 +222,14 @@ build:android:debug:
     - echo "🏗️ Building Android APK (Debug)..."
     - cd android
     - chmod +x gradlew
-    - ./gradlew assembleDebug --stacktrace --no-daemon
+    - ./gradlew assembleDebug --build-cache --stacktrace --no-daemon
     - cd ..
     
     - echo "✅ OK - Android Debug build completed"
     - echo "📱 PLATFORM - Android"
     - echo "🔧 BUILD TYPE - Debug"
     - echo "💰 COST - FREE (GitLab CI minutes)"
+    - echo "⚡ CACHING - Advanced (Gradle packages + build outputs)"
     - echo "📥 INFO - Download APK from job artifacts"
   
   artifacts:
@@ -236,7 +256,9 @@ build:android:release:
   
   cache:
     - <<: *cache_pnpm
-    - <<: *cache_gradle
+    - <<: *cache_gradle_packages
+      policy: pull-push
+    - <<: *cache_gradle_build
       policy: pull-push
   
   variables:
@@ -275,13 +297,14 @@ build:android:release:
     - echo "🏗️ Building Android APK (Release)..."
     - cd android
     - chmod +x gradlew
-    - ./gradlew assembleRelease --stacktrace --no-daemon
+    - ./gradlew assembleRelease --build-cache --stacktrace --no-daemon
     - cd ..
     
     - echo "✅ OK - Android Release build completed"
     - echo "📱 PLATFORM - Android"
     - echo "🔧 BUILD TYPE - Release"
     - echo "💰 COST - FREE (GitLab CI minutes)"
+    - echo "⚡ CACHING - Advanced (Gradle packages + build outputs)"
     - echo "📥 INFO - Download APK from job artifacts"
   
   artifacts:
