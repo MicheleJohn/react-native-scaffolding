@@ -10,7 +10,7 @@
 - **Expo Router 4** per navigazione file-based con deep linking integrato
 - **TanStack Query v5** per state management server-side
 - **React Hook Form** + **Zod** per gestione form e validazione
-- **NativeWind v4** (Tailwind CSS per React Native) con **Dark Mode**
+- **NativeWind v5** (Tailwind CSS per React Native) con **Dark Mode**
 - **i18next** per internazionalizzazione
 - **Sentry** per error tracking e monitoring
 - **React Native WebView** per integrare portali web
@@ -18,38 +18,59 @@
 
 ## 🌙 Dark Mode
 
-Supporto completo per dark mode con **NativeWind**, integrato automaticamente in tutta l'app.
+Supporto completo per dark mode con **NativeWind v5**, usando **Design Tokens** e **CSS Variables**.
 
 ### ✨ Features
 
 - ✅ **Tre modalità**: Light, Dark, System (segue device)
 - ✅ **Persistenza**: Preferenza salvata in AsyncStorage
-- ✅ **Auto-applicata**: Tutte le pagine supportano dark mode
-- ✅ **CSS Variables**: Colori che si adattano automaticamente
-- ✅ **Tailwind `dark:` prefix**: Già applicato ovunque
+- ✅ **Token System**: Colori condivisi tra config e codice
+- ✅ **CSS Variables**: Auto-switch tra temi
 - ✅ **Theme Toggle**: Icona in alto a destra per cambiare tema
+- ✅ **Runtime Access**: Leggi valori tema da `tokens.ts`
 
-### 💻 Usage
+### 💻 Architettura
 
-**1. Cambia tema dall'app:**
-Clicca l'icona sole/luna in alto a destra nella home page
+```
+tokens.ts (source of truth)
+    │
+    ├───> tailwind.config.js (Tailwind classes)
+    │
+    └───> Your code (runtime access)
 
-**2. Usa `dark:` prefix nei tuoi componenti:**
+CSS Variables (global.css)
+    │
+    ├───> .theme-light (light mode)
+    │
+    └───> .theme-dark (dark mode)
+```
+
+### 📚 Usage
+
+**1. Usa classi Tailwind (consigliato):**
 ```tsx
-<View className="bg-white dark:bg-neutral-900">
-  <Text className="text-neutral-900 dark:text-neutral-50">
-    Testo che si adatta al tema
+<View className="bg-background">
+  <Text className="text-primary-text">
+    Auto-adatta ai temi!
   </Text>
 </View>
 ```
 
-**3. Usa CSS Variables (auto-adapting):**
+**2. Usa `dark:` prefix per override:**
 ```tsx
-<View className="bg-background">
-  <Text className="text-primary-text">
-    Usa variabili che cambiano col tema
+<View className="bg-white dark:bg-neutral-900">
+  <Text className="text-neutral-900 dark:text-neutral-50">
+    Custom dark mode!
   </Text>
 </View>
+```
+
+**3. Accedi ai token a runtime:**
+```tsx
+import { tokens, getTokenColor } from '@/theme/tokens';
+
+const primaryColor = tokens.colors.primary.cyan; // '#009FE3'
+const dynamicColor = getTokenColor('primary.cyan'); // '#009FE3'
 ```
 
 **4. Usa useTheme Hook:**
@@ -57,20 +78,17 @@ Clicca l'icona sole/luna in alto a destra nella home page
 import { useTheme } from '@/providers';
 
 function MyComponent() {
-  const { isDark, colorScheme, setThemeMode } = useTheme();
+  const { isDark, setThemeMode } = useTheme();
   
   return (
-    <View>
-      <Text>Tema corrente: {colorScheme}</Text>
-      <Button onPress={() => void setThemeMode('dark')}>
-        Switch a Dark
-      </Button>
-    </View>
+    <Button onPress={() => void setThemeMode('dark')}>
+      Switch a Dark
+    </Button>
   );
 }
 ```
 
-📚 **[Guida Completa Dark Mode](./docs/DARK_MODE.md)** - Setup, customization, best practices
+📚 **[Guida Completa Dark Mode](./docs/DARK_MODE.md)** - Setup, tokens, best practices
 
 ---
 
@@ -91,6 +109,7 @@ src/
 ├── lib/             # Configurazioni librerie esterne
 ├── providers/       # React Context providers (Theme, etc.)
 ├── services/        # API clients e servizi
+├── theme/           # 🎨 Design tokens (colors, spacing, etc.)
 ├── store/           # State management (Zustand/Context)
 ├── types/           # TypeScript type definitions
 ├── utils/           # Utility functions
@@ -355,7 +374,7 @@ GitHub Actions verifica automaticamente:
 
 ### Guide Complete
 
-- **[Dark Mode Guide](./docs/DARK_MODE.md)** - Light, dark, system modes con NativeWind
+- **[Dark Mode Guide](./docs/DARK_MODE.md)** - Token system, CSS variables, NativeWind v5
 - **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Queries, mutations, patterns, best practices
 - **[Form Management Guide](./docs/FORMS.md)** - React Hook Form + Zod validation completa
 - **[Examples & Patterns](./docs/EXAMPLES.md)** - Feature modules, hooks, componenti
@@ -400,7 +419,7 @@ Per domande o problemi, apri una issue su GitHub.
 
 **✨ Features Highlight:**
 - 🚀 Production-ready scaffolding
-- 🌙 **Dark Mode** - Auto-applied everywhere with `dark:` classes
+- 🌙 **Dark Mode** - NativeWind v5 con Design Tokens
 - 🔍 **TanStack Query** - Complete demo with real APIs
 - 📝 **React Hook Form + Zod** - Type-safe form validation
 - 🎨 Automated icon generation from Figma
