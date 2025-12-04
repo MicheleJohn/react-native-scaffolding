@@ -10,11 +10,87 @@
 - **Expo Router 4** per navigazione file-based con deep linking integrato
 - **TanStack Query v5** per state management server-side
 - **React Hook Form** + **Zod** per gestione form e validazione
-- **NativeWind v4** (Tailwind CSS per React Native)
+- **NativeWind v5** (Tailwind CSS per React Native) con **Dark Mode**
 - **i18next** per internazionalizzazione
 - **Sentry** per error tracking e monitoring
 - **React Native WebView** per integrare portali web
 - **🎨 Automated Icon System** con SVGR per icone custom da Figma
+
+## 🌙 Dark Mode
+
+Supporto completo per dark mode con **NativeWind v5**, usando **Design Tokens** e **CSS Variables**.
+
+### ✨ Features
+
+- ✅ **Tre modalità**: Light, Dark, System (segue device)
+- ✅ **Persistenza**: Preferenza salvata in AsyncStorage
+- ✅ **Token System**: Colori condivisi tra config e codice
+- ✅ **CSS Variables**: Auto-switch tra temi
+- ✅ **Theme Toggle**: Icona in alto a destra per cambiare tema
+- ✅ **Runtime Access**: Leggi valori tema da `tokens.ts`
+
+### 💻 Architettura
+
+```
+tokens.ts (source of truth)
+    │
+    ├───> tailwind.config.js (Tailwind classes)
+    │
+    └───> Your code (runtime access)
+
+CSS Variables (global.css)
+    │
+    ├───> .theme-light (light mode)
+    │
+    └───> .theme-dark (dark mode)
+```
+
+### 📚 Usage
+
+**1. Usa classi Tailwind (consigliato):**
+```tsx
+<View className="bg-background">
+  <Text className="text-primary-text">
+    Auto-adatta ai temi!
+  </Text>
+</View>
+```
+
+**2. Usa `dark:` prefix per override:**
+```tsx
+<View className="bg-white dark:bg-neutral-900">
+  <Text className="text-neutral-900 dark:text-neutral-50">
+    Custom dark mode!
+  </Text>
+</View>
+```
+
+**3. Accedi ai token a runtime:**
+```tsx
+import { tokens, getTokenColor } from '@/theme/tokens';
+
+const primaryColor = tokens.colors.primary.cyan; // '#009FE3'
+const dynamicColor = getTokenColor('primary.cyan'); // '#009FE3'
+```
+
+**4. Usa useTheme Hook:**
+```tsx
+import { useTheme } from '@/providers';
+
+function MyComponent() {
+  const { isDark, setThemeMode } = useTheme();
+  
+  return (
+    <Button onPress={() => void setThemeMode('dark')}>
+      Switch a Dark
+    </Button>
+  );
+}
+```
+
+📚 **[Guida Completa Dark Mode](./docs/DARK_MODE.md)** - Setup, tokens, best practices
+
+---
 
 ## 🏗️ Architettura
 
@@ -31,7 +107,9 @@ src/
 │   └── events/
 ├── hooks/           # Custom React hooks
 ├── lib/             # Configurazioni librerie esterne
+├── providers/       # React Context providers (Theme, etc.)
 ├── services/        # API clients e servizi
+├── theme/           # 🎨 Design tokens (colors, spacing, etc.)
 ├── store/           # State management (Zustand/Context)
 ├── types/           # TypeScript type definitions
 ├── utils/           # Utility functions
@@ -133,49 +211,6 @@ Esegui l'app e naviga a `/tanstack-demo` per vedere:
 
 **Impara i pattern TanStack Query:**
 - **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Guida completa con esempi
-  - Setup e configurazione
-  - Query patterns (basic, infinite, polling, conditional)
-  - Mutation patterns (create, update, optimistic updates)
-  - Best practices e troubleshooting
-  - TypeScript integration
-
-### Quick Example
-
-```tsx
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-// Query
-function useEvents() {
-  return useQuery({
-    queryKey: ['events'],
-    queryFn: fetchEvents,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-}
-
-// Mutation with cache invalidation
-function useCreateEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-    },
-  });
-}
-
-// Usage in component
-function EventsList() {
-  const { data, isLoading, error } = useEvents();
-  const createEvent = useCreateEvent();
-
-  if (isLoading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} />;
-
-  return <View>{/* Render events */}</View>;
-}
-```
 
 ---
 
@@ -183,89 +218,10 @@ function EventsList() {
 
 Gestione form type-safe con validazione runtime usando **React Hook Form** e **Zod**.
 
-### 🎯 Perché React Hook Form + Zod?
-
-- ✅ **Type Safety** - TypeScript types auto-generati da schema Zod
-- ✅ **Performance** - Minimal re-renders
-- ✅ **Validazione Runtime** - Catch errors prima che vadano al server
-- ✅ **DX Eccellente** - Autocomplete e error messages automatici
-- ✅ **Small Bundle** - ~9KB react-hook-form + Zod
-
 ### 📚 Documentazione Completa
 
 **Impara i pattern form:**
 - **[Form Management Guide](./docs/FORMS.md)** - Guida completa React Hook Form + Zod
-  - Setup e configurazione
-  - Validazione con Zod schemas
-  - Integrazione con UI components
-  - Form patterns (create, edit, multi-step)
-  - TanStack Query integration
-  - Best practices e troubleshooting
-
-### Quick Example
-
-```tsx
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Input, Button } from '@/components/ui';
-
-// 1. Define Zod schema
-const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-// 2. Infer TypeScript type
-type LoginFormData = z.infer<typeof loginSchema>;
-
-// 3. Create form component
-function LoginForm({ onSubmit }: { onSubmit: (data: LoginFormData) => void }) {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    mode: 'onChange',
-  });
-
-  return (
-    <View className="gap-4">
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Email"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.email?.message}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.password?.message}
-            secureTextEntry
-          />
-        )}
-      />
-
-      <Button onPress={handleSubmit(onSubmit)}>Login</Button>
-    </View>
-  );
-}
-```
 
 ---
 
@@ -326,8 +282,8 @@ import { WebView } from 'react-native-webview';
 ```tsx
 import { View, Text } from 'react-native';
 
-<View className="flex-1 items-center justify-center bg-white">
-  <Text className="text-2xl font-bold text-blue-600">
+<View className="flex-1 items-center justify-center bg-white dark:bg-neutral-900">
+  <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400">
     Hello World
   </Text>
 </View>
@@ -418,6 +374,7 @@ GitHub Actions verifica automaticamente:
 
 ### Guide Complete
 
+- **[Dark Mode Guide](./docs/DARK_MODE.md)** - Token system, CSS variables, NativeWind v5
 - **[TanStack Query Guide](./docs/TANSTACK_QUERY.md)** - Queries, mutations, patterns, best practices
 - **[Form Management Guide](./docs/FORMS.md)** - React Hook Form + Zod validation completa
 - **[Examples & Patterns](./docs/EXAMPLES.md)** - Feature modules, hooks, componenti
@@ -462,6 +419,7 @@ Per domande o problemi, apri una issue su GitHub.
 
 **✨ Features Highlight:**
 - 🚀 Production-ready scaffolding
+- 🌙 **Dark Mode** - NativeWind v5 con Design Tokens
 - 🔍 **TanStack Query** - Complete demo with real APIs
 - 📝 **React Hook Form + Zod** - Type-safe form validation
 - 🎨 Automated icon generation from Figma
