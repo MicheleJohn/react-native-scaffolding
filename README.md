@@ -165,6 +165,103 @@ interface IconProps {
 - Troubleshooting
 - CI/CD integration
 
+## 🔍 TanStack Query Demo
+
+Il progetto include una **demo completa di TanStack Query v5** con esempi pratici e API reali.
+
+### 🎯 Live Demo
+
+Esegui l'app e vai alla sezione **"TanStack Query"** dalla home, oppure naviga a `/tanstack-demo`.
+
+### 📚 Cosa Imparerai
+
+La demo mostra 4 esempi diversi con API gratuite:
+
+#### 1️⃣ **Infinite Query** - Posts Pagination
+- 📋 JSONPlaceholder API
+- ♾️ Infinite scroll con `useInfiniteQuery`
+- 📄 Paginazione con `fetchNextPage`
+- 🔄 Loading states per page
+
+#### 2️⃣ **Search Query** - Countries Search
+- 🌍 REST Countries API
+- 🔎 Debounced search (500ms)
+- 💾 Cache con `staleTime` (5 minuti)
+- 🎯 Query condizionali con `enabled`
+
+#### 3️⃣ **Polling Query** - Random Dog Images
+- 🐕 Dog CEO API
+- 🔄 Auto-refresh ogni 10 secondi
+- ⏱️ `refetchInterval` per polling
+- 🖼️ Image loading optimization
+
+#### 4️⃣ **Mutations** - Create Post
+- ✏️ POST request con form
+- 🔄 Cache invalidation automatica
+- ✅ Success/Error states
+- 🎯 Optimistic updates ready
+
+### 💻 Code Examples
+
+**Basic Query:**
+```tsx
+import { useQuery } from '@tanstack/react-query';
+
+const { data, isLoading, error } = useQuery({
+  queryKey: ['posts'],
+  queryFn: fetchPosts,
+});
+```
+
+**Search with Debounce:**
+```tsx
+const { data } = useQuery({
+  queryKey: ['countries', searchTerm],
+  queryFn: () => searchCountries(searchTerm),
+  enabled: searchTerm.length > 2,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+});
+```
+
+**Mutation with Invalidation:**
+```tsx
+const mutation = useMutation({
+  mutationFn: createPost,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['posts'] });
+  },
+});
+```
+
+**Infinite Scroll:**
+```tsx
+const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  queryKey: ['posts'],
+  queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam),
+  getNextPageParam: (lastPage) => lastPage.nextPage,
+});
+```
+
+### ✨ Features Dimostrate
+
+- ✅ **Loading States** - Per ogni query e mutation
+- ✅ **Error Handling** - Try/catch con error boundaries
+- ✅ **Caching** - Configurazione `staleTime` e cache
+- ✅ **Refetching** - Pull-to-refresh support
+- ✅ **Polling** - Auto-refresh periodico
+- ✅ **Pagination** - Infinite scroll pattern
+- ✅ **Search** - Debounced queries
+- ✅ **Mutations** - POST con invalidation
+- ✅ **TypeScript** - Full type safety
+
+### 🌐 API Usate
+
+- **[JSONPlaceholder](https://jsonplaceholder.typicode.com/)** - Fake REST API per testing
+- **[REST Countries](https://restcountries.com/)** - Dati geografici completi
+- **[Dog CEO](https://dog.ceo/dog-api/)** - Random dog images
+
+Tutte le API sono **GRATUITE** e non richiedono autenticazione! 🎉
+
 ## 🔧 Configurazione
 
 ### Environment Variables
@@ -357,6 +454,7 @@ Per domande o problemi, apri una issue su GitHub.
 
 **✨ Features Highlight:**
 - 🚀 Production-ready scaffolding
+- 🔍 **TanStack Query live demo** with real APIs
 - 🎨 Automated icon generation from Figma
 - 📱 Cross-platform (iOS, Android, Web)
 - 🔒 Security best practices
