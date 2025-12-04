@@ -177,7 +177,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Prebuild iOS once (generate native project)
+      - name: Prebuild iOS (generate native project)
         run: |
           echo "🔧 Generating native iOS project with Expo..."
           echo "📦 This will:"
@@ -185,10 +185,46 @@ jobs:
           echo "   - Configure autolinking"
           echo "   - Apply config plugins"
           echo "   - Setup SPM/CocoaPods dependencies"
+          echo "   - ⚠️  IMPORTANT: This DELETES ios/ folder first (--clean)"
           echo ""
           pnpm dlx expo prebuild --platform ios --clean
           echo ""
           echo "✅ Native iOS project generated!"
+
+      - name: Create ExportOptions.plist (after prebuild)
+        if: inputs.build_type == 'release'
+        run: |
+          echo "📝 Creating ExportOptions.plist for IPA export..."
+          echo "ℹ️  This must be created AFTER prebuild because --clean removes ios/ folder"
+          echo ""
+          cat > ios/ExportOptions.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+          	<!-- Distribution method: ad-hoc for testing without App Store -->
+          	<key>method</key>
+          	<string>ad-hoc</string>
+          	
+          	<!-- Compile bitcode for App Store optimization -->
+          	<key>compileBitcode</key>
+          	<true/>
+          	
+          	<!-- Upload symbols for crash reporting (Sentry) -->
+          	<key>uploadSymbols</key>
+          	<true/>
+          	
+          	<!-- Thinning: create separate IPAs per device (none = universal IPA) -->
+          	<key>thinning</key>
+          	<string>&lt;none&gt;</string>
+          	
+          	<!-- Strip Swift symbols to reduce IPA size -->
+          	<key>stripSwiftSymbols</key>
+          	<true/>
+          </dict>
+          </plist>
+          EOF
+          echo "✅ ExportOptions.plist created!"
 
       - name: Build iOS (Debug) with expo run:ios approach
         if: inputs.build_type == 'debug'
@@ -196,11 +232,11 @@ jobs:
           echo "🏗️ Building iOS Debug..."
           echo "📱 Using Expo's native build approach (no deprecated pod install)"
           echo ""
-
+          
           cd ios
-
+          
           # Detect project structure
-          if [ -f "*.xcworkspace" ]; then
+          if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
@@ -231,7 +267,7 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
           echo "✅ iOS Debug build completed!"
 
@@ -241,11 +277,11 @@ jobs:
           echo "🏗️ Building iOS Release..."
           echo "📦 Creating archive for distribution..."
           echo ""
-
+          
           cd ios
-
+          
           # Detect project structure
-          if [ -f "*.xcworkspace" ]; then
+          if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             echo "✅ Found workspace: $WORKSPACE"
@@ -272,7 +308,7 @@ jobs:
               archive \
               COMPILER_INDEX_STORE_ENABLE=NO
           fi
-
+          
           echo ""
           echo "✅ iOS archive created!"
         env:
@@ -283,21 +319,21 @@ jobs:
         run: |
           cd ios
           echo "📦 Exporting IPA from archive..."
-
+          
           # Detect scheme name
-          if [ -f "*.xcworkspace" ]; then
+          if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
           else
             PROJECT=$(ls -1 *.xcodeproj | head -n 1)
             SCHEME=$(basename "$PROJECT" .xcodeproj)
           fi
-
+          
           xcodebuild -exportArchive \
             -archivePath build/$SCHEME.xcarchive \
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
-
+          
           echo "✅ IPA exported successfully!"
 
       - name: Upload IPA
@@ -319,9 +355,9 @@ jobs:
       - name: Build info
         run: |
           cd ios
-
+          
           # Detect project type
-          if [ -f "*.xcworkspace" ]; then
+          if ls *.xcworkspace 1> /dev/null 2>&1; then
             WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
             SCHEME=$(basename "$WORKSPACE" .xcworkspace)
             PROJECT_TYPE="Workspace (managed by Expo)"
@@ -330,7 +366,7 @@ jobs:
             SCHEME=$(basename "$PROJECT" .xcodeproj)
             PROJECT_TYPE="Project (pure SPM)"
           fi
-
+          
           echo "✅ OK - iOS build completed"
           echo "📱 PLATFORM - iOS"
           echo "🔧 BUILD TYPE - ${{ inputs.build_type }}"
@@ -342,6 +378,7 @@ jobs:
           echo ""
           echo "📚 Modern workflow:"
           echo "   1. expo prebuild generates native project once"
-          echo "   2. Expo manages dependencies (no direct pod install)"
-          echo "   3. xcodebuild compiles natively"
-          echo "   4. No EAS subscription needed!"
+          echo "   2. ExportOptions.plist created dynamically after prebuild"
+          echo "   3. Expo manages dependencies (no direct pod install)"
+          echo "   4. xcodebuild compiles natively"
+          echo "   5. No EAS subscription needed!"
