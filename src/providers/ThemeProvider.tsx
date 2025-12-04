@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
 
-import { useColorScheme, VariableContextProvider } from 'nativewind';
+import { VariableContextProvider } from 'nativewind';
 
 import { secureStorage } from '@/lib/secure-storage';
 import { darkTheme, lightTheme } from '@/theme/themes';
@@ -34,9 +34,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // React Native's system color scheme
   const systemColorScheme = useRNColorScheme() ?? 'light';
 
-  // NativeWind's color scheme hook (applies .dark class to root)
-  const { setColorScheme: setNativeWindColorScheme } = useColorScheme();
-
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [isReady, setIsReady] = useState(false);
 
@@ -48,11 +45,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Select theme object based on color scheme
   const theme = isDark ? darkTheme : lightTheme;
-
-  // Sync NativeWind's color scheme (applies .dark class to root element)
-  useEffect(() => {
-    setNativeWindColorScheme(colorScheme);
-  }, [colorScheme, setNativeWindColorScheme]);
 
   // Load saved theme preference on mount
   useEffect(() => {

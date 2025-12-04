@@ -35,6 +35,6 @@ baseConfig.resolver = {
 };
 
 // Apply NativeWind last
-const finalConfig = withNativewind(baseConfig, { input: './global.css' });
+const finalConfig = withNativewind(baseConfig);
 
 module.exports = finalConfig;

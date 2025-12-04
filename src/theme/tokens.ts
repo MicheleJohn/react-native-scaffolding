@@ -68,12 +68,14 @@ export type Tokens = typeof tokens;
  */
 export const getTokenColor = (path: string): string => {
   const keys = path.split('.');
-  let value: any = tokens.colors;
+  let value: Record<string, unknown> = tokens.colors;
 
   for (const key of keys) {
+    // @ts-expect-error adeguate with reduce
     value = value[key];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!value) return '#000000'; // fallback
   }
 
-  return value as string;
+  return value as unknown as string;
 };

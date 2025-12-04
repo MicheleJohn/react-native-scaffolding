@@ -71,7 +71,8 @@ export default function HomePage() {
                 🎨 NativeWind (Tailwind)
               </Text>
               <Text className="text-secondary-text">
-                Utility-first styling with Tailwind CSS classes and auto-adapting themes
+                Utility-first styling with Tailwind CSS classes and
+                auto-adapting themes
               </Text>
             </Card>
 

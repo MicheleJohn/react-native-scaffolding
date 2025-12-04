@@ -21,7 +21,7 @@ export function ThemeToggle() {
           <Pressable
             key={option.value}
             onPress={() => {
-              setThemeMode(option.value);
+              void setThemeMode(option.value);
             }}
             className={`
               flex-1 items-center justify-center py-3 px-4 rounded-md
@@ -49,7 +49,7 @@ export function ThemeToggleIcon() {
   const { themeMode, setThemeMode, isDark } = useTheme();
 
   const handleToggle = () => {
-    setThemeMode(isDark ? 'light' : 'dark');
+    void setThemeMode(isDark ? 'light' : 'dark');
   };
 
   return (

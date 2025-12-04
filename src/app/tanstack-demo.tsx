@@ -174,7 +174,9 @@ export default function TanStackDemoPage() {
                     <Text className="text-base font-semibold text-primary-text mb-1">
                       {post.title}
                     </Text>
-                    <Text className="text-sm text-secondary-text" numberOfLines={2}>
+                    <Text
+                      className="text-sm text-secondary-text"
+                      numberOfLines={2}>
                       {post.body}
                     </Text>
                   </Card>
@@ -213,7 +215,9 @@ export default function TanStackDemoPage() {
             />
 
             {countriesLoading && debouncedSearch && (
-              <Text className="text-center text-secondary-text py-4">Searching...</Text>
+              <Text className="text-center text-secondary-text py-4">
+                Searching...
+              </Text>
             )}
 
             {countriesError && (
@@ -272,7 +276,9 @@ export default function TanStackDemoPage() {
             </Text>
 
             {dogLoading && (
-              <Text className="text-center text-secondary-text py-4">Loading dog...</Text>
+              <Text className="text-center text-secondary-text py-4">
+                Loading dog...
+              </Text>
             )}
 
             {dogError && (
@@ -307,7 +313,8 @@ export default function TanStackDemoPage() {
               4️⃣ Mutation - Create Post (React Hook Form + Zod)
             </Text>
             <Text className="text-sm text-secondary-text mb-4">
-              POST request with validation, cache invalidation and optimistic updates
+              POST request with validation, cache invalidation and optimistic
+              updates
             </Text>
 
             <Controller
@@ -377,40 +384,40 @@ export default function TanStackDemoPage() {
             </Text>
             <View className="gap-2">
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Infinite Queries</Text> - Pagination
-                with fetchNextPage
+                • <Text className="font-semibold">Infinite Queries</Text> -
+                Pagination with fetchNextPage
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Search Queries</Text> - Debounced search
-                with cache
+                • <Text className="font-semibold">Search Queries</Text> -
+                Debounced search with cache
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Polling</Text> - Auto-refresh every 10
-                seconds
+                • <Text className="font-semibold">Polling</Text> - Auto-refresh
+                every 10 seconds
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Mutations</Text> - POST requests with
-                invalidation
+                • <Text className="font-semibold">Mutations</Text> - POST
+                requests with invalidation
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Form Validation</Text> - React Hook Form
-                with Zod
+                • <Text className="font-semibold">Form Validation</Text> - React
+                Hook Form with Zod
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Loading States</Text> - Per query and
-                mutation
+                • <Text className="font-semibold">Loading States</Text> - Per
+                query and mutation
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Error Handling</Text> - Try/catch with
-                error states
+                • <Text className="font-semibold">Error Handling</Text> -
+                Try/catch with error states
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Refetching</Text> - Pull-to-refresh
-                support
+                • <Text className="font-semibold">Refetching</Text> -
+                Pull-to-refresh support
               </Text>
               <Text className="text-sm text-primary-text">
-                • <Text className="font-semibold">Caching</Text> - 5min stale time for
-                countries
+                • <Text className="font-semibold">Caching</Text> - 5min stale
+                time for countries
               </Text>
             </View>
           </Card>

@@ -89,7 +89,10 @@ export default function DesignSystemPage() {
           {/* Header */}
           <View className="mb-6">
             <Link href="/" asChild>
-              <Button variant="text" size="sm" className="self-start -ml-2 mb-4">
+              <Button
+                variant="text"
+                size="sm"
+                className="self-start -ml-2 mb-4">
                 ← Back
               </Button>
             </Link>
@@ -103,7 +106,9 @@ export default function DesignSystemPage() {
 
           {/* Colors Section */}
           <View className="mb-8">
-            <Text className="text-2xl font-bold text-primary-text mb-4">Colors</Text>
+            <Text className="text-2xl font-bold text-primary-text mb-4">
+              Colors
+            </Text>
 
             {/* Primary Colors */}
             <Card variant="elevated" className="mb-4">
@@ -125,11 +130,26 @@ export default function DesignSystemPage() {
               </Text>
               <View className="flex-row flex-wrap gap-4">
                 <ColorSwatch color={tokens.colors.neutral.white} name="White" />
-                <ColorSwatch color={tokens.colors.neutral['50']} name="Gray 50" />
-                <ColorSwatch color={tokens.colors.neutral['400']} name="Gray 400" />
-                <ColorSwatch color={tokens.colors.neutral['700']} name="Gray 700" />
-                <ColorSwatch color={tokens.colors.neutral['800']} name="Gray 800" />
-                <ColorSwatch color={tokens.colors.neutral['900']} name="Gray 900" />
+                <ColorSwatch
+                  color={tokens.colors.neutral['50']}
+                  name="Gray 50"
+                />
+                <ColorSwatch
+                  color={tokens.colors.neutral['400']}
+                  name="Gray 400"
+                />
+                <ColorSwatch
+                  color={tokens.colors.neutral['700']}
+                  name="Gray 700"
+                />
+                <ColorSwatch
+                  color={tokens.colors.neutral['800']}
+                  name="Gray 800"
+                />
+                <ColorSwatch
+                  color={tokens.colors.neutral['900']}
+                  name="Gray 900"
+                />
               </View>
             </Card>
 
@@ -139,10 +159,22 @@ export default function DesignSystemPage() {
                 Secondary
               </Text>
               <View className="flex-row flex-wrap gap-4">
-                <ColorSwatch color={tokens.colors.secondary.lightBlue} name="Light Blue" />
-                <ColorSwatch color={tokens.colors.secondary.green} name="Green" />
-                <ColorSwatch color={tokens.colors.secondary.yellow} name="Yellow" />
-                <ColorSwatch color={tokens.colors.secondary.darkNavy} name="Dark Navy" />
+                <ColorSwatch
+                  color={tokens.colors.secondary.lightBlue}
+                  name="Light Blue"
+                />
+                <ColorSwatch
+                  color={tokens.colors.secondary.green}
+                  name="Green"
+                />
+                <ColorSwatch
+                  color={tokens.colors.secondary.yellow}
+                  name="Yellow"
+                />
+                <ColorSwatch
+                  color={tokens.colors.secondary.darkNavy}
+                  name="Dark Navy"
+                />
               </View>
             </Card>
           </View>
