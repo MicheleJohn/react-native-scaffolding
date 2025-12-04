@@ -84,16 +84,17 @@ jobs:
       - name: Prebuild Android (Expo)
         run: pnpm run prebuild:android
 
-      - name: Configure Sentry for release build
+      - name: Configure Sentry for Android release build
         if: inputs.build_type == 'release'
         run: |
+          echo "📝 Creating sentry.properties for Android..."
           cat > android/sentry.properties << EOF
           defaults.url=https://sentry.io/
           defaults.org=${{ secrets.SENTRY_ORG }}
           defaults.project=${{ secrets.SENTRY_PROJECT }}
           auth.token=${{ secrets.SENTRY_AUTH_TOKEN }}
           EOF
-          echo "✅ Sentry configured for sourcemap upload"
+          echo "✅ Sentry configured for Android sourcemap upload"
 
       - name: Make Gradle wrapper executable
         run: |
@@ -245,6 +246,20 @@ jobs:
           pnpm dlx expo prebuild --platform ios --clean
           echo ""
           echo "✅ Native iOS project generated!"
+
+      - name: Configure Sentry for iOS release build
+        if: inputs.build_type == 'release'
+        run: |
+          echo "📝 Creating sentry.properties for iOS..."
+          echo "ℹ️  This must be created AFTER prebuild because --clean removes ios/ folder"
+          echo ""
+          cat > ios/sentry.properties << EOF
+          defaults.url=https://sentry.io/
+          defaults.org=${{ secrets.SENTRY_ORG }}
+          defaults.project=${{ secrets.SENTRY_PROJECT }}
+          auth.token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          EOF
+          echo "✅ Sentry configured for iOS sourcemap upload"
 
       - name: Create ExportOptions.plist (signed build)
         if: inputs.build_type == 'release' && inputs.ios_signing == 'signed'
@@ -500,10 +515,11 @@ jobs:
           echo ""
           echo "📚 Modern workflow:"
           echo "   1. expo prebuild generates native project"
-          echo "   2. Expo manages dependencies (SPM/CocoaPods)"
-          echo "   3. xcodebuild compiles natively"
-          echo "   4. Choose signed/unsigned based on your needs"
-          echo "   5. No EAS subscription needed!"
+          echo "   2. Dynamic files created after prebuild (sentry.properties, ExportOptions.plist)"
+          echo "   3. Expo manages dependencies (SPM/CocoaPods)"
+          echo "   4. xcodebuild compiles natively"
+          echo "   5. Choose signed/unsigned based on your needs"
+          echo "   6. No EAS subscription needed!"
 
       - name: Cleanup keychain
         if: always() && inputs.build_type == 'release' && inputs.ios_signing == 'signed'
