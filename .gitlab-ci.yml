@@ -36,13 +36,27 @@ stages:
     - .pnpm-store
   policy: pull
 
-# Cache configuration for Gradle (ADVANCED)
-.cache_gradle: &cache_gradle
-  key: gradle-v2-$CI_COMMIT_REF_SLUG
+# Cache configuration for Gradle packages (FIXED - use file hash!)
+.cache_gradle_packages: &cache_gradle_packages
+  key:
+    files:
+      - android/build.gradle
+      - android/app/build.gradle
+      - android/gradle/wrapper/gradle-wrapper.properties
   paths:
     - .gradle/wrapper
     - .gradle/caches
     - .gradle/native
+  policy: pull
+
+# Cache configuration for Gradle build outputs (FIXED - use file hash!)
+.cache_gradle_build: &cache_gradle_build
+  key:
+    files:
+      - android/build.gradle
+      - android/app/build.gradle
+      - android/gradle/wrapper/gradle-wrapper.properties
+  paths:
     - android/.gradle
     - android/app/build
     - android/build
@@ -181,7 +195,9 @@ build:android:debug:
   
   cache:
     - <<: *cache_pnpm
-    - <<: *cache_gradle
+    - <<: *cache_gradle_packages
+      policy: pull-push
+    - <<: *cache_gradle_build
       policy: pull-push
   
   variables:
@@ -265,7 +281,9 @@ build:android:release:
   
   cache:
     - <<: *cache_pnpm
-    - <<: *cache_gradle
+    - <<: *cache_gradle_packages
+      policy: pull-push
+    - <<: *cache_gradle_build
       policy: pull-push
   
   variables:
