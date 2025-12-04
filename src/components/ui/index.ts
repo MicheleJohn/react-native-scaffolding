@@ -1,6 +1,9 @@
 // Core components
 export { Button, type ButtonProps } from './Button';
 export { Card, type CardProps } from './Card';
+export { EventCard, type EventCardProps } from './EventCard';
+export { ExperienceCard, type ExperienceCardProps } from './ExperienceCard';
+export { HeritageCard, type HeritageCardProps } from './HeritageCard';
 export { Chip, type ChipProps } from './Chip';
 export { Input, type InputProps } from './Input';
 
