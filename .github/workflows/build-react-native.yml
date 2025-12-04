@@ -184,24 +184,41 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Detect iOS workspace and scheme
+        id: ios-info
+        run: |
+          cd ios
+          # Find workspace file
+          WORKSPACE=$(ls -1 *.xcworkspace | head -n 1)
+          # Extract scheme name (same as workspace name without extension)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          
+          echo "WORKSPACE=$WORKSPACE" >> $GITHUB_OUTPUT
+          echo "SCHEME=$SCHEME" >> $GITHUB_OUTPUT
+          
+          echo "✅ Detected iOS project:"
+          echo "   Workspace: $WORKSPACE"
+          echo "   Scheme: $SCHEME"
+
       - name: Build iOS (Debug)
         if: inputs.build_type == 'debug'
         run: |
           cd ios
-          xcodebuild -workspace YourApp.xcworkspace \
-            -scheme YourApp \
+          xcodebuild -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
+            -scheme ${{ steps.ios-info.outputs.SCHEME }} \
             -configuration Debug \
             -sdk iphonesimulator \
-            -derivedDataPath build
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Build iOS (Release)
         if: inputs.build_type == 'release'
         run: |
           cd ios
-          xcodebuild -workspace YourApp.xcworkspace \
-            -scheme YourApp \
+          xcodebuild -workspace ${{ steps.ios-info.outputs.WORKSPACE }} \
+            -scheme ${{ steps.ios-info.outputs.SCHEME }} \
             -configuration Release \
-            -archivePath build/YourApp.xcarchive \
+            -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
             archive
         env:
           EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
@@ -214,7 +231,7 @@ jobs:
         run: |
           cd ios
           xcodebuild -exportArchive \
-            -archivePath build/YourApp.xcarchive \
+            -archivePath build/${{ steps.ios-info.outputs.SCHEME }}.xcarchive \
             -exportPath build \
             -exportOptionsPlist ExportOptions.plist
 
@@ -226,10 +243,20 @@ jobs:
           path: ios/build/*.ipa
           retention-days: 30
 
+      - name: Upload Debug Build
+        if: inputs.build_type == 'debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ inputs.build_type }}
+          path: ios/build/Build/Products/Debug-iphonesimulator/*.app
+          retention-days: 30
+
       - name: Build info
         run: |
           echo "OK - iOS build completed"
           echo "PLATFORM - iOS"
           echo "BUILD TYPE - ${{ inputs.build_type }}"
+          echo "WORKSPACE - ${{ steps.ios-info.outputs.WORKSPACE }}"
+          echo "SCHEME - ${{ steps.ios-info.outputs.SCHEME }}"
           echo "COST - FREE (GitHub Actions minutes)"
-          echo "INFO - Download IPA from Actions artifacts"
+          echo "INFO - Download from Actions artifacts"
