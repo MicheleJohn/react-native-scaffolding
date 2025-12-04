@@ -95,6 +95,13 @@ export default function HomePage() {
               <Text className="text-secondary">
                 Error tracking and performance monitoring
               </Text>
+              <Button
+                variant="text"
+                onPress={() => {
+                  throw new Error('Sentry test error');
+                }}>
+                Send a sentry test error
+              </Button>
             </Card>
           </View>
 
