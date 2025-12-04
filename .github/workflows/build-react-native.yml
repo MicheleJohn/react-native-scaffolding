@@ -421,6 +421,70 @@ jobs:
           EOF
           echo "✅ ExportOptions.plist created for App Store distribution!"
 
+      # 🚨 NEW: Debug iOS project structure before build
+      - name: Debug iOS project structure
+        run: |
+          echo "🔍 =============================================="
+          echo "🔍 DEBUGGING iOS PROJECT STRUCTURE"
+          echo "🔍 =============================================="
+          echo ""
+          
+          echo "📁 Contents of ios/ folder:"
+          ls -la ios/
+          echo ""
+          
+          echo "🔍 Looking for .xcworkspace files:"
+          find ios -maxdepth 1 -name "*.xcworkspace" -type d || echo "❌ No .xcworkspace found"
+          echo ""
+          
+          echo "🔍 Looking for .xcodeproj files:"
+          find ios -maxdepth 1 -name "*.xcodeproj" -type d || echo "❌ No .xcodeproj found"
+          echo ""
+          
+          echo "📄 Contents of app.json:"
+          cat app.json | grep -A5 '"name"' || echo "⚠️  Could not read app.json"
+          echo ""
+          
+          echo "📄 Checking Podfile:"
+          if [ -f ios/Podfile ]; then
+            echo "✅ Podfile exists"
+            head -20 ios/Podfile
+          else
+            echo "❌ Podfile NOT found"
+          fi
+          echo ""
+          
+          echo "🔍 Detecting project configuration..."
+          cd ios
+          
+          if [ -d *.xcworkspace ]; then
+            WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+            echo "✅ Found WORKSPACE: $WORKSPACE"
+            echo "✅ Detected SCHEME: $SCHEME"
+            
+            echo ""
+            echo "📋 Available schemes in workspace:"
+            xcodebuild -workspace "$WORKSPACE" -list || echo "⚠️  Could not list schemes"
+          elif [ -d *.xcodeproj ]; then
+            PROJECT=$(find . -maxdepth 1 -name "*.xcodeproj" -type d | head -n 1 | sed 's|./||')
+            SCHEME=$(basename "$PROJECT" .xcodeproj)
+            echo "✅ Found PROJECT: $PROJECT"
+            echo "✅ Detected SCHEME: $SCHEME"
+            
+            echo ""
+            echo "📋 Available schemes in project:"
+            xcodebuild -project "$PROJECT" -list || echo "⚠️  Could not list schemes"
+          else
+            echo "❌ ERROR: No .xcworkspace or .xcodeproj found!"
+            exit 1
+          fi
+          
+          echo ""
+          echo "🔍 =============================================="
+          echo "🔍 END DEBUGGING"
+          echo "🔍 =============================================="
+
       - name: Build iOS (Debug)
         if: inputs.build_type == 'debug'
         run: |
